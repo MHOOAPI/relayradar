@@ -120,6 +120,14 @@ var seedModels = []Model{
 	{ID: "pika-3", Vendor: "pika", VendorName: "Pika", Name: "Pika 3", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-07-22"), Category: "video", Summary: "短视频特效与模板化生成，价格低。"},
 	{ID: "hailuo-03", Vendor: "minimax", VendorName: "MiniMax", Name: "Hailuo 03", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-10-10"), Category: "video", Summary: "国产短视频模型，人物一致性较好，约 ¥0.8/s。"},
 	{ID: "wan-3", Vendor: "qwen", VendorName: "阿里通义", Name: "Wan 3.0", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-08"), Category: "video", Summary: "开源视频模型，可自建推理，支持图生视频。"},
+	{ID: "gemini-4-1-carbon", Vendor: "google", VendorName: "Google", Name: "Gemini 4.1 Carbon", Service: "gemini", ContextWindow: 1000000, InputUSD: 2, OutputUSD: 10, ReleasedAt: date("2026-11-19"), CodingScore: 93.8, ReasoningScore: 95.9, Summary: "Gemini 4 系最新迭代，代理与多模态推理再提升。"},
+	{ID: "deepseek-v4-2", Vendor: "deepseek", VendorName: "DeepSeek", Name: "DeepSeek V4.2", Service: "deepseek", ContextWindow: 1000000, InputUSD: 0.35, OutputUSD: 1.4, ReleasedAt: date("2026-11-18"), CodingScore: 89.6, ReasoningScore: 90.4, FreeTier: true, FreeNote: "新账号赠送 500 万 tokens", Summary: "最新开源权重版本，吞吐与中文能力提升。"},
+	{ID: "gpt-image-3-5", Vendor: "openai", VendorName: "OpenAI", Name: "GPT Image 3.5", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-19"), Category: "image", Summary: "最新图像迭代，长文本渲染更稳，约 $0.05/张。"},
+	{ID: "midjourney-v8-1", Vendor: "midjourney", VendorName: "Midjourney", Name: "Midjourney V8.1", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-15"), Category: "image", Summary: "V8 小版本更新，人物一致性与排版改善。"},
+	{ID: "seedream-5-5", Vendor: "bytedance", VendorName: "字节跳动", Name: "Seedream 5.5", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-18"), Category: "image", Summary: "最新中文海报模型，电商场景优化，约 ¥0.25/张。"},
+	{ID: "sora-3-5", Vendor: "openai", VendorName: "OpenAI", Name: "Sora 3.5", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-19"), Category: "video", Summary: "最新视频模型，镜头连续性与音画同步提升，约 $0.35/s。"},
+	{ID: "veo-4-5", Vendor: "google", VendorName: "Google", Name: "Veo 4.5", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-16"), Category: "video", Summary: "4K 与长镜头增强，约 $0.40/s。"},
+	{ID: "kling-3-5", Vendor: "kuaishou", VendorName: "快手", Name: "Kling 3.5", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-14"), Category: "video", Summary: "动作与口型同步升级，约 ¥1.8/s。"},
 }
 
 func date(s string) time.Time {
