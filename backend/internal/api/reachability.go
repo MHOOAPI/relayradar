@@ -219,8 +219,13 @@ func (s *Server) StartFaviconWarm(ctx context.Context) {
 		if err != nil || len(d.Stations) == 0 {
 			return
 		}
-		domains := make([]string, 0, len(d.Stations))
+		// Warm only the stations readers see first; the rest resolve lazily.
+		const warmLimit = 150
+		domains := make([]string, 0, warmLimit)
 		for _, st := range d.Stations {
+			if len(domains) >= warmLimit {
+				break
+			}
 			domains = append(domains, st.Domain)
 		}
 		s.favicons.Warm(domains)

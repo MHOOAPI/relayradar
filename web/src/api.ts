@@ -69,7 +69,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   meta: () => request<Meta>('/meta'),
-  stations: () => request<{ items: Station[]; total: number }>('/stations'),
+  stations: (limit = 200) =>
+    request<{ items: Station[]; total: number }>(`/stations?limit=${limit}`),
   station: (slug: string) => request<StationDetail>(`/stations/${encodeURIComponent(slug)}`),
   stationReachability: (slug: string) => request<StationReachabilityHistory>(`/stations/${encodeURIComponent(slug)}/reachability`),
   models: () => request<{ items: ModelSummary[]; total: number }>('/models'),

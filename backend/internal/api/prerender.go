@@ -620,6 +620,14 @@ func (s *Server) bodyStation(d *app.Dataset, slug string) template.HTML {
 	fmt.Fprintf(&b, `<article><h1>%s</h1><p>%s</p>`, escHTML(st.Name), escHTML(st.Tagline))
 	fmt.Fprintf(&b, `<p>综合分 %.1f（第 %d 名）· 原始可用率 %.1f%% · 速度分 %.1f · 稳定性分 %.1f · 纯度 %s</p>`,
 		st.RankScore, st.Rank, st.UptimePct, st.Speed, st.Consistency, tierLabel(st.PurityTier))
+	models := d.PerStationModels[slug]
+	groups := d.GroupsByStation[slug]
+	pay := "支付方式未公开"
+	if len(st.Payments) > 0 {
+		pay = "支持 " + strings.Join(st.Payments, "、")
+	}
+	fmt.Fprintf(&b, `<p>%s 目前在 RelayRadar 收录了 %d 个模型与 %d 个分组，最低充值 ¥%.0f，%s；退款政策：%s。</p>`,
+		escHTML(st.Name), len(models), len(groups), st.MinTopup, escHTML(pay), escHTML(st.RefundPolicy))
 
 	if hist := d.History[slug]; len(hist) > 0 {
 		b.WriteString(`<h2>近 7 天综合分</h2>`)
@@ -670,8 +678,91 @@ func (s *Server) bodyStation(d *app.Dataset, slug string) template.HTML {
 	b.WriteString(string(tableHTML([]string{"模型", "厂商", "输入/1M", "输出/1M", "最低价分组"}, rows)))
 	fmt.Fprintf(&b, `<p>最低充值 ¥%.0f · 支付方式 %s · 退款政策 %s</p>`,
 		st.MinTopup, escHTML(strings.Join(st.Payments, "、")), escHTML(st.RefundPolicy))
+
+	// Rank neighbours double as "similar stations" for readers and crawlers.
+	if idx := stationIndex(d, st.Slug); idx >= 0 {
+		alts := make([]string, 0, 4)
+		for offset := -2; offset <= 2; offset++ {
+			if offset == 0 {
+				continue
+			}
+			j := idx + offset
+			if j < 0 || j >= len(d.Stations) {
+				continue
+			}
+			other := d.Stations[j]
+			alts = append(alts, fmt.Sprintf(`<li><a href="/stations/%s">%s</a>（第 %d 名 · 综合分 %.1f）</li>`,
+				escHTML(other.Slug), escHTML(other.Name), other.Rank, other.RankScore))
+			if len(alts) >= 4 {
+				break
+			}
+		}
+		if len(alts) > 0 {
+			b.WriteString(`<h2>排名相邻的站点</h2><ul>` + strings.Join(alts, "") + `</ul>`)
+		}
+	}
+
+	b.WriteString(`<h2>常见问题</h2>`)
+	for _, q := range stationFAQ(st, models, len(groups)) {
+		fmt.Fprintf(&b, `<h3>%s</h3><p>%s</p>`, escHTML(q.Q), escHTML(q.A))
+	}
+
 	b.WriteString(`<p><a href="/stations/` + escHTML(st.Slug) + `">查看交互版档案</a> · <a href="/md/station/` + escHTML(st.Slug) + `">Markdown 版本</a> · <a href="/audit">检测该站接口</a></p></article>`)
 	return template.HTML(b.String())
+}
+
+func stationIndex(d *app.Dataset, slug string) int {
+	for i, other := range d.Stations {
+		if other.Slug == slug {
+			return i
+		}
+	}
+	return -1
+}
+
+// stationFAQ is shared by the prerendered page and the FAQPage JSON-LD.
+func stationFAQ(st *app.StationView, models []app.StationModel, groups int) []faqEntry {
+	top := make([]string, 0, 3)
+	for _, m := range models {
+		if len(top) >= 3 {
+			break
+		}
+		top = append(top, m.Model.Name)
+	}
+	examples := "暂无"
+	if len(top) > 0 {
+		examples = strings.Join(top, "、")
+	}
+	pay := "支付方式未公开"
+	if len(st.Payments) > 0 {
+		pay = strings.Join(st.Payments, "、")
+	}
+	invoice := "不支持开票"
+	if st.Invoice {
+		invoice = "支持开票"
+	}
+	return []faqEntry{
+		{
+			Q: fmt.Sprintf("%s 的综合分是怎么算的？", st.Name),
+			A: fmt.Sprintf("综合分 %.1f = 0.62 × 可用性 + 0.26 × 速度 + 0.12 × 稳定性。可用性取 Wilson 95%% 置信下界，速度由延迟中位数映射，稳定性衡量 p95/p50 抖动；纯度与价格单独展示，不参与排名。", st.RankScore),
+		},
+		{
+			Q: fmt.Sprintf("%s 支持哪些模型？", st.Name),
+			A: fmt.Sprintf("目前收录 %d 个模型、%d 个分组，例如 %s。完整清单与本站人民币实价见「支持模型与本站实价」表格。", len(models), groups, examples),
+		},
+		{
+			Q: fmt.Sprintf("%s 最低充值和支付方式？", st.Name),
+			A: fmt.Sprintf("最低充值 ¥%.0f，支持 %s，%s；退款政策：%s。以上来自站点公开页面与站长提交，付款前请以站点当前条款为准。", st.MinTopup, pay, invoice, st.RefundPolicy),
+		},
+		{
+			Q: fmt.Sprintf("%s 会不会掺假或降智？", st.Name),
+			A: fmt.Sprintf("当前纯度抽检为「%s」。抽检只核验思考签名与行为指纹，不能替代对具体 Key 的验证；建议用接口检测发两次相同请求，核对模型回显、usage、分词一致性、缓存透传与首字延迟。", tierLabel(st.PurityTier)),
+		},
+		{
+			Q: fmt.Sprintf("%s 的排名为什么变化？", st.Name),
+			A: "探针持续上报可用性、延迟与稳定性，变更雷达会记录价格调整、可用率骤降、纯度异常与新站上架；榜单按最近窗口滚动重算，因此排名会随实测变化。",
+		},
+	}
 }
 
 func licenseLabel(slug string) string {
@@ -1161,12 +1252,53 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 	case strings.HasPrefix(path, "/stations/"):
 		slug := strings.TrimPrefix(path, "/stations/")
 		if st, ok := d.BySlug[slug]; ok {
+			addCrumb("站点目录", base+"/stations")
 			addCrumb(st.Name, base+"/stations/"+st.Slug)
 			out = append(out, map[string]any{
 				"@context": "https://schema.org", "@type": "WebPage",
 				"name": st.Name, "url": base + "/stations/" + st.Slug,
 				"description": st.Tagline, "isPartOf": map[string]any{"@type": "WebSite", "url": base + "/"},
 			})
+			out = append(out, map[string]any{
+				"@context":    "https://schema.org",
+				"@type":       "Service",
+				"name":        st.Name + " API 中转服务",
+				"serviceType": "AI API 中转",
+				"url":         "https://" + st.Domain,
+				"description": st.Tagline,
+				"provider": map[string]any{
+					"@type": "Organization", "name": st.Name, "url": "https://" + st.Domain,
+				},
+				"areaServed": map[string]any{"@type": "Country", "name": "CN"},
+				"offers": map[string]any{
+					"@type": "Offer", "priceCurrency": "CNY", "price": st.MinTopup,
+					"description": fmt.Sprintf("最低充值 ¥%.0f，%s", st.MinTopup, strings.Join(st.Payments, "、")),
+				},
+			})
+			modelItems := make([]any, 0, 6)
+			for _, m := range d.PerStationModels[st.Slug] {
+				if len(modelItems) >= 6 {
+					break
+				}
+				modelItems = append(modelItems, map[string]any{
+					"@type": "ListItem", "position": len(modelItems) + 1,
+					"name": m.Model.Name, "url": base + "/models/" + m.Model.ID,
+				})
+			}
+			if len(modelItems) > 0 {
+				out = append(out, map[string]any{
+					"@context": "https://schema.org", "@type": "ItemList", "name": st.Name + " 支持的模型",
+					"itemListElement": modelItems,
+				})
+			}
+			faq := make([]any, 0, 5)
+			for _, q := range stationFAQ(st, d.PerStationModels[st.Slug], len(d.GroupsByStation[st.Slug])) {
+				faq = append(faq, map[string]any{
+					"@type": "Question", "name": q.Q,
+					"acceptedAnswer": map[string]any{"@type": "Answer", "text": q.A},
+				})
+			}
+			out = append(out, map[string]any{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq})
 		}
 	case strings.HasPrefix(path, "/models/"):
 		id := strings.TrimPrefix(path, "/models/")
