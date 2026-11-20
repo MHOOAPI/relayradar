@@ -10,6 +10,25 @@ import (
 
 // handleAdminStationIcon accepts a small image upload and stores it as the
 // station icon, served from /icons/.
+func (s *Server) handleAdminStationIconReset(w http.ResponseWriter, r *http.Request) {
+	if s.adminOnly(w, r) == nil {
+		return
+	}
+	slug := r.PathValue("slug")
+	if slug == "" {
+		writeError(w, http.StatusBadRequest, "missing slug")
+		return
+	}
+	iconURL := "/api/v1/favicon/" + slug
+	if err := s.svc.Repo().UpdateStationIcon(r.Context(), slug, iconURL); err != nil {
+		writeError(w, http.StatusNotFound, fmt.Sprintf("station %s not found", slug))
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"iconUrl": iconURL})
+}
+
+// handleAdminStationIcon accepts a small image upload and stores it as the
+// station icon, served from /icons/.
 func (s *Server) handleAdminStationIcon(w http.ResponseWriter, r *http.Request) {
 	if s.adminOnly(w, r) == nil {
 		return

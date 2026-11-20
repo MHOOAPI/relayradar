@@ -106,6 +106,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/v1/admin/submissions", s.handleAdminSubmissions)
 	mux.HandleFunc("PATCH /api/v1/admin/submissions/{id}", s.handleAdminSubmissionStatus)
 	mux.HandleFunc("POST /api/v1/admin/stations/{slug}/icon", s.handleAdminStationIcon)
+	mux.HandleFunc("DELETE /api/v1/admin/stations/{slug}/icon", s.handleAdminStationIconReset)
 	mux.HandleFunc("DELETE /api/v1/admin/reviews/{id}", s.handleAdminDeleteReview)
 	mux.HandleFunc("GET /api/v1/admin/subscriptions", s.handleAdminSubscriptions)
 	mux.HandleFunc("GET /api/v1/admin/users", s.handleAdminUsers)
