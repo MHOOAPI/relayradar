@@ -335,7 +335,7 @@ export function StationPage() {
             <thead>
               <tr>
                 <th>模型</th><th className="hide-sm">厂商</th><th className="num hide-sm">上下文</th>
-                <th className="num">官方价 /1M</th><th className="num">本站输入</th><th className="num">本站输出</th>
+                <th className="num hide-sm">官方价 /1M</th><th className="num">本站输入</th><th className="num">本站输出</th>
                 <th className="hide-sm">最低价分组</th>
               </tr>
             </thead>
@@ -353,7 +353,7 @@ export function StationPage() {
                   </td>
                   <td className="hide-sm dim">{m.model.vendorName}</td>
                   <td className="num mono dim hide-sm">{m.model.contextWindow > 0 ? fmtCtx(m.model.contextWindow) : '—'}</td>
-                  <td className="num mono dim">{m.model.inputUsd > 0 ? `$${m.model.inputUsd} / $${m.model.outputUsd}` : '—'}</td>
+                  <td className="num mono dim hide-sm">{m.model.inputUsd > 0 ? `$${m.model.inputUsd} / $${m.model.outputUsd}` : '—'}</td>
                   <td className="num mono">{fmtCny(m.bestInputCny)}</td>
                   <td className="num mono accent">{fmtCny(m.bestOutputCny)}</td>
                   <td className="hide-sm dim">{m.cheapestGroup}</td>
