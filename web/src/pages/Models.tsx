@@ -109,7 +109,7 @@ export function ModelsPage() {
                   </td>
                   <td className="hide-sm dim">{m.vendorName}</td>
                   <td className="num mono dim hide-sm">{m.category === 'text' || !m.category ? fmtCtx(m.contextWindow) : '—'}</td>
-                  <td className="num mono dim">{m.category === 'text' || !m.category ? `$${m.inputUsd} / $${m.outputUsd}` : '按张/秒计费'}</td>
+                  <td className="num mono dim">{m.category && m.category !== 'text' ? '按张/秒计费' : m.inputUsd > 0 ? `$${m.inputUsd} / $${m.outputUsd}` : '—'}</td>
                   <td className="num mono accent">{fmtCny(m.minInputCny)}</td>
                   <td className="num mono dim">{m.offersCount}</td>
                 </tr>

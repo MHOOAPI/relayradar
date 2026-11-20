@@ -87,8 +87,8 @@ export function ModelPage() {
         <div className="model-scores">
           {model.category === 'text' || !model.category ? (
             <>
-              <div><span>官方输入</span><b className="mono">${model.inputUsd}</b></div>
-              <div><span>官方输出</span><b className="mono">${model.outputUsd}</b></div>
+              <div><span>官方输入</span><b className="mono">{model.inputUsd > 0 ? `$${model.inputUsd}` : '—'}</b></div>
+              <div><span>官方输出</span><b className="mono">{model.outputUsd > 0 ? `$${model.outputUsd}` : '—'}</b></div>
               <div><span>编程分</span><b className="mono">{model.codingScore}</b></div>
               <div><span>推理分</span><b className="mono">{model.reasoningScore}</b></div>
             </>

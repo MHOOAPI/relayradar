@@ -403,8 +403,9 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 					category = "text"
 					summary = fmt.Sprintf("%s 实价 ¥%.2f / ¥%.2f 每百万 tokens", realStation.Slug, in, out)
 				}
+				vendor, vendorName := vendorForModel(m.Name)
 				snap.Models = append(snap.Models, Model{
-					ID: mid, Vendor: "mhoo", VendorName: realStation.Slug, Name: m.Name, Service: service,
+					ID: mid, Vendor: vendor, VendorName: vendorName, Name: m.Name, Service: service,
 					Category: category, Summary: summary,
 				})
 				snap.GroupModels = append(snap.GroupModels, GroupModel{GroupID: gid, ModelID: mid, InputCNY: &in, OutputCNY: &out, CacheReadCNY: &in})
@@ -433,6 +434,29 @@ func serviceLabel(s string) string {
 		return "Qwen"
 	}
 	return s
+}
+
+func vendorForModel(name string) (string, string) {
+	n := strings.ToLower(name)
+	switch {
+	case strings.HasPrefix(n, "gpt-image"), strings.HasPrefix(n, "gpt-5"), strings.HasPrefix(n, "gpt-6"), strings.HasPrefix(n, "gpt-4"):
+		return "openai", "OpenAI"
+	case strings.HasPrefix(n, "claude"):
+		return "anthropic", "Anthropic"
+	case strings.HasPrefix(n, "gemini"), strings.HasPrefix(n, "nano-banana"), strings.HasPrefix(n, "imagen"):
+		return "google", "Google"
+	case strings.HasPrefix(n, "deepseek"):
+		return "deepseek", "DeepSeek"
+	case strings.HasPrefix(n, "qwen"):
+		return "qwen", "阿里通义"
+	case strings.HasPrefix(n, "minimax"):
+		return "minimax", "MiniMax"
+	case strings.HasPrefix(n, "kimi"):
+		return "moonshot", "Moonshot"
+	case strings.HasPrefix(n, "grok"):
+		return "xai", "xAI"
+	}
+	return "unknown", "未知厂商"
 }
 
 func round2(v float64) float64 { return math.Round(v*100) / 100 }
