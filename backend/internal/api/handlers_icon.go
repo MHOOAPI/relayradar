@@ -11,7 +11,8 @@ import (
 // handleAdminStationIcon accepts a small image upload and stores it as the
 // station icon, served from /icons/.
 func (s *Server) handleAdminStationIconReset(w http.ResponseWriter, r *http.Request) {
-	if s.adminOnly(w, r) == nil {
+	admin := s.adminOnly(w, r)
+	if admin == nil {
 		return
 	}
 	slug := r.PathValue("slug")
@@ -25,13 +26,15 @@ func (s *Server) handleAdminStationIconReset(w http.ResponseWriter, r *http.Requ
 		writeError(w, http.StatusNotFound, fmt.Sprintf("station %s not found", slug))
 		return
 	}
+	s.logAdminAction(r, admin, "station.icon.reset", slug, iconURL)
 	writeJSON(w, http.StatusOK, map[string]string{"iconUrl": iconURL})
 }
 
 // handleAdminStationIcon accepts a small image upload and stores it as the
 // station icon, served from /icons/.
 func (s *Server) handleAdminStationIcon(w http.ResponseWriter, r *http.Request) {
-	if s.adminOnly(w, r) == nil {
+	admin := s.adminOnly(w, r)
+	if admin == nil {
 		return
 	}
 	slug := r.PathValue("slug")
@@ -82,6 +85,7 @@ func (s *Server) handleAdminStationIcon(w http.ResponseWriter, r *http.Request) 
 		writeError(w, http.StatusNotFound, fmt.Sprintf("station %s not found", slug))
 		return
 	}
+	s.logAdminAction(r, admin, "station.icon", slug, iconURL)
 	writeJSON(w, http.StatusOK, map[string]string{"iconUrl": iconURL})
 }
 

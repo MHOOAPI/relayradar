@@ -359,6 +359,7 @@ func (s *Server) handleAdminSubmissionStatus(w http.ResponseWriter, r *http.Requ
 		writeError(w, http.StatusNotFound, "submission not found")
 		return
 	}
+	s.logAdminAction(r, admin, "submission.terms", fmt.Sprintf("submission #%d", id), strings.Join(body.Payments, ","))
 	if err := s.svc.Repo().UpdateSubmissionStatus(r.Context(), id, body.Status); err != nil {
 		writeError(w, http.StatusNotFound, "submission not found")
 		return
