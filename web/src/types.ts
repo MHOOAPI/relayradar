@@ -67,6 +67,22 @@ export interface ModelSummary extends ModelSpec {
   bestStation: string;
   license: string;
   summaryEn: string;
+  // Supply signals and scores computed from offers.
+  priceLowCny: number;
+  priceHighCny: number;
+  priceMedianCny: number;
+  avgAvailability: number;
+  purityOfficial: number;
+  purityMixed: number;
+  purityUnknown: number;
+  purityCounterfeit: number;
+  priceRatio: number;
+  priceScore: number;
+  coverageScore: number;
+  availabilityScore: number;
+  purityScore: number;
+  contextScore: number;
+  relayScore: number;
 }
 
 export interface Group {

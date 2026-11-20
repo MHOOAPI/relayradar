@@ -138,6 +138,23 @@ type ModelView struct {
 	BestStation  string  `json:"bestStation"`
 	License      string  `json:"license"`
 	SummaryEN    string  `json:"summaryEn"`
+
+	// Supply signals and scores, computed from offers (see model_scores.go).
+	PriceLowCNY       float64 `json:"priceLowCny"`
+	PriceHighCNY      float64 `json:"priceHighCny"`
+	PriceMedianCNY    float64 `json:"priceMedianCny"`
+	AvgAvailability   float64 `json:"avgAvailability"`
+	PurityOfficial    int     `json:"purityOfficial"`
+	PurityMixed       int     `json:"purityMixed"`
+	PurityUnknown     int     `json:"purityUnknown"`
+	PurityCounterfeit int     `json:"purityCounterfeit"`
+	PriceRatio        float64 `json:"priceRatio"`
+	PriceScore        float64 `json:"priceScore"`
+	CoverageScore     float64 `json:"coverageScore"`
+	AvailabilityScore float64 `json:"availabilityScore"`
+	PurityScore       float64 `json:"purityScore"`
+	ContextScore      float64 `json:"contextScore"`
+	RelayScore        float64 `json:"relayScore"`
 }
 
 // modelSummaryEN is the English summary used by the /en model pages.
@@ -682,6 +699,9 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 			return offers[i].InputCNY < offers[j].InputCNY
 		})
 		d.Offers[id] = offers
+		if mv, ok := d.ModelByID[id]; ok {
+			mv.computeSupplyScores(offers)
+		}
 	}
 	for i := range d.Models {
 		d.Models[i] = *d.ModelByID[d.Models[i].ID]

@@ -595,13 +595,24 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 		}, true
 	}
 
-	if id, ok := strings.CutPrefix(path, "/models/"); ok && id != "" {		m, found := d.ModelByID[id]
+	if id, ok := strings.CutPrefix(path, "/models/"); ok && id != "" {
+		m, found := d.ModelByID[id]
 		if !found {
 			return pageMeta{}, false
 		}
+		title := fmt.Sprintf("%s 价格、评分与报价站点 | RelayRadar", m.Name)
+		if m.OffersCount > 0 {
+			title = fmt.Sprintf("%s 价格与评分 · %d 个站点报价 | RelayRadar", m.Name, m.OffersCount)
+		}
+		desc := fmt.Sprintf("%s 官方 %s/%s 每百万 Token，全网最低 %s（%s），供给评分 %s/100。",
+			m.Name, moneyUSD(m.InputUSD), moneyUSD(m.OutputUSD), moneyCNY(m.MinInputCNY), m.BestStation, scoreText(m.RelayScore))
+		if m.Category != "" && m.Category != "text" {
+			desc = fmt.Sprintf("%s 按%s计费，最低 %s（%s），%d 个站点报价，供给评分 %s/100。",
+				m.Name, unitLabel(m.Category), moneyCNY(m.MinInputCNY), m.BestStation, m.OffersCount, scoreText(m.RelayScore))
+		}
 		return pageMeta{
-			Title:     fmt.Sprintf("%s 价格与中转站报价 | RelayRadar", m.Name),
-			Desc:      fmt.Sprintf("%s：官方 $%.2f/$%.2f per 1M，全网最低 ¥%.2f/百万输入 Token。", m.Summary, m.InputUSD, m.OutputUSD, m.MinInputCNY),
+			Title:     title,
+			Desc:      desc,
 			Canonical: base + path,
 			Alternate: base + "/md/model/" + m.ID,
 			Image:     "/share/model-" + m.ID + ".png",
@@ -611,13 +622,20 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 	return pageMeta{}, false
 }
 
-func injectMeta(index []byte, m pageMeta, base string) []byte {	doc := string(index)
+// escapeRepl protects "$" sequences from being treated as regexp group
+// references when used as a replacement template.
+func escapeRepl(s string) string { return strings.ReplaceAll(s, "$", "$$") }
+
+func injectMeta(index []byte, m pageMeta, base string) []byte {
+	doc := string(index)
 	title := html.EscapeString(m.Title)
 	desc := html.EscapeString(m.Desc)
 	canonical := html.EscapeString(m.Canonical)
 
-	s := titleRe.ReplaceAllString(doc, "<title>"+title+"</title>")
-	s = descRe.ReplaceAllString(s, `<meta name="description" content="`+desc+`" />`)
+	// Meta text can contain prices such as "$2.00"; in a regexp replacement
+	// those dollars would be read as group references and silently dropped.
+	s := titleRe.ReplaceAllString(doc, "<title>"+escapeRepl(title)+"</title>")
+	s = descRe.ReplaceAllString(s, `<meta name="description" content="`+escapeRepl(desc)+`" />`)
 	// Drop the static fallback image so each page exposes exactly one og:image.
 	s = ogImageRe.ReplaceAllString(s, "")
 	s = twImageRe.ReplaceAllString(s, "")
