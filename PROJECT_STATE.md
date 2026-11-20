@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.18**（模型列表默认按报价筛选、USD 价格格式化、私有页 noindex、带点模型 id 不再 404）
+- 版本：**v0.2.19**（模型列表改为模型信息优先的排版、站点图标 favicon 兜底、模型列表默认按报价筛选、带点模型 id 不再 404）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
@@ -22,11 +22,11 @@
 
 | 数据 | 来源 | 状态 |
 |---|---|---|
-| 模型目录 | OpenRouter `/api/v1/models` | 真实，454 个，每日 11:00 自动同步 |
+| 模型目录 | OpenRouter `/api/v1/models` | 真实，491 个，每日 11:00 自动同步 |
 | mhoo 文本价 | mhoo `/api/ratio_config` | 真实，25 个，¥/1M |
 | mhoo 图片价 | mhoo `/api/pricing` | 真实，12 个，¥/张 |
 | 其他站点报价 | 演示合成 | 标记为演示数据 |
-| 探针 | prober（mhoo 真实 + mock） | 真实探针仅宿主机可跑（容器出网受限） |
+| 探针 | prober（容器内，每 10 分钟） | mhoo 真实探针正常入库（约 5s，记为 slow）；mock 目标已从本地 probes.json 移除 |
 | 评分 | 由探针计算 | 有真实数据后自动生效 |
 
 同步命令：
@@ -44,10 +44,9 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 ### 站点与模型
 - 站点目录、详情、榜单、可达性历史、CSV 导出
 - 模型页：报价列表、最低价高亮、移动端卡片
-- 模型列表范围：默认只看有站点报价的模型（150 个，不含 batch / free 变体）；「展开全部目录」看完整 491 个
-- 模型列表排版：模型信息优先（模型 / 厂商 / 上下文 / 发布 / 官方价 + 最低价 / 报价站点），支持按厂商筛选与「最新发布 / 报价最多 / 上下文最大 / 价格最低」排序
+- 模型列表范围：默认只看有站点报价的模型（150 个，不含 batch / free 变体），按报价站点数排序；「展开全部目录」看完整 491 个
 - 模型分类：文本 / 图片 / 视频
-- 厂商图标：内置 simple-icons 官方 SVG path；站点图标：自动 favicon → 自定义上传
+- 厂商图标：内置 simple-icons 官方 SVG path；站点图标：内置 logo → favicon 代理兜底 → 自定义上传（迁移 022 回填空 icon_url）
 
 ### 商业字段
 - 提交表单：支付方式多选、开票、退款政策
@@ -70,7 +69,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 ## 5. 已知限制 / 待办
 
 1. **真实站点只有 mhoo 一家**，全网最低价意义有限；
-2. **容器内 prober 无法出网**，真实探测要宿主机跑（代理问题）；
+2. **mock 目标需要 `go run ./cmd/mockupstream -addr :9199`**；默认 probes.json 只保留 mhoo 真实站点；
 3. **模型列表范围按「有无站点报价」筛选**，不是人工精选；
 4. **官方价 `—`**：mhoo 只给人民币倍率，没有官方美元价；
 5. mhoo key 曾暴露在聊天/本地文件，用户选择暂不轮换；
