@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
-import type { StatusHistoryDay, StationDetail } from '../types';
+import type { Station, StatusHistoryDay, StationDetail } from '../types';
 import { External, fmtCny, fmtDate, fmtUsd, Spinner, Stars, TierBadge, WatchStar } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
@@ -21,6 +21,13 @@ const SERVICE_LABEL: Record<string, string> = {
   qwen: 'Qwen',
 };
 
+const PURITY: Record<string, string> = {
+  official: '官方直连',
+  mixed: '混合线路',
+  counterfeit: '疑似掺假',
+  unknown: '未检测',
+};
+
 const fmtCtx = (n: number) => (n >= 1000000 ? `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2)}M` : `${Math.round(n / 1000)}K`);
 
 export function StationPage() {
@@ -32,6 +39,7 @@ export function StationPage() {
   const [changes, setChanges] = useState<Change[]>([]);
   const [reach, setReach] = useState<StatusHistoryDay[] | null>(null);
   const [metric, setMetric] = useState<'score' | 'availability' | 'speed' | 'consistency'>('score');
+  const [allStations, setAllStations] = useState<Station[]>([]);
 
   const [author, setAuthor] = useState('');
   const [rating, setRating] = useState(5);
@@ -47,6 +55,10 @@ export function StationPage() {
     api.changes(slug).then((r) => setChanges(r.items)).catch(() => setChanges([]));
     api.stationReachability(slug).then((r) => setReach(r.days)).catch(() => setReach([]));
   }, [slug]);
+
+  useEffect(() => {
+    api.stations(1000).then((r) => setAllStations(r.items)).catch(() => setAllStations([]));
+  }, []);
 
   const copy = (text: string) => {
     void copyText(text).then((ok) => push(ok ? 'Base URL 已复制' : '复制失败，请手动选择', ok ? 'ok' : 'err'));
@@ -86,6 +98,33 @@ export function StationPage() {
 
   const { station: s, groups, models, reviews } = data;
   const avg = reviews.length ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
+  const ranked = allStations.filter((st) => st.rank > 0).sort((a, b) => a.rank - b.rank);
+  const rankIdx = ranked.findIndex((st) => st.slug === s.slug);
+  const neighbors = rankIdx < 0
+    ? []
+    : [...ranked.slice(Math.max(0, rankIdx - 2), rankIdx), ...ranked.slice(rankIdx + 1, rankIdx + 3)].slice(0, 4);
+  const faq = [
+    {
+      q: `${s.name} 的综合分是怎么算的？`,
+      a: `综合分 ${s.rankScore.toFixed(1)} = 0.62 × 可用性 + 0.26 × 速度 + 0.12 × 稳定性。可用性取 Wilson 95% 置信下界，速度由延迟中位数映射，稳定性衡量 p95/p50 抖动；纯度与价格单独展示，不参与排名。`,
+    },
+    {
+      q: `${s.name} 支持哪些模型？`,
+      a: `目前收录 ${models.length} 个模型、${groups.length} 个分组。完整清单与本站人民币实价见上方「支持模型与本站实价」表格。`,
+    },
+    {
+      q: `${s.name} 最低充值和支付方式？`,
+      a: `最低充值 ¥${s.minTopupCny}，支持 ${s.payments.join('、') || '未公开'}，${s.invoice ? '支持开票' : '不支持开票'}；退款政策：${s.refundPolicy}。以上来自站点公开页面与站长提交，付款前请以站点当前条款为准。`,
+    },
+    {
+      q: `${s.name} 会不会掺假或降智？`,
+      a: `当前纯度抽检为「${PURITY[s.purityTier] ?? s.purityTier}」。抽检只核验思考签名与行为指纹，不能替代对具体 Key 的验证；建议用接口检测发两次相同请求，核对模型回显、usage、分词一致性、缓存透传与首字延迟。`,
+    },
+    {
+      q: `${s.name} 的排名为什么变化？`,
+      a: '探针持续上报可用性、延迟与稳定性，变更雷达会记录价格调整、可用率骤降、纯度异常与新站上架；榜单按最近窗口滚动重算，因此排名会随实测变化。',
+    },
+  ];
 
   return (
     <main className="wrap">
@@ -429,6 +468,49 @@ export function StationPage() {
           </form>
         </section>
       </div>
+
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>常见问题</h2>
+            <p className="sub">关于综合分、模型覆盖、充值与验真的常见疑问。</p>
+          </div>
+          <Link className="link-btn mono" to="/methodology">评分方法 →</Link>
+        </div>
+        <div className="faq-list">
+          {faq.map((f) => (
+            <details key={f.q} className="faq-item">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {neighbors.length > 0 && (
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>排名相邻的站点</h2>
+              <p className="sub">按综合分名次列出前后各两家，方便横向比价。</p>
+            </div>
+            <Link className="link-btn mono" to="/">完整榜单 →</Link>
+          </div>
+          <div className="related-grid">
+            {neighbors.map((n) => (
+              <Link key={n.slug} className="related-card" to={`/stations/${n.slug}`}>
+                <div className="rc-head">
+                  <StationMark slug={n.slug} name={n.name} iconUrl={n.iconUrl} size={22} />
+                  <b>{n.name}</b>
+                  <span className="mono dim">#{n.rank}</span>
+                </div>
+                <div className="rc-meta mono dim">综合分 {n.rankScore.toFixed(1)} · {n.modelsCount} 个模型</div>
+                <div className="rc-price mono">{n.fromPriceCny >= 0 ? fmtCny(n.fromPriceCny) : '—'}</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

@@ -62,7 +62,7 @@ export function StationsPage() {
 
   useEffect(() => {
     document.title = '中转站目录：模型覆盖、支付、退款与评价 | RelayRadar';
-    api.stations().then((r) => setStations(r.items)).catch((e: Error) => setError(e.message));
+    api.stations(1000).then((r) => setStations(r.items)).catch((e: Error) => setError(e.message));
     api.meta().then((m) => setTotalModels(m.models)).catch(() => setTotalModels(0));
     api.models().then((r) => setModelList(r.items.map((m) => ({ id: m.id, name: m.name })))).catch(() => setModelList([]));
   }, []);

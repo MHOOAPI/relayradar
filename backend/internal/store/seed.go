@@ -495,7 +495,13 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 				ID: gid, StationID: sid, Slug: svc, Name: serviceLabel(svc) + " 默认组",
 				Service: svc, Multiplier: mult,
 			})
-			for _, m := range models {
+			// Third-party relays rarely list every model; keep a plausible,
+			// deterministic subset per service instead of all catalog entries.
+			limit := 6 + (i*5)%9
+			for j, m := range models {
+				if j >= limit {
+					break
+				}
 				in := round2(m.InputUSD * rate * mult)
 				out := round2(m.OutputUSD * rate * mult)
 				if in < 0.01 {

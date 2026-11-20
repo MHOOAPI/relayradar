@@ -593,9 +593,17 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 		if st.FromPriceCNY >= 0 {
 			price = fmt.Sprintf("最低输入价 ¥%.2f/百万 Token", st.FromPriceCNY)
 		}
+		models := len(d.PerStationModels[slug])
+		groups := len(d.GroupsByStation[slug])
+		pay := "支付方式未公开"
+		if len(st.Payments) > 0 {
+			pay = "支持 " + strings.Join(st.Payments, "/")
+		}
 		return pageMeta{
-			Title:     fmt.Sprintf("%s 中转站档案 · 排名 #%d | RelayRadar", st.Name, st.Rank),
-			Desc:      fmt.Sprintf("%s。综合分 %.1f，原始可用率 %.1f%%，%s。", st.Tagline, st.RankScore, st.UptimePct, price),
+			Title: fmt.Sprintf("%s 中转站评测：综合分 %.1f、排名 #%d、%d 个模型 | RelayRadar",
+				st.Name, st.RankScore, st.Rank, models),
+			Desc: fmt.Sprintf("%s 综合分 %.1f（第 %d 名），原始可用率 %.1f%%，%d 个模型 / %d 个分组，%s，最低充值 ¥%.0f，%s。",
+				st.Name, st.RankScore, st.Rank, st.UptimePct, models, groups, price, st.MinTopup, pay),
 			Canonical: base + path,
 			Alternate: base + "/md/station/" + st.Slug,
 			Image:     "/share/station-" + st.Slug + ".png",
