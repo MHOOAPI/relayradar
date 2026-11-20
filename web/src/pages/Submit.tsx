@@ -12,7 +12,7 @@ export function SubmitPage() {
   const [tab, setTab] = useState<Tab>(claimParam ? 'claim' : 'submit');
   const [stations, setStations] = useState<Station[]>([]);
 
-  const [form, setForm] = useState({ name: '', domain: '', baseUrl: '', contact: '', note: '' });
+  const [form, setForm] = useState({ name: '', domain: '', baseUrl: '', contact: '', note: '', payments: [] as string[], invoice: false, refundPolicy: '' });
   const [apiKey, setApiKey] = useState('');
   const [prefilling, setPrefilling] = useState(false);
   const [prefillMsg, setPrefillMsg] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function SubmitPage() {
     try {
       const out = await api.submitStation(form);
       setSubmitted(out.id);
-      setForm({ name: '', domain: '', baseUrl: '', contact: '', note: '' });
+      setForm({ name: '', domain: '', baseUrl: '', contact: '', note: '', payments: [], invoice: false, refundPolicy: '' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -134,8 +134,23 @@ export function SubmitPage() {
               </div>
               <label><span>联系方式 *</span><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="邮箱 / Telegram" required /></label>
               <label className="span-2"><span>备注</span><textarea rows={3} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="倍率、分组、退款政策、可否开票等" maxLength={500} /></label>
+              <label className="span-2"><span>支付方式</span>
+                <div className="pay-picks">
+                  {['支付宝', '微信', 'USDT', 'Stripe', '信用卡'].map((p) => (
+                    <label key={p} className="pay-pick">
+                      <input
+                        type="checkbox"
+                        checked={form.payments.includes(p)}
+                        onChange={(e) => setForm({ ...form, payments: e.target.checked ? [...form.payments, p] : form.payments.filter((x) => x !== p) })}
+                      />
+                      {p}
+                    </label>
+                  ))}
+                </div>
+              </label>
+              <label><span>是否支持开票</span><input type="checkbox" checked={form.invoice} onChange={(e) => setForm({ ...form, invoice: e.target.checked })} /></label>
+              <label className="span-2"><span>退款政策</span><input value={form.refundPolicy} onChange={(e) => setForm({ ...form, refundPolicy: e.target.value })} placeholder="例如 7 天未用可退 / 按量可退" maxLength={200} /></label>
               <div className="form-actions span-2">
-                <span className="fine">提交即表示你确认信息来自公开页面，并同意我们核实与公开展示。</span>
                 <button className="btn btn-primary" disabled={submitting}>{submitting ? '提交中…' : '提交审核'}</button>
               </div>
             </form>
