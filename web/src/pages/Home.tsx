@@ -4,6 +4,7 @@ import { api } from '../api';
 import type { Change, Meta, ModelSummary, Station } from '../types';
 import { Arrow, fmtCny, fmtNum, TierBadge, UptimeBars, WatchStar } from '../components/ui';
 import { StationMark } from '../components/marks';
+import { KeyCheck } from '../components/KeyCheck';
 import { useWatchlist } from '../lib/watchlist';
 
 const SERVICES: Array<[string, string]> = [
@@ -217,6 +218,8 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      <KeyCheck />
 
       {changes.length > 0 && (
         <div className="live-strip" aria-label="最近变更">

@@ -1847,3 +1847,11 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .cat-tab.on { border-color: rgba(46,230,166,.5); color: var(--accent); background: rgba(46,230,166,.06); }
 .cat-tab.on span { color: var(--accent); }
 .cat-chip { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--text-3); white-space: nowrap; }
+
+.keycheck { margin: 20px 0 8px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #0a0f14; display: grid; gap: 10px; }
+.kc-head { display: flex; align-items: baseline; gap: 10px; }
+.kc-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.kc-row input { flex: 1 1 220px; background: #070b0f; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 12px; }
+.kc-result { font-size: 12px; margin: 0; }
+.kc-result.ok { color: var(--accent); }
+.kc-result.err { color: #ff6b6b; }
