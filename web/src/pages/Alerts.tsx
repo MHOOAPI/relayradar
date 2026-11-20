@@ -98,12 +98,38 @@ export function AlertsPage() {
     }
   };
 
+  if (!id || !token) {
+    return (
+      <main className="wrap">
+        <div className="page-head">
+          <div>
+            <h1>告警订阅管理</h1>
+            <p className="sub">这个页面需要一个来自订阅邮件的私有链接，链接里带有 id 与 token。</p>
+          </div>
+        </div>
+        <section className="panel alerts-card">
+          <b>链接不完整</b>
+          <p className="sub">请打开订阅确认邮件里的「管理订阅」链接；也可以登录后在个人中心查看自己的订阅。</p>
+          <div className="acct-actions">
+            <Link className="btn btn-primary btn-sm" to="/changes">去变更雷达创建订阅</Link>
+            <Link className="btn btn-ghost btn-sm" to="/account">个人中心</Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (error && !sub) {
     return (
       <main className="wrap">
-        <div className="error-box">
-          {error} <Link className="link-btn" to="/changes">返回变更雷达</Link>
+        <div className="page-head">
+          <div>
+            <h1>告警订阅管理</h1>
+            <p className="sub">管理事件类型、暂停投递或删除订阅。这个链接含密钥，请勿公开分享。</p>
+          </div>
+          <Link className="btn btn-ghost btn-sm" to="/changes">返回变更雷达</Link>
         </div>
+        <div className="error-box">{error}</div>
       </main>
     );
   }
@@ -128,7 +154,6 @@ export function AlertsPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />ALERT SUBSCRIPTION</span>
           <h1>告警订阅管理</h1>
           <p className="sub">管理事件类型、暂停投递或删除订阅。这个链接含密钥，请勿公开分享。</p>
         </div>

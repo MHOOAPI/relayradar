@@ -87,6 +87,10 @@ export function StationsPage() {
     });
   }, [stations, q, sort, onlyClaimed, minModels, onlyReachable]);
 
+  const [visible, setVisible] = useState(60);
+  useEffect(() => setVisible(60), [q, sort, onlyClaimed, minModels, onlyReachable]);
+  const shown = rows.slice(0, visible);
+
   const missingOf = (s: Station) =>
     modelList.filter((m) => !(s.modelIds ?? []).includes(m.id)).map((m) => m.name);
 
@@ -129,7 +133,6 @@ export function StationsPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />DIRECTORY</span>
           <h1>中转站目录</h1>
           <p className="sub">只收录第三方中转 / 聚合站；阿里云百炼、硅基流动等官方厂商不在此列。按模型覆盖、健康状态、付款方式、退款、发票与用户评价浏览。</p>
         </div>
@@ -215,7 +218,7 @@ export function StationsPage() {
               {!stations && !error && (
                 <tr><td colSpan={7} className="loading"><Spinner /> 加载站点目录…</td></tr>
               )}
-              {rows.map((s) => {
+              {shown.map((s) => {
                 const h = healthOf(s);
                 return (
                   <tr key={s.slug} className="clickable" onClick={() => navigate(`/stations/${s.slug}`)}>
@@ -291,7 +294,7 @@ export function StationsPage() {
 
         <div className="dir-cards">
           {!stations && <p className="fine" style={{ padding: 16 }}>加载中…</p>}
-          {rows.map((s) => {
+          {shown.map((s) => {
             const h = healthOf(s);
             return (
               <Link key={s.slug} className="dir-card" to={`/stations/${s.slug}`}>
@@ -326,6 +329,15 @@ export function StationsPage() {
           })}
         </div>
       </section>
+
+      {rows.length > shown.length && (
+        <div className="list-more">
+          <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 120)}>
+            显示更多站点
+          </button>
+          <span className="mono">已显示 {shown.length} / {rows.length}</span>
+        </div>
+      )}
 
       {coverageStation && (
         <div className="modal-backdrop" onClick={() => setCoverageStation(null)} role="presentation">

@@ -30,7 +30,6 @@ export function RegisterPage() {
   return (
     <main className="wrap">
       <section className="panel auth-card">
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>注册</h1>
         <p className="sub">账号只用于提交与订阅管理，不参与评分；密码至少 8 位。注册后会发送验证邮件（需服务端配置 SMTP）。</p>
         <form className="auth-form" onSubmit={submit}>

@@ -54,7 +54,6 @@ export function ClaimEditPage() {
       <div className="crumbs mono"><Link to="/submit">认领</Link><span>/</span><span className="dim">{station.slug}</span></div>
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />CLAIMED PROFILE</span>
           <h1>{station.name} · 资料维护</h1>
           <p className="sub">认证站长可维护简介、退款说明、发票与最低充值。提交后需后台审核，探针、评分与用户评价不可修改。</p>
         </div>

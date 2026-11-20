@@ -114,7 +114,6 @@ export function AccountPage() {
     return (
       <main className="wrap">
         <div className="page-head"><div>
-          <span className="eyebrow"><i />ACCOUNT</span>
           <h1>个人中心</h1>
           <p className="sub">登录后可以在这里管理账号资料、告警订阅、提交记录与关注列表。</p>
         </div></div>
@@ -136,7 +135,6 @@ export function AccountPage() {
   return (
     <main className="wrap">
       <div className="page-head"><div>
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>个人中心</h1>
         <p className="sub">账号资料、告警订阅、提交记录与关注列表；数据只按登录邮箱归属，其他账号看不到。</p>
       </div></div>

@@ -222,7 +222,6 @@ export function AdminPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />ADMIN</span>
           <h1>后台</h1>
           <p className="sub">审核提交、查看告警订阅与数据概览。</p>
         </div>

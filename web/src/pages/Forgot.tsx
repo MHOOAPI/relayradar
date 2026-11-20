@@ -23,7 +23,6 @@ export function ForgotPage() {
   return (
     <main className="wrap">
       <section className="panel auth-card">
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>找回密码</h1>
         <p className="sub">输入注册邮箱，如果账号存在，会收到一封 1 小时内有效的重置链接。</p>
         {sent ? (

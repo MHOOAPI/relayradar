@@ -111,7 +111,6 @@ export function ChangesPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />CHANGE RADAR</span>
           <h1>变更雷达</h1>
           <p className="sub">
             从探针与价格历史里自动检测：可用率骤降、纯度抽检异常、价格调整、新站上架。

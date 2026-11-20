@@ -45,7 +45,6 @@ export function ModelStatusPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />UPSTREAM STATUS</span>
           <h1>上游模型 API 状态</h1>
           <p className="sub">
             OpenAI、Anthropic、Google Gemini、DeepSeek、Moonshot、阿里 Qwen、xAI 的官方 API 状态。

@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { StationPage } from './pages/Station';
@@ -25,7 +25,6 @@ import { ResetPage } from './pages/Reset';
 import { AdminPage } from './pages/Admin';
 import { ModelLicensePage } from './pages/ModelLicense';
 import { ModelComparePage } from './pages/ModelCompare';
-import { WindowLeaderboardPage } from './pages/WindowLeaderboard';
 import { StationsPage } from './pages/Stations';
 import { FreeKeysPage } from './pages/FreeKeys';
 import { NotFoundPage } from './pages/NotFound';
@@ -33,22 +32,8 @@ import { StatusPage } from './pages/Status';
 import { ModelStatusPage } from './pages/ModelStatus';
 import { ModelStatusDetailPage } from './pages/ModelStatusDetail';
 import { ClaimEditPage } from './pages/ClaimEdit';
-import { SponsorPage } from './pages/Sponsor';
 import { GuidesPage } from './pages/Guides';
 import { GuidePage } from './pages/Guide';
-
-function NotFound() {
-  return (
-    <main className="wrap">
-      <div className="notfound">
-        <span className="mono dim">404</span>
-        <h1>页面不存在</h1>
-        <Link className="btn btn-primary" to="/">回到榜单</Link>
-      </div>
-    </main>
-  );
-}
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -81,18 +66,17 @@ export default function App() {
           <Route path="models/license" element={<ModelLicensePage />} />
           <Route path="models/license/:license" element={<ModelLicensePage />} />
           <Route path="compare/models" element={<ModelComparePage />} />
-          <Route path="leaderboards/window" element={<WindowLeaderboardPage />} />
-          <Route path="sponsor" element={<SponsorPage />} />
+          <Route path="leaderboards/window" element={<Navigate to="/leaderboards" replace />} />
+          <Route path="sponsor" element={<Navigate to="/faq" replace />} />
           <Route path="status" element={<StatusPage />} />
           <Route path="model-status" element={<ModelStatusPage />} />
           <Route path="model-status/:key" element={<ModelStatusDetailPage />} />
           <Route path="claim/:token" element={<ClaimEditPage />} />
           <Route path="en/*" element={<Navigate to="/" replace />} />
-          <Route path="*" element={<NotFoundPage />} />
           <Route path="guides" element={<GuidesPage />} />
           <Route path="guides/:slug" element={<GuidePage />} />
           <Route path="methodology" element={<MethodologyPage />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
