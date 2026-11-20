@@ -204,3 +204,25 @@ func (s *Server) StartReachabilityRecorder(ctx context.Context) {
 		}
 	}()
 }
+
+// StartFaviconWarm prefetches station favicons once the API is up, so a large
+// directory renders instantly instead of waiting on a hundred third-party
+// hosts during the first page view.
+func (s *Server) StartFaviconWarm(ctx context.Context) {
+	go func() {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(3 * time.Second):
+		}
+		d, err := s.svc.Dataset(ctx)
+		if err != nil || len(d.Stations) == 0 {
+			return
+		}
+		domains := make([]string, 0, len(d.Stations))
+		for _, st := range d.Stations {
+			domains = append(domains, st.Domain)
+		}
+		s.favicons.Warm(domains)
+	}()
+}

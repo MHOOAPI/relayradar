@@ -34,6 +34,7 @@ func main() {
 	appSrv.StartStatusRecorder(context.Background())
 	appSrv.StartProviderStatusRecorder(context.Background())
 	appSrv.StartReachabilityRecorder(context.Background())
+	appSrv.StartFaviconWarm(context.Background())
 	srv := &http.Server{
 		Addr:              cfg.Addr,
 		Handler:           appSrv.Routes(),
