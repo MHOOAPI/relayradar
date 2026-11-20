@@ -34,6 +34,9 @@ func (s *Server) handleSubmission(w http.ResponseWriter, r *http.Request) {
 		BaseURL string `json:"baseUrl"`
 		Contact string `json:"contact"`
 		Note    string `json:"note"`
+		Payments []string `json:"payments"`
+		Invoice  bool   `json:"invoice"`
+		RefundPolicy string `json:"refundPolicy"`
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -66,6 +69,7 @@ func (s *Server) handleSubmission(w http.ResponseWriter, r *http.Request) {
 	sub, err := s.svc.Repo().CreateSubmission(r.Context(), store.Submission{
 		Name: body.Name, Domain: body.Domain, BaseURL: body.BaseURL,
 		Contact: body.Contact, Note: body.Note,
+		Payments: body.Payments, Invoice: body.Invoice, RefundPolicy: strings.TrimSpace(body.RefundPolicy),
 	})
 	if err != nil {
 		s.fail(w, http.StatusInternalServerError, err)
