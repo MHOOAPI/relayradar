@@ -38,24 +38,34 @@ func (s *Store) SyncDemoStations(ctx context.Context) error {
 	}
 	defer tx.Rollback(ctx)
 
+	inserted := map[int64]bool{}
 	for _, st := range snap.Stations {
 		if st.ID <= maxStation {
 			continue
 		}
-		if _, err := tx.Exec(ctx, `
+		ct, err := tx.Exec(ctx, `
 			INSERT INTO stations (id, slug, name, domain, base_url, tagline, rate_cny, min_topup_cny,
 			                      payments, invoice, refund_policy, claimed, icon_url, listed_at)
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 			ON CONFLICT DO NOTHING`,
 			st.ID, st.Slug, st.Name, st.Domain, st.BaseURL, st.Tagline, st.RateCNY, st.MinTopupCNY,
-			st.Payments, st.Invoice, st.RefundPolicy, st.Claimed, st.IconURL, st.ListedAt); err != nil {
+			st.Payments, st.Invoice, st.RefundPolicy, st.Claimed, st.IconURL, st.ListedAt)
+		if err != nil {
 			return fmt.Errorf("top up station %s: %w", st.Slug, err)
 		}
+		if ct.RowsAffected() > 0 {
+			inserted[st.ID] = true
 		}
+	}
 
 	newGroups := map[int64]bool{}
 	for _, g := range snap.Groups {
 		if g.ID <= maxGroup {
+			continue
+		}
+		// A station can be skipped by ON CONFLICT (slug/domain already owned by
+		// another row); its groups must be skipped too or the FK insert fails.
+		if !inserted[g.StationID] {
 			continue
 		}
 		if _, err := tx.Exec(ctx, `
