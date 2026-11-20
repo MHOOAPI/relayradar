@@ -78,8 +78,10 @@ func (s *Server) spaHandler(dir string) http.Handler {
 			http.ServeFile(w, r, indexPath)
 			return
 		}
-		// A missing asset should 404 rather than fall back to the SPA shell.
-		if ext := filepath.Ext(clean); ext != "" && ext != ".html" {
+		// A missing asset should 404 rather than fall back to the SPA shell. Only
+		// known static extensions count as assets: model ids such as
+		// "openai--gpt-5.4" contain dots and must still render their page.
+		if isAssetPath(clean) {
 			http.NotFound(w, r)
 			return
 		}
@@ -102,6 +104,21 @@ func (s *Server) spaHandler(dir string) http.Handler {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(page)
 	})
+}
+
+// assetExts are the file extensions the built frontend serves. A request for a
+// missing file with one of these extensions is a real 404; everything else may
+// be a client-side route, including detail pages whose ids carry dots.
+var assetExts = map[string]bool{
+	".js": true, ".mjs": true, ".css": true, ".map": true,
+	".png": true, ".jpg": true, ".jpeg": true, ".gif": true, ".svg": true,
+	".webp": true, ".avif": true, ".ico": true,
+	".woff": true, ".woff2": true, ".ttf": true,
+	".txt": true, ".xml": true, ".json": true, ".webmanifest": true,
+}
+
+func isAssetPath(path string) bool {
+	return assetExts[strings.ToLower(filepath.Ext(path))]
 }
 
 // missingContent reports whether the path looks like a detail page that was
