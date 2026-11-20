@@ -8,3 +8,4 @@ backend/probes.json
 deploy/certs/*.pem
 *.log
 .DS_Store
+docs/*.png
