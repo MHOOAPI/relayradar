@@ -79,10 +79,12 @@ export function AdminPage() {
   };
 
   const [editId, setEditId] = useState<number | null>(null);
+  const [savedId, setSavedId] = useState<number | null>(null);
   const [draft, setDraft] = useState({ payments: '', invoice: false, refundPolicy: '' });
 
   const startEdit = (s: Submission) => {
     setEditId(s.id);
+    setSavedId(null);
     setDraft({ payments: (s.payments ?? []).join(','), invoice: s.invoice ?? false, refundPolicy: s.refundPolicy ?? '' });
   };
 
@@ -92,6 +94,10 @@ export function AdminPage() {
       setError('请至少选择一种支付方式');
       return;
     }
+    if (draft.refundPolicy.length > 200) {
+      setError('退款政策不能超过 200 字');
+      return;
+    }
     try {
       await api.adminSetSubmission(s.id, s.status, {
         payments,
@@ -99,6 +105,7 @@ export function AdminPage() {
         refundPolicy: draft.refundPolicy,
       });
       setEditId(null);
+      setSavedId(s.id);
       load();
     } catch (e) {
       setError((e as Error).message);
@@ -248,6 +255,7 @@ export function AdminPage() {
                       <button className="link-btn" onClick={() => startEdit(s)}>商务信息</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'approved')}>通过</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'rejected')}>拒绝</button>
+                      {savedId === s.id && <span className="fine" style={{ marginLeft: 6 }}>已保存</span>}
                     </td>
                   </tr>
                   {editId === s.id && (
