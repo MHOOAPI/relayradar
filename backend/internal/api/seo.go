@@ -414,8 +414,8 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 	}
 	if path == "/free-api-keys" {
 		return pageMeta{
-			Title:     "免费 API Key 分享：无需登录提交与领取 | RelayRadar",
-			Desc:      "用户提交的 OpenAI 兼容免费 Key，无需登录即可提交或领取；提交后自动探测一次可用性。共享 Key 随时可能失效。",
+			Title:     "免费 API Key：社区共享、无需登录领取 | RelayRadar",
+			Desc:      "社区共享的 OpenAI 兼容免费 API Key：无需登录即可领取或提交，每个 Key 提交时自动探测可用性并标注状态；附领取步骤与风险提示。",
 			Canonical: base + "/free-api-keys",
 		}, true
 	}

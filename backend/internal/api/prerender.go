@@ -77,7 +77,15 @@ func (s *Server) bodyFor(r *http.Request, d *app.Dataset) template.HTML {
 	case path == "/status":
 		return template.HTML(`<article><h1>服务状态</h1><p>公开 API、数据存储、探针采集、告警投递、接口检测与邮件通道的实时状态，每 30 秒刷新。</p><p>接口：<code>/api/v1/status</code>。当前演示部署暂无公开事故记录。</p></article>`)
 	case path == "/free-api-keys":
-		return template.HTML(`<article><h1>免费 API Key 分享</h1><p>用户提交的 OpenAI 兼容 Key，无需登录即可提交或领取。提交后会自动探测一次可用性；共享 Key 随时可能被吊销，请勿用于生产或绑定付费。</p><p>使用须知：不要提交绑定支付方式的主 Key；领取后请自行验证；分享 Key 可能违反部分服务商条款。</p><p><a href="/free">官方免费额度</a> · <a href="/">返回榜单</a></p></article>`)
+		return template.HTML(`<article><h1>免费 API Key</h1>
+<p>社区共享的 OpenAI 兼容 Key，无需登录即可领取或提交。每个 Key 提交时由服务端自动探测一次可用性，列表按社区判定标注「可用 / 待验证 / 已失效」；领取人数公开，失效 Key 默认隐藏。共享 Key 随时可能被吊销，不要用于生产环境或绑定支付方式。</p>
+<h2>怎么领取</h2>
+<ol><li>打开列表，按服务商或模型筛选，优先选标注「可用」的 Key。</li><li>点「领取」拿到完整 Key 与 Base URL，立即复制保存。</li><li>填进任意 OpenAI 兼容客户端；重要任务先用 <a href="/audit">接口检测</a> 验证模型回显、usage 与首字延迟。</li></ol>
+<h2>怎么分享</h2>
+<p>点「分享我的 Key」，填写 Base URL 与临时 Key，可附可用模型和备注；提交需要完成滑块验证码，服务端会立即探测一次并给出状态。</p>
+<h2>风险提示</h2>
+<p>不要提交绑定支付方式、额度较高的主 Key；不要把共享 Key 用在付费业务；分享 Key 可能违反部分服务商条款，请自行判断。本站只做一次可用性探测，不保证持续可用，也不对扣费、封号负责。</p>
+<p><a href="/free">官方免费额度</a> · <a href="/models">模型价格</a> · <a href="/">返回榜单</a></p></article>`)
 	case path == "/free":
 		return s.bodyFree(d)
 	case path == "/faq":
