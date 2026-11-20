@@ -1,0 +1,13 @@
+# Production: run the published image instead of building locally.
+# Usage:
+#   RELAYRADAR_TAG=v0.1.0 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  api:
+    image: ghcr.io/mhooapi/relayradar:${RELAYRADAR_TAG:-v0.1.0}
+    pull_policy: always
+    build: !reset null
+
+  prober:
+    image: ghcr.io/mhooapi/relayradar:${RELAYRADAR_TAG:-v0.1.0}
+    pull_policy: always
+    build: !reset null
