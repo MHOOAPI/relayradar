@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { SliderCaptcha } from '../components/SliderCaptcha';
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -10,6 +11,7 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [captchaOK, setCaptchaOK] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +38,8 @@ export function RegisterPage() {
           <label><span>邮箱</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></label>
           <label><span>密码</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} maxLength={128} required autoComplete="new-password" /></label>
           {error && <p className="form-error">{error}</p>}
-          <button className="btn btn-primary" disabled={busy}>{busy ? '注册中…' : '创建账号'}</button>
+          <SliderCaptcha onVerified={() => setCaptchaOK(true)} />
+          <button className="btn btn-primary" disabled={busy || !captchaOK}>{busy ? '注册中…' : '创建账号'}</button>
         </form>
         <p className="fine">已有账号？<Link to="/login">登录</Link></p>
       </section>

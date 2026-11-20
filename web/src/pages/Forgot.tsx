@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import { SliderCaptcha } from '../components/SliderCaptcha';
 
 export function ForgotPage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [captchaOK, setCaptchaOK] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,8 @@ export function ForgotPage() {
         ) : (
           <form className="auth-form" onSubmit={submit}>
             <label><span>邮箱</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></label>
-            <button className="btn btn-primary" disabled={busy}>{busy ? '发送中…' : '发送重置链接'}</button>
+            <SliderCaptcha onVerified={() => setCaptchaOK(true)} />
+            <button className="btn btn-primary" disabled={busy || !captchaOK}>{busy ? '发送中…' : '发送重置链接'}</button>
           </form>
         )}
         <p className="fine"><Link to="/login">返回登录</Link></p>

@@ -78,6 +78,9 @@ func (s *Server) handleForgotPassword(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusTooManyRequests, "too many attempts, retry later")
 		return
 	}
+	if !s.requireCaptcha(w, r) {
+		return
+	}
 	var body struct {
 		Email string `json:"email"`
 	}
@@ -154,6 +157,9 @@ func (s *Server) currentUser(r *http.Request) *store.User {
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if !s.authRL.allow(clientIP(r)) {
 		writeError(w, http.StatusTooManyRequests, "too many attempts, retry later")
+		return
+	}
+	if !s.requireCaptcha(w, r) {
 		return
 	}
 	var body struct {

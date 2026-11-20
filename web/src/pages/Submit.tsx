@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
+import { SliderCaptcha } from '../components/SliderCaptcha';
 import type { ClaimResponse, Station } from '../types';
 import { StationMark } from '../components/marks';
 
@@ -17,6 +18,7 @@ export function SubmitPage() {
   const [prefilling, setPrefilling] = useState(false);
   const [prefillMsg, setPrefillMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [captchaOK, setCaptchaOK] = useState(false);
   const [submitted, setSubmitted] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -151,7 +153,8 @@ export function SubmitPage() {
               <label><span>是否支持开票</span><input type="checkbox" checked={form.invoice} onChange={(e) => setForm({ ...form, invoice: e.target.checked })} /></label>
               <label className="span-2"><span>退款政策</span><input value={form.refundPolicy} onChange={(e) => setForm({ ...form, refundPolicy: e.target.value })} placeholder="例如 7 天未用可退 / 按量可退" maxLength={200} /></label>
               <div className="form-actions span-2">
-                <button className="btn btn-primary" disabled={submitting}>{submitting ? '提交中…' : '提交审核'}</button>
+                <SliderCaptcha onVerified={() => setCaptchaOK(true)} />
+                <button className="btn btn-primary" disabled={submitting || !captchaOK}>{submitting ? '提交中…' : '提交审核'}</button>
               </div>
             </form>
           )}

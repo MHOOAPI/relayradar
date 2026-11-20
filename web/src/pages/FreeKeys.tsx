@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import { SliderCaptcha } from '../components/SliderCaptcha';
 import type { FreeKeyView } from '../types';
 import { Spinner } from '../components/ui';
 import { useToast } from '../lib/toast';
@@ -177,6 +178,7 @@ function SubmitModal({ onClose, onDone }: { onClose: () => void; onDone: (status
   const [website, setWebsite] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [captchaOK, setCaptchaOK] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,7 +210,8 @@ function SubmitModal({ onClose, onDone }: { onClose: () => void; onDone: (status
           <label><span>备注（可选）</span><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="限速、有效期等" /></label>
           <input className="hp-field" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} aria-hidden="true" />
           {err && <p className="form-error">{err}</p>}
-          <button className="btn btn-primary" disabled={busy}>{busy ? '提交并探测中…' : '提交'}</button>
+          <SliderCaptcha onVerified={() => setCaptchaOK(true)} />
+          <button className="btn btn-primary" disabled={busy || !captchaOK}>{busy ? '提交并探测中…' : '提交'}</button>
         </form>
         <p className="fine" style={{ marginTop: 10 }}>分享 Key 可能违反部分服务商条款；请自行判断风险。</p>
       </div>

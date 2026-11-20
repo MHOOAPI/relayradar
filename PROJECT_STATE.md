@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.26**（模型档案页评分与详细资料、全站 SEO/GEO 结构化数据、接口检测不限数量、120 个公开目录站点）
+- 版本：**v0.2.27**（敏感操作滑块验证码、模型档案页评分与详细资料、全站 SEO/GEO 结构化数据、120 个公开目录站点）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
@@ -57,6 +57,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 
 ### 检测与审计
 - 首页内嵌 Key 检测（baseUrl + key → 模型数），是首页唯一的检测入口；成功后可直接跳转完整检测（8 项，自动带上 baseUrl）
+- 敏感操作保护：接口检测、提交站点、注册、找回密码、分享免费 Key 均需先完成**滑块验证码**（服务端出图、HMAC 令牌 15 分钟；`CAPTCHA_ENABLED=false` 可关）
 - 接口检测：页面顶部列出 **8 项检查**（内容 + 通过标准），检测中显示逐模型进度与耗时，结束后给出「检查项 × 模型」矩阵与逐项明细；从站点拉取模型后可**多选（不限数量）**，逐个检测并各自生成报告，可随时停止（按服务端 4 秒限流排队，失败逐条展示）
 - 提交站点填 Key 自动填充（prefill：模型、按次价、文本价）
 - 官方状态页事件中文翻译（缓存 + 失败回退英文）
