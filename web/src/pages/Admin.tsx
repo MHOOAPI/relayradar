@@ -12,6 +12,7 @@ type Incident = { id: number; title: string; status: string; component: string; 
 type ClaimEditRow = { id: number; stationSlug: string; stationName: string; tagline: string; refundPolicy: string; invoice: boolean; minTopupCny: number; status: string; createdAt: string };
 
 const STATUS_LABEL: Record<string, string> = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+const PAY_OPTIONS = ['支付宝', '微信', 'USDT', 'Stripe', '信用卡'];
 
 export function AdminPage() {
   const { user, loading } = useAuth();
@@ -86,9 +87,14 @@ export function AdminPage() {
   };
 
   const saveTerms = async (s: Submission) => {
+    const payments = draft.payments.split(',').map((x) => x.trim()).filter(Boolean);
+    if (payments.length === 0) {
+      setError('请至少选择一种支付方式');
+      return;
+    }
     try {
       await api.adminSetSubmission(s.id, s.status, {
-        payments: draft.payments.split(',').map((x) => x.trim()).filter(Boolean),
+        payments,
         invoice: draft.invoice,
         refundPolicy: draft.refundPolicy,
       });
@@ -248,7 +254,27 @@ export function AdminPage() {
                     <tr key={`edit-${s.id}`} className="term-edit-row">
                       <td colSpan={6}>
                         <div className="term-edit">
-                          <label><span>支付方式</span><input value={draft.payments} onChange={(e) => setDraft({ ...draft, payments: e.target.value })} placeholder="支付宝,微信,USDT" /></label>
+                          <label className="term-payments"><span>支付方式</span>
+                            <div className="term-chips">
+                              {PAY_OPTIONS.map((p) => {
+                                const on = draft.payments.split(',').map((x) => x.trim()).includes(p);
+                                return (
+                                  <button
+                                    key={p}
+                                    type="button"
+                                    className={`term-chip ${on ? 'on' : ''}`}
+                                    onClick={() => {
+                                      const list = draft.payments.split(',').map((x) => x.trim()).filter(Boolean);
+                                      const next = on ? list.filter((x) => x !== p) : [...list, p];
+                                      setDraft({ ...draft, payments: next.join(',') });
+                                    }}
+                                  >
+                                    {p}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </label>
                           <label className="term-check"><input type="checkbox" checked={draft.invoice} onChange={(e) => setDraft({ ...draft, invoice: e.target.checked })} /> 支持开票</label>
                           <label><span>退款政策</span><input value={draft.refundPolicy} onChange={(e) => setDraft({ ...draft, refundPolicy: e.target.value })} placeholder="例如 7 天未用可退" /></label>
                           <div className="term-actions">
