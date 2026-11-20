@@ -196,6 +196,7 @@ type Offer struct {
 	PurityTier   string  `json:"purityTier"`
 	Availability float64 `json:"availability"`
 	Claimed      bool    `json:"claimed"`
+	IconURL      string  `json:"iconUrl"`
 }
 
 // PriceChangeView is one observed price movement for a model at a station.
@@ -645,7 +646,7 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 		o := Offer{
 			StationSlug: stSlug, StationName: stName, GroupSlug: g.Slug, GroupName: g.Name,
 			Multiplier: g.Multiplier, StationRank: stRank, PurityTier: g.PurityTier,
-			Availability: g.Availability, Claimed: st.Claimed,
+			Availability: g.Availability, Claimed: st.Claimed, IconURL: st.IconURL,
 		}
 		if gm.InputCNY != nil {
 			o.InputCNY = *gm.InputCNY
