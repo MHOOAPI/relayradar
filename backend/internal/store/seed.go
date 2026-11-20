@@ -213,7 +213,7 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 			BaseURL: "https://" + st.Domain + "/v1", Tagline: st.Tagline,
 			RateCNY: st.Rate, MinTopupCNY: st.MinTopup, Payments: st.Payments,
 			Invoice: st.Invoice, RefundPolicy: st.Refund, Claimed: st.Claimed,
-			IconURL:  seedLogos[st.Slug],
+			IconURL:  stationIcon(st.Slug),
 			ListedAt: now.AddDate(0, 0, -st.DaysOld),
 		})
 
@@ -385,6 +385,7 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 			ID: sid, Slug: realStation.Slug, Name: realStation.Slug, Domain: strings.TrimPrefix(realStation.BaseURL, "https://"),
 			BaseURL: realStation.BaseURL + "/v1", Tagline: "真实计价 · 按张计费", RateCNY: 7.2, MinTopupCNY: 0,
 			Payments: []string{"支付宝"}, RefundPolicy: "未知", Claimed: true, ListedAt: now,
+			IconURL: stationIcon(realStation.Slug),
 		})
 		for _, g := range realStation.Groups {
 			gid := int64(len(snap.Groups) + 1)
@@ -462,3 +463,13 @@ func vendorForModel(name string) (string, string) {
 func round2(v float64) float64 { return math.Round(v*100) / 100 }
 
 func clamp01(v float64) float64 { return math.Max(0, math.Min(1, v)) }
+
+// stationIcon prefers a bundled logo and otherwise points at the favicon proxy,
+// so a station without a hand-picked icon still shows the vendor's own mark
+// instead of the generated placeholder.
+func stationIcon(slug string) string {
+	if icon := seedLogos[slug]; icon != "" {
+		return icon
+	}
+	return "/api/v1/favicon/" + slug
+}

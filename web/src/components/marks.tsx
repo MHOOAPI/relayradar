@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import { VENDOR_PATHS } from './vendorPaths';
 
@@ -74,12 +74,17 @@ export function StationMark({
 }) {
   const [failed, setFailed] = useState(false);
   const key = slug || name;
+  // Stations without a hand-picked icon fall back to the favicon proxy, which
+  // serves the site's own icon; the generated glyph is the last resort.
+  const src = iconUrl || (slug ? `/api/v1/favicon/${slug}` : '');
   const h = hash(key);
   const hue = (h * 137) % 360;
   const fg = `hsl(${hue} 68% 63%)`;
   const bg = `hsl(${hue} 45% 11%)`;
   const border = `hsl(${hue} 45% 26%)`;
   const glyph = GLYPHS[h % GLYPHS.length];
+
+  useEffect(() => setFailed(false), [src]);
 
   return (
     <span
@@ -96,10 +101,10 @@ export function StationMark({
       <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} aria-hidden="true">
         {glyph(fg)}
       </svg>
-      {iconUrl && !failed && (
+      {src && !failed && (
         <img
           className="station-mark-img"
-          src={iconUrl}
+          src={src}
           alt=""
           loading="lazy"
           onError={() => setFailed(true)}
