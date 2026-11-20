@@ -1,4 +1,4 @@
-﻿name: CI
+name: CI
 
 on:
   push:
@@ -36,6 +36,38 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run build
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build web bundle
+        working-directory: web
+        run: npm ci && npm run build
+      - name: Start stack
+        env:
+          POSTGRES_PASSWORD: ci-password
+        run: |
+          docker compose build api
+          docker compose up -d db api nginx-http
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8088/api/v1/meta >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "stack did not become ready"
+          docker compose logs api
+          exit 1
+      - name: Install Playwright
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test
+        working-directory: web
+        run: npx playwright test
 
   compose:
     runs-on: ubuntu-latest
