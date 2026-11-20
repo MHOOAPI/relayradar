@@ -331,6 +331,9 @@ export interface Submission {
   baseUrl: string;
   contact: string;
   note: string;
+  payments?: string[];
+  invoice?: boolean;
+  refundPolicy?: string;
   status: string;
   createdAt: string;
 }
