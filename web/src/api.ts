@@ -178,8 +178,8 @@ export const api = {
     request<{ ok: boolean }>('/auth/reset', { method: 'POST', body: JSON.stringify({ token, password }) }),
   adminSummary: () => request<AdminSummary>('/admin/summary'),
   adminSubmissions: () => request<{ items: Submission[] }>('/admin/submissions'),
-  adminSetSubmission: (id: number, status: string) =>
-    request<{ ok: boolean }>(`/admin/submissions/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  adminSetSubmission: (id: number, status: string, terms?: { payments: string[]; invoice: boolean; refundPolicy: string }) =>
+    request<{ ok: boolean }>(`/admin/submissions/${id}`, { method: 'PATCH', body: JSON.stringify({ status, ...(terms ?? {}) }) }),
   adminDeleteReview: (id: number) => request<{ ok: boolean }>(`/admin/reviews/${id}`, { method: 'DELETE' }),
   adminSubscriptions: () =>
     request<{ items: Array<{ id: string; channel: string; url: string; email: string; enabled: boolean; attempts: number; lastError: string; createdAt: string; lastSentAt: string }> }>('/admin/subscriptions'),

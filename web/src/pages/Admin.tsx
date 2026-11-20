@@ -77,6 +77,22 @@ export function AdminPage() {
     }
   };
 
+  const editTerms = async (s: Submission) => {
+    const payments = window.prompt('支付方式（逗号分隔）', (s.payments ?? []).join(',')) ?? '';
+    const invoice = window.prompt('支持开票？y / n', s.invoice ? 'y' : 'n') ?? 'n';
+    const refundPolicy = window.prompt('退款政策', s.refundPolicy ?? '') ?? '';
+    try {
+      await api.adminSetSubmission(s.id, s.status, {
+        payments: payments.split(',').map((x) => x.trim()).filter(Boolean),
+        invoice: invoice.toLowerCase() === 'y',
+        refundPolicy,
+      });
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
   const delReview = async (id: number) => {
     if (!window.confirm('删除这条评价？')) return;
     try {
@@ -216,6 +232,7 @@ export function AdminPage() {
                     <td><span className={`status-pill ${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</span></td>
                     <td className="mono dim">{new Date(s.createdAt).toLocaleDateString('zh-CN')}</td>
                     <td>
+                      <button className="link-btn" onClick={() => editTerms(s)}>商务信息</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'approved')}>通过</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'rejected')}>拒绝</button>
                     </td>
