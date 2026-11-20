@@ -48,6 +48,18 @@ func (s *Server) spaHandler(dir string) http.Handler {
 	var indexMod time.Time
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// English pages were removed; send old links to the Chinese equivalents.
+		if p := r.URL.Path; p == "/en" || strings.HasPrefix(p, "/en/") {
+			target := strings.TrimPrefix(p, "/en")
+			if target == "" {
+				target = "/"
+			}
+			if r.URL.RawQuery != "" {
+				target += "?" + r.URL.RawQuery
+			}
+			http.Redirect(w, r, target, http.StatusMovedPermanently)
+			return
+		}
 		// Re-read index.html when the file changes so a rebuilt frontend does
 		// not keep serving hashed asset names that no longer exist.
 		if info, err := os.Stat(indexPath); err == nil && info.ModTime().After(indexMod) {
@@ -613,27 +625,6 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 			html.EscapeString(base+loc), last, freq, prio)
 	}
 	add("/", "hourly", "1.0")
-	add("/en", "weekly", "0.6")
-	add("/en/methodology", "monthly", "0.5")
-	add("/en/faq", "monthly", "0.5")
-	add("/en/guides", "weekly", "0.6")
-	for _, slug := range []string{"how-to-choose-relay", "multiplier-math", "signature-verification"} {
-		add("/en/guides/"+slug, "monthly", "0.6")
-	}
-	add("/en/models", "daily", "0.6")
-	add("/en/leaderboards", "daily", "0.6")
-	add("/en/audit", "monthly", "0.6")
-	add("/en/changes", "hourly", "0.6")
-	add("/en/free", "weekly", "0.5")
-	for _, c := range auditCheckDocsEN {
-		add("/en/audit/"+c.Key, "monthly", "0.5")
-	}
-	for _, m := range d.Models {
-		add("/en/models/"+m.ID, "daily", "0.5")
-	}
-	for _, st := range d.Stations {
-		add("/en/stations/"+st.Slug, "daily", "0.5")
-	}
 	add("/leaderboards", "daily", "0.9")
 	add("/models", "daily", "0.8")
 	add("/stations", "daily", "0.8")
@@ -646,10 +637,7 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 	add("/model-status", "hourly", "0.7")
 	for _, p := range modelProviders {
 		add("/model-status/"+p.Key, "hourly", "0.6")
-		add("/en/model-status/"+p.Key, "hourly", "0.5")
 	}
-	add("/en/model-status", "hourly", "0.6")
-	add("/en/status", "hourly", "0.5")
 	for _, c := range auditCheckDocs {
 		add("/audit/"+c.Key, "monthly", "0.6")
 	}
