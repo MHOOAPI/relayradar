@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api, ApiError } from '../api';
-import type { AuditReport, CheckStatus, ModelOption, ModelSummary } from '../types';
+import type { AuditCheckDoc, AuditReport, CheckStatus, ModelOption, ModelSummary } from '../types';
 import { Spinner } from '../components/ui';
 import { AlertMark, CheckMark, XMark } from '../components/icons';
 import { useToast } from '../lib/toast';
@@ -17,6 +17,105 @@ const AUDIT_GAP_MS = 4200;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const reportLink = (id: string) => `${window.location.origin}/audit?report=${id}`;
+
+type RunStatus = 'queued' | 'running' | 'done' | 'failed';
+
+interface RunItem {
+  model: string;
+  status: RunStatus;
+  startedAt?: number;
+  durationMs?: number;
+  error?: string;
+}
+
+const STATUS_TEXT: Record<RunStatus, string> = {
+  queued: '排队中',
+  running: '检测中',
+  done: '完成',
+  failed: '失败',
+};
+
+// 检测流程：真实执行顺序，用来解释「点下去之后发生了什么」。
+const RUN_STEPS = [
+  ['连接端点', '建立 TLS 连接，记录 HTTP 状态与握手耗时'],
+  ['连发两次相同请求', '第一次带 stream=true，第二次用于比对分词与缓存'],
+  ['读取流式响应', '记录首个增量时间、[DONE] 结束标记与回显的模型名'],
+  ['逐项判定并存档', '8 项检查给出通过 / 观察 / 失败，报告可分享'],
+];
+
+function CheckIntro({ docs }: { docs: AuditCheckDoc[] }) {
+  return (
+    <section className="panel audit-checks">
+      <div className="panel-head">
+        <h2>检测什么</h2>
+        <span className="fine">{docs.length > 0 ? `${docs.length} 项协议与计费检查，每项给出通过 / 观察 / 失败` : '加载检查项…'}</span>
+      </div>
+      <div className="audit-check-grid">
+        {docs.map((c, i) => (
+          <Link key={c.key} className="audit-check-card" to={`/audit/${c.key}`}>
+            <span className="ac-head">
+              <span className="mono dim ac-index">{String(i + 1).padStart(2, '0')}</span>
+              <b>{c.label}</b>
+            </span>
+            <p>{c.short}</p>
+            <span className="ac-pass">通过：{c.pass}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RunSteps() {
+  return (
+    <ol className="run-steps">
+      {RUN_STEPS.map(([title, detail], i) => (
+        <li key={title}>
+          <span className="mono run-step-index">{i + 1}</span>
+          <div>
+            <b>{title}</b>
+            <p>{detail}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ResultMatrix({ reports }: { reports: AuditReport[] }) {
+  const keys = reports[0].checks.map((c) => ({ key: c.key, label: c.label }));
+  const mark = (status?: CheckStatus) => (status === 'pass' ? '✓' : status === 'warn' ? '!' : status === 'fail' ? '✕' : '·');
+  return (
+    <div className="result-matrix-wrap">
+      <table className="index-table result-matrix">
+        <thead>
+          <tr>
+            <th>检查项</th>
+            {reports.map((r) => (
+              <th key={r.id} className="mono matrix-model" title={r.model}>{r.model}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {keys.map((k) => (
+            <tr key={k.key}>
+              <td><Link to={`/audit/${k.key}`}>{k.label}</Link></td>
+              {reports.map((r) => {
+                const check = r.checks.find((c) => c.key === k.key);
+                const status = check?.status;
+                return (
+                  <td key={r.id} className={`matrix-cell ${status ?? 'unknown'}`} title={check?.detail}>
+                    {mark(status)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 function ReportCard({ report, defaultOpen }: { report: AuditReport; defaultOpen: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -84,9 +183,11 @@ export function AuditPage() {
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('claude-opus-5-5');
   const [models, setModels] = useState<ModelSummary[]>([]);
+  const [checkDocs, setCheckDocs] = useState<AuditCheckDoc[]>([]);
   const [reports, setReports] = useState<AuditReport[]>([]);
   const [failures, setFailures] = useState<Array<{ model: string; error: string }>>([]);
-  const [progress, setProgress] = useState<{ done: number; total: number; current: string } | null>(null);
+  const [runItems, setRunItems] = useState<RunItem[]>([]);
+  const [now, setNow] = useState(() => Date.now());
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { push } = useToast();
@@ -101,7 +202,14 @@ export function AuditPage() {
 
   useEffect(() => {
     api.models().then((r) => setModels(r.items)).catch(() => setModels([]));
+    api.auditChecks().then((r) => setCheckDocs(r.items)).catch(() => setCheckDocs([]));
   }, []);
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 500);
+    return () => window.clearInterval(timer);
+  }, [running]);
 
   useEffect(() => {
     const id = params.get('report');
@@ -192,12 +300,14 @@ export function AuditPage() {
     setError(null);
     setReports([]);
     setFailures([]);
+    setRunItems(targets.map((m) => ({ model: m, status: 'queued' })));
     const acc: AuditReport[] = [];
     const fails: Array<{ model: string; error: string }> = [];
 
     for (let i = 0; i < targets.length; i++) {
       const target = targets[i];
-      setProgress({ done: i, total: targets.length, current: target });
+      const startedAt = Date.now();
+      setRunItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status: 'running', startedAt } : it)));
       if (i > 0) {
         const wait = AUDIT_GAP_MS - (Date.now() - lastAuditAt.current);
         if (wait > 0) await sleep(wait);
@@ -220,18 +330,25 @@ export function AuditPage() {
         }
         acc.push(report);
         setReports([...acc]);
+        setRunItems((prev) =>
+          prev.map((it, idx) => (idx === i ? { ...it, status: 'done', durationMs: Date.now() - startedAt } : it)),
+        );
       } catch (err) {
-        fails.push({ model: target, error: (err as Error).message });
+        const message = (err as Error).message;
+        fails.push({ model: target, error: message });
         setFailures([...fails]);
+        setRunItems((prev) =>
+          prev.map((it, idx) => (idx === i ? { ...it, status: 'failed', durationMs: Date.now() - startedAt, error: message } : it)),
+        );
       }
     }
 
-    setProgress(null);
     setRunning(false);
   };
 
   const passed = reports.filter((r) => r.passed).length;
   const risky = reports.length - passed;
+  const finished = runItems.filter((it) => it.status === 'done' || it.status === 'failed').length;
 
   return (
     <main className="wrap">
@@ -240,10 +357,13 @@ export function AuditPage() {
           <span className="eyebrow"><i />ZERO-TRUST PROBE</span>
           <h1>接口检测</h1>
           <p className="sub">
-            对一个 OpenAI 兼容端点发两次真实请求，测量首字延迟、流式完整性、模型回显、用量口径与缓存透传。从站点拉取模型后可以多选，逐个检测。
+            对任意 OpenAI 兼容端点发两次真实请求，核对 8 项协议与计费信号：端点可达、鉴权、流式完整性、模型回显、usage、分词一致性、缓存透传与首字延迟。
+            从站点拉取模型后可以多选，逐个检测并各自生成报告。
           </p>
         </div>
       </div>
+
+      <CheckIntro docs={checkDocs} />
 
       <div className="audit-layout">
         <section className="panel audit-form-panel">
@@ -358,7 +478,7 @@ export function AuditPage() {
 
             <button className="btn btn-primary audit-submit" disabled={running || targets.length === 0}>
               {running
-                ? <><Spinner /> {progress ? `正在检测 ${progress.done + 1}/${progress.total}` : '正在探测…'}</>
+                ? <><Spinner /> {finished}/{runItems.length || targets.length} 已完成</>
                 : targets.length > 1 ? `开始检测 ${targets.length} 个模型 →` : '开始检测 →'}
             </button>
             {error && <p className="form-error">{error}</p>}
@@ -368,7 +488,7 @@ export function AuditPage() {
         <section className="panel audit-result-panel">
           <div className="panel-head">
             <h2>检测结果</h2>
-            {reports.length + failures.length > 0 && (
+            {(reports.length > 0 || failures.length > 0) && !running && (
               <div className="report-actions">
                 <span className="mono dim result-count">
                   共 {reports.length + failures.length} 个 · 通过 {passed} · 风险 {risky}
@@ -391,35 +511,47 @@ export function AuditPage() {
             )}
           </div>
 
-          {reports.length === 0 && failures.length === 0 && !running && (
-            <div className="audit-empty">
-              <p>检测会依次核对：</p>
-              <ul>
-                <li>端点可达与 TLS 证书</li>
-                <li>鉴权是否被接受（401/403 单独标记）</li>
-                <li>SSE 流式增量与 [DONE] 结束标记</li>
-                <li>响应回显的模型名是否与请求一致</li>
-                <li>usage 是否上报、两次相同请求的 prompt_tokens 是否一致</li>
-                <li>缓存命中字段是否透传（cached_tokens）</li>
-                <li>首字延迟 TTFT</li>
+          {running && (
+            <div className="run-panel">
+              <div className="run-summary">
+                <Spinner />
+                <span>正在检测 {Math.min(finished + 1, runItems.length || targets.length)}/{runItems.length || targets.length}</span>
+                <div className="run-bar" aria-hidden="true">
+                  <i style={{ width: `${runItems.length ? (finished / runItems.length) * 100 : 0}%` }} />
+                </div>
+              </div>
+              <ul className="run-list">
+                {runItems.map((it) => (
+                  <li key={it.model} className={`run-item ${it.status}`}>
+                    <span className="run-dot" />
+                    <span className="mono run-model">{it.model}</span>
+                    <span className="run-status">
+                      {STATUS_TEXT[it.status]}
+                      {it.status === 'running' && it.startedAt ? ` · ${((now - it.startedAt) / 1000).toFixed(1)}s` : ''}
+                      {it.status === 'done' && it.durationMs ? ` · ${(it.durationMs / 1000).toFixed(1)}s` : ''}
+                    </span>
+                  </li>
+                ))}
               </ul>
-              <p className="fine">检测不会判断模型是否“降智”，只核对可观测的协议与计费信号。</p>
             </div>
           )}
 
-          {running && (
-            <div className="run-progress">
-              <Spinner />
-              <span>
-                {progress ? `正在检测 ${progress.done + 1}/${progress.total}：` : '正在建立连接…'}
-                <b className="mono">{progress?.current ?? ''}</b>
-              </span>
-              {progress && progress.done > 0 && <span className="fine">每个模型约 4 秒排队，避免触发限流。</span>}
+          {!running && reports.length === 0 && failures.length === 0 && (
+            <div className="audit-empty">
+              <h3>检测过程</h3>
+              <RunSteps />
+              <p className="fine">点「开始检测」后，这里会按模型显示进度，并在结束后给出逐项结果与对比矩阵。</p>
             </div>
           )}
 
           {(reports.length > 0 || failures.length > 0) && (
             <div className="report-list">
+              {reports.length > 1 && (
+                <div className="matrix-block">
+                  <h3>检查项 × 模型</h3>
+                  <ResultMatrix reports={reports} />
+                </div>
+              )}
               {reports.map((r, i) => (
                 <ReportCard key={r.id} report={r} defaultOpen={reports.length === 1 || i === 0} />
               ))}
@@ -433,7 +565,9 @@ export function AuditPage() {
           )}
 
           {reports.length > 0 && (
-            <p className="fine report-foot">检测结果只反映本次请求，不代表该站点的全部线路；报告链接可以分享，但不含 Key。</p>
+            <p className="fine report-foot">
+              检测结果只反映本次请求，不代表该站点的全部线路；报告链接可以分享，但不含 Key。
+            </p>
           )}
         </section>
       </div>
