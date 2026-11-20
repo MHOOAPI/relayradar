@@ -48,6 +48,7 @@ export function ModelPage() {
   if (!model) return <main className="wrap"><div className="loading-page"><Spinner /> 读取模型…</div></main>;
 
   const best = offers.find((o) => o.purityTier !== 'counterfeit' && o.inputCny > 0);
+  const perUnit = model.category === 'image' ? '/张' : model.category === 'video' ? '/秒' : '';
 
   return (
     <main className="wrap">
@@ -116,7 +117,7 @@ export function ModelPage() {
             <thead>
               <tr>
                 <th className="num">#</th><th>站点</th><th>分组</th><th className="num">倍率</th>
-                <th className="num">输入 /1M</th><th className="num">输出 /1M</th><th>纯度</th><th className="num">可用性指数</th>
+                <th className="num">{perUnit ? `价格 ${perUnit}` : '输入 /1M'}</th><th className="num">{perUnit ? '同价' : '输出 /1M'}</th><th>纯度</th><th className="num">可用性指数</th>
               </tr>
             </thead>
             <tbody>
@@ -136,8 +137,8 @@ export function ModelPage() {
                   </td>
                   <td><span className="mono dim">{o.groupName}</span></td>
                   <td className="num mono">{o.multiplier.toFixed(2)}×</td>
-                  <td className="num mono">{fmtCny(o.inputCny)}</td>
-                  <td className="num mono accent">{fmtCny(o.outputCny)}</td>
+                  <td className="num mono">{fmtCny(o.inputCny)}{perUnit}</td>
+                  <td className="num mono accent">{fmtCny(o.outputCny)}{perUnit}</td>
                   <td><TierBadge tier={o.purityTier} /></td>
                   <td className="num mono dim">{o.availability.toFixed(1)}</td>
                 </tr>

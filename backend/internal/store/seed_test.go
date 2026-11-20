@@ -1,12 +1,12 @@
-package store
+﻿package store
 
 import "testing"
 
 func TestBuildSeedSnapshot(t *testing.T) {
 	snap, reviews := BuildSeedSnapshot()
 
-	if len(snap.Stations) != 26 {
-		t.Fatalf("stations = %d, want 26", len(snap.Stations))
+	if len(snap.Stations) != 27 {
+		t.Fatalf("stations = %d, want 27", len(snap.Stations))
 	}
 	if len(snap.Models) < 100 {
 		t.Fatalf("models = %d, want at least 100", len(snap.Models))
@@ -59,3 +59,4 @@ func TestBuildSeedSnapshot(t *testing.T) {
 		}
 	}
 }
+

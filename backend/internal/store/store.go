@@ -340,7 +340,7 @@ func (s *Store) SyncModels(ctx context.Context) error {
 	for i, m := range models {
 		ids[i] = m.ID
 	}
-	if _, err := s.pool.Exec(ctx, `DELETE FROM models WHERE NOT (id = ANY($1))`, ids); err != nil {
+	if _, err := s.pool.Exec(ctx, `DELETE FROM models WHERE NOT (id = ANY($1)) AND id NOT LIKE 'mhoo-%'`, ids); err != nil {
 		return err
 	}
 	return nil
