@@ -9,8 +9,6 @@ import { copyText } from '../lib/clipboard';
 
 const STATUS_LABEL: Record<CheckStatus, string> = { pass: '通过', warn: '观察', fail: '失败' };
 
-// 单次最多检测几个模型：每个模型要发两次真实请求，太多会拖很久。
-const MAX_MODELS = 8;
 // 服务端对 /audit 按 IP 限流（4 秒一次），多模型顺序检测按这个节奏排队。
 const AUDIT_GAP_MS = 4200;
 
@@ -189,6 +187,7 @@ export function AuditPage() {
   const [runItems, setRunItems] = useState<RunItem[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const [running, setRunning] = useState(false);
+  const [stopped, setStopped] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { push } = useToast();
   const [remote, setRemote] = useState<ModelOption[]>([]);
@@ -199,6 +198,7 @@ export function AuditPage() {
   const [manual, setManual] = useState(false);
   const autoRan = useRef(false);
   const lastAuditAt = useRef(0);
+  const stopRef = useRef(false);
 
   useEffect(() => {
     api.models().then((r) => setModels(r.items)).catch(() => setModels([]));
@@ -261,15 +261,7 @@ export function AuditPage() {
   }, [remote, filter]);
 
   const toggle = (id: string) => {
-    if (selected.includes(id)) {
-      setSelected(selected.filter((x) => x !== id));
-      return;
-    }
-    if (selected.length >= MAX_MODELS) {
-      push(`单次最多检测 ${MAX_MODELS} 个模型`, 'err');
-      return;
-    }
-    setSelected([...selected, id]);
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const allFilteredSelected = filteredRemote.length > 0 && filteredRemote.every((m) => selected.includes(m.id));
@@ -279,15 +271,7 @@ export function AuditPage() {
       setSelected(selected.filter((id) => !filteredRemote.some((m) => m.id === id)));
       return;
     }
-    const merged = [...selected];
-    for (const m of filteredRemote) {
-      if (merged.length >= MAX_MODELS) break;
-      if (!merged.includes(m.id)) merged.push(m.id);
-    }
-    if (merged.length >= MAX_MODELS && filteredRemote.some((m) => !merged.includes(m.id))) {
-      push(`单次最多检测 ${MAX_MODELS} 个模型`, 'err');
-    }
-    setSelected(merged);
+    setSelected([...new Set([...selected, ...filteredRemote.map((m) => m.id)])]);
   };
 
   const run = async (e: React.FormEvent) => {
@@ -297,6 +281,8 @@ export function AuditPage() {
       return;
     }
     setRunning(true);
+    setStopped(false);
+    stopRef.current = false;
     setError(null);
     setReports([]);
     setFailures([]);
@@ -305,6 +291,10 @@ export function AuditPage() {
     const fails: Array<{ model: string; error: string }> = [];
 
     for (let i = 0; i < targets.length; i++) {
+      if (stopRef.current) {
+        setStopped(true);
+        break;
+      }
       const target = targets[i];
       const startedAt = Date.now();
       setRunItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status: 'running', startedAt } : it)));
@@ -454,7 +444,7 @@ export function AuditPage() {
 
               {usingPicker && (
                 <small className="field-hint">
-                  已从 /v1/models 拉取 {remote.length} 个模型，单次最多检测 {MAX_MODELS} 个。
+                  已从 /v1/models 拉取 {remote.length} 个模型，可全选；每个模型约 4–8 秒，按服务端限流排队。
                 </small>
               )}
               {discoverError && (
@@ -481,6 +471,23 @@ export function AuditPage() {
                 ? <><Spinner /> {finished}/{runItems.length || targets.length} 已完成</>
                 : targets.length > 1 ? `开始检测 ${targets.length} 个模型 →` : '开始检测 →'}
             </button>
+            {running && (
+              <button
+                type="button"
+                className="btn btn-ghost audit-stop"
+                onClick={() => { stopRef.current = true; }}
+                disabled={stopped}
+              >
+                {stopped ? '正在停止…' : '停止检测'}
+              </button>
+            )}
+            {!running && targets.length > 2 && (
+              <p className="fine audit-estimate">
+                {targets.length} 个模型将按顺序检测，预计约 {targets.length <= 10
+                  ? `${targets.length * 6} 秒`
+                  : `${Math.max(1, Math.round((targets.length * 6) / 60))} 分钟`}（每 4 秒一个，可随时停止）
+              </p>
+            )}
             {error && <p className="form-error">{error}</p>}
           </form>
         </section>
@@ -546,6 +553,11 @@ export function AuditPage() {
 
           {(reports.length > 0 || failures.length > 0) && (
             <div className="report-list">
+              {stopped && (
+                <p className="fine audit-stopped">
+                  已停止：完成 {finished} / {runItems.length} 个模型，剩下 {Math.max(0, runItems.length - finished)} 个未检测，重新开始会从头跑。
+                </p>
+              )}
               {reports.length > 1 && (
                 <div className="matrix-block">
                   <h3>检查项 × 模型</h3>
