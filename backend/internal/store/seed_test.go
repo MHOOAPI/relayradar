@@ -1,4 +1,4 @@
-﻿package store
+package store
 
 import "testing"
 
@@ -56,6 +56,26 @@ func TestBuildSeedSnapshot(t *testing.T) {
 	for _, r := range reviews {
 		if !ids[r.StationID] {
 			t.Fatalf("review points at unknown station %d", r.StationID)
+		}
+	}
+}
+
+// Every seeded station must carry an icon: a bundled logo when we have one,
+// otherwise the favicon proxy path the API serves at runtime.
+func TestSeedStationsHaveIcon(t *testing.T) {
+	snap, _ := BuildSeedSnapshot()
+	for _, st := range snap.Stations {
+		if st.IconURL == "" {
+			t.Errorf("station %s has no icon", st.Slug)
+			continue
+		}
+		if bundled := seedLogos[st.Slug]; bundled == "" {
+			want := "/api/v1/favicon/" + st.Slug
+			if st.IconURL != want {
+				t.Errorf("station %s icon = %q, want %q", st.Slug, st.IconURL, want)
+			}
+		} else if st.IconURL != bundled {
+			t.Errorf("station %s icon = %q, want bundled logo %q", st.Slug, st.IconURL, bundled)
 		}
 	}
 }
