@@ -97,6 +97,7 @@ ul { list-style: none; padding: 0; }
 .nav > a {
   padding: 7px 12px; border-radius: 8px; font-size: 12.5px; font-weight: 550;
   color: var(--text-2); transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 .nav > a:hover { color: var(--text); background: var(--panel-2); }
 .nav > a.active { color: var(--accent); background: var(--accent-dim); box-shadow: inset 0 0 0 1px var(--accent-line); }
@@ -104,6 +105,7 @@ ul { list-style: none; padding: 0; }
 .ref-btn {
   border: 0; background: transparent; color: var(--text-2);
   padding: 7px 10px; font-size: 12.5px; font-weight: 550; border-radius: 8px;
+  white-space: nowrap;
 }
 .ref:hover .ref-btn, .ref:focus-within .ref-btn { color: var(--text); background: var(--panel-2); }
 .ref-btn span { font-size: 9px; color: var(--text-3); }
@@ -969,6 +971,14 @@ select:hover { border-color: #303a49; }
 /* ---------- model licenses & compare ---------- */
 .model-links { display: flex; gap: 16px; margin: -6px 0 12px; font-size: 11px; }
 .model-links a { color: var(--accent); }
+.page-head .model-links { margin: 0 0 4px; justify-content: flex-end; }
+.search-wide input { width: 220px; }
+@media (max-width: 760px) {
+  .page-head .model-links { justify-content: flex-start; }
+}
+.table-empty { padding: 16px 20px; }
+.model-scope-note + .model-scope-note { margin-top: 2px; }
+.model-scope-note:last-of-type { margin-bottom: 8px; }
 .license-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 .license-card { padding: 18px 20px; display: grid; gap: 6px; }
 .license-card b { font-size: 15px; }
@@ -1196,6 +1206,7 @@ html, body { max-width: 100%; overflow-x: clip; }
   .mc-id { flex: 1; min-width: 0; }
   .mc-id b { display: block; font-size: 13px; }
   .mc-id small { color: var(--text-3); font-size: 10.5px; }
+  .mc-id .mc-tags { display: block; margin-top: 2px; font-size: 10px; color: var(--text-3); }
   .mc-price { text-align: right; display: flex; flex-direction: column; }
   .mc-price span { font-size: 12.5px; color: var(--accent); }
   .mc-price small { font-size: 9.5px; color: var(--text-3); }
@@ -1890,7 +1901,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 .model-scope { margin: 10px 0 0; font-size: 11px; }
 .model-scope .link-btn { color: var(--accent); }
-.model-scope-note { margin: 4px 0 0; }
+.model-scope-note { margin: 4px 0 0; line-height: 1.6; }
 
 /* Mobile station table: keep the model name visible while scrolling */
 @media (max-width: 640px) {

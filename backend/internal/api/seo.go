@@ -458,8 +458,8 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 		}, true
 	case "/models":
 		return pageMeta{
-			Title:     "模型目录与全网最低价 | RelayRadar",
-			Desc:      "对比官方美元价与中转站折算人民币实价，按模型反查全部报价站点。",
+			Title:     "模型库：上下文、发布时间与全网最低价 | RelayRadar",
+			Desc:      "按厂商、上下文与发布时间浏览模型库；官方美元价与中转站折算人民币价并列，标注报价站点数，并说明图片与视频模型的计费单位。",
 			Canonical: base + path,
 		}, true
 	case "/api-docs":
