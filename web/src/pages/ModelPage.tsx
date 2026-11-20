@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelProviderStatus, ModelSummary, Offer, PriceChange } from '../types';
-import { fmtCny, fmtDate, Spinner, TierBadge } from '../components/ui';
+import { fmtCny, fmtDate, fmtUsd, Spinner, TierBadge } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 
 const fmtCtx = (n: number) => (n >= 1000000 ? `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2)}M` : `${Math.round(n / 1000)}K`);
@@ -87,8 +87,8 @@ export function ModelPage() {
         <div className="model-scores">
           {model.category === 'text' || !model.category ? (
             <>
-              <div><span>官方输入</span><b className="mono">{model.inputUsd > 0 ? `$${model.inputUsd}` : '—'}</b></div>
-              <div><span>官方输出</span><b className="mono">{model.outputUsd > 0 ? `$${model.outputUsd}` : '—'}</b></div>
+              <div><span>官方输入</span><b className="mono">{model.inputUsd > 0 ? fmtUsd(model.inputUsd) : '—'}</b></div>
+              <div><span>官方输出</span><b className="mono">{model.outputUsd > 0 ? fmtUsd(model.outputUsd) : '—'}</b></div>
               <div><span>编程分</span><b className="mono">{model.codingScore}</b></div>
               <div><span>推理分</span><b className="mono">{model.reasoningScore}</b></div>
             </>

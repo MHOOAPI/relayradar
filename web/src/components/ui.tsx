@@ -3,6 +3,10 @@ import { useWatchlist } from '../lib/watchlist';
 import { StarMark } from './icons';
 
 export const fmtCny = (n: number, digits = 2) => (n < 0 ? '—' : `¥${n.toFixed(digits)}`);
+// Upstream prices come from ratio math and can carry float noise
+// (0.09999999999999999); four decimals keeps small prices readable.
+export const fmtUsd = (n: number) =>
+  `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 4 })}`;
 export const fmtNum = (n: number) => n.toLocaleString('zh-CN');
 export const pct = (n: number) => `${n.toFixed(1)}%`;
 export const fmtDate = (iso: string) =>
