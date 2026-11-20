@@ -284,7 +284,7 @@ export function Layout() {
           <span><i className="status-dot" /> <Link to={isEN ? '/en/status' : '/status'}>{isEN ? 'service status' : '服务状态'}</Link></span>
           <span>{isEN ? 'updated' : '数据更新'} {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}</span>
           <span>{isEN ? 'independent monitoring · not investment advice' : '独立监测 · 不构成购买建议'}</span>
-          <Link to={isEN ? '/' : '/en'} className="footer-lang">{isEN ? '中文' : 'English'}</Link>
+
         </div>
         <div className="wrap footer-bottom mono">
           <span>© 2026 RelayRadar</span>
@@ -341,7 +341,7 @@ export function Layout() {
           <span><i className="status-dot" /> <Link to={isEN ? '/en/status' : '/status'}>{isEN ? 'service status' : '服务状态'}</Link></span>
           <span>{isEN ? 'updated' : '数据更新'} {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}</span>
           <span>{isEN ? 'independent monitoring · not investment advice' : '独立监测 · 不构成购买建议'}</span>
-          <Link to={isEN ? '/' : '/en'} className="footer-lang">{isEN ? '中文' : 'English'}</Link>
+
         </div>
         <div className="wrap footer-bottom mono">
           <span>© 2026 RelayRadar</span>

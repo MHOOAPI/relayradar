@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { StationPage } from './pages/Station';
@@ -25,29 +25,13 @@ import { AdminPage } from './pages/Admin';
 import { ModelLicensePage } from './pages/ModelLicense';
 import { ModelComparePage } from './pages/ModelCompare';
 import { WindowLeaderboardPage } from './pages/WindowLeaderboard';
-import { EnHomePage } from './pages/en/EnHome';
-import { EnMethodologyPage } from './pages/en/EnMethodology';
-import { EnFaqPage } from './pages/en/EnFaq';
-import { EnModelsPage } from './pages/en/EnModels';
-import { EnModelPage } from './pages/en/EnModel';
-import { EnGuidesPage } from './pages/en/EnGuides';
-import { EnGuidePage } from './pages/en/EnGuide';
-import { EnLeaderboardPage } from './pages/en/EnLeaderboard';
-import { EnStationPage } from './pages/en/EnStation';
-import { EnAuditPage } from './pages/en/EnAudit';
-import { EnAuditCheckPage } from './pages/en/EnAuditCheck';
-import { EnChangesPage } from './pages/en/EnChanges';
-import { EnFreePage } from './pages/en/EnFree';
 import { StationsPage } from './pages/Stations';
 import { FreeKeysPage } from './pages/FreeKeys';
 import { NotFoundPage } from './pages/NotFound';
 import { StatusPage } from './pages/Status';
-import { EnStatusPage } from './pages/en/EnStatus';
 import { ModelStatusPage } from './pages/ModelStatus';
-import { EnModelStatusPage } from './pages/en/EnModelStatus';
 import { ModelStatusDetailPage } from './pages/ModelStatusDetail';
 import { ClaimEditPage } from './pages/ClaimEdit';
-import { EnModelStatusDetailPage } from './pages/en/EnModelStatusDetail';
 import { SponsorPage } from './pages/Sponsor';
 import { GuidesPage } from './pages/Guides';
 import { GuidePage } from './pages/Guide';
@@ -97,26 +81,11 @@ export default function App() {
           <Route path="compare/models" element={<ModelComparePage />} />
           <Route path="leaderboards/window" element={<WindowLeaderboardPage />} />
           <Route path="sponsor" element={<SponsorPage />} />
-          <Route path="en" element={<EnHomePage />} />
-          <Route path="en/methodology" element={<EnMethodologyPage />} />
-          <Route path="en/faq" element={<EnFaqPage />} />
-          <Route path="en/models" element={<EnModelsPage />} />
-          <Route path="en/models/:id" element={<EnModelPage />} />
-          <Route path="en/guides" element={<EnGuidesPage />} />
-          <Route path="en/guides/:slug" element={<EnGuidePage />} />
-          <Route path="en/leaderboards" element={<EnLeaderboardPage />} />
-          <Route path="en/stations/:slug" element={<EnStationPage />} />
-          <Route path="en/audit" element={<EnAuditPage />} />
-          <Route path="en/audit/:key" element={<EnAuditCheckPage />} />
-          <Route path="en/changes" element={<EnChangesPage />} />
-          <Route path="en/free" element={<EnFreePage />} />
-          <Route path="en/status" element={<EnStatusPage />} />
-          <Route path="en/model-status" element={<EnModelStatusPage />} />
-          <Route path="en/model-status/:key" element={<EnModelStatusDetailPage />} />
           <Route path="status" element={<StatusPage />} />
           <Route path="model-status" element={<ModelStatusPage />} />
           <Route path="model-status/:key" element={<ModelStatusDetailPage />} />
           <Route path="claim/:token" element={<ClaimEditPage />} />
+          <Route path="en/*" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFoundPage />} />
           <Route path="guides" element={<GuidesPage />} />
           <Route path="guides/:slug" element={<GuidePage />} />

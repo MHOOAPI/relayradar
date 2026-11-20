@@ -18,7 +18,7 @@
 - **上游模型状态**：OpenAI / Anthropic / Gemini / DeepSeek / Moonshot / Qwen / xAI 官方状态、事件时间线与 90 天快照
 - **本站服务状态**：90 天可用率、事故、RSS、邮件 / webhook 告警
 - **站长认领**：DNS TXT 或 `.well-known` 文件验证，资料修改后台审核，邮件通知
-- **中英文双语**、SEO / GEO、sitemap、服务端预渲染
+- **中文站点**、SEO / GEO、sitemap、服务端预渲染
 - **鉴权**：邮箱注册登录、PBKDF2、CSRF 校验、限流、审计日志
 
 ## 技术栈
@@ -115,11 +115,11 @@ go run ./cmd/api
 | `/stations`、`/stations/:slug` | 中转站目录与档案 |
 | `/changes` | 变更雷暴与订阅 |
 | `/audit` | 接口检测 |
-| `/guides`、`/guides/en` | 选站指南 |
+| `/guides` | 选站指南 |
 | `/submit`、`/claim/:token` | 提交与认领 |
-| `/status`、`/en/status` | 本站服务状态 |
+| `/status` | 本站服务状态 |
 | `/model-status`、`/model-status/:key` | 上游模型 API 状态 |
-| `/en/model-status`、`/en/model-status/:key` | 英文厂商状态 |
+| `/model-status/:key` | 单厂商官方 API 状态历史 |
 | `/free-api-keys` | 免费 Key 目录 |
 | `/admin` | 后台 |
 
