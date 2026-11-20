@@ -335,7 +335,10 @@ func (s *Server) handleAdminSubmissionStatus(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	var body struct {
-		Status string `json:"status"`
+		Status       string   `json:"status"`
+		Payments     []string `json:"payments"`
+		Invoice      bool     `json:"invoice"`
+		RefundPolicy string   `json:"refundPolicy"`
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -352,9 +355,16 @@ func (s *Server) handleAdminSubmissionStatus(w http.ResponseWriter, r *http.Requ
 		writeError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
+	if err := s.svc.Repo().UpdateSubmissionTerms(r.Context(), id, body.Payments, body.Invoice, body.RefundPolicy); err != nil {
+		writeError(w, http.StatusNotFound, "submission not found")
+		return
+	}
 	if err := s.svc.Repo().UpdateSubmissionStatus(r.Context(), id, body.Status); err != nil {
 		writeError(w, http.StatusNotFound, "submission not found")
 		return
+	}
+	if body.Status == "approved" {
+		_ = s.svc.Repo().ApplyTermsToStation(r.Context(), id)
 	}
 	s.logAdminAction(r, admin, "submission.status", fmt.Sprintf("submission #%d", id), body.Status)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})

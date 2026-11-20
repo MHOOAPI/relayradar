@@ -1,6 +1,7 @@
-package store
+﻿package store
 
 import (
+	"fmt"
 	"context"
 	"errors"
 	"sort"
@@ -48,6 +49,8 @@ type Repo interface {
 	DeleteSession(ctx context.Context, tokenHash string) error
 	ListSubmissions(ctx context.Context) ([]Submission, error)
 	UpdateSubmissionStatus(ctx context.Context, id int64, status string) error
+	UpdateSubmissionTerms(ctx context.Context, id int64, payments []string, invoice bool, refundPolicy string) error
+	ApplyTermsToStation(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	ListUsers(ctx context.Context) ([]User, error)
 	ListAllReviews(ctx context.Context) ([]AdminReview, error)
@@ -1031,3 +1034,42 @@ func (m *Memory) Counts(ctx context.Context) (map[string]int, time.Time, error) 
 		"probes":   len(m.snap.Probes),
 	}, last, nil
 }
+
+func (m *Memory) UpdateSubmissionTerms(ctx context.Context, id int64, payments []string, invoice bool, refundPolicy string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for i := range m.submissions {
+		if m.submissions[i].ID == id {
+			m.submissions[i].Payments = payments
+			m.submissions[i].Invoice = invoice
+			m.submissions[i].RefundPolicy = refundPolicy
+			return nil
+		}
+	}
+	return fmt.Errorf("submission %d not found", id)
+}
+
+func (m *Memory) ApplyTermsToStation(ctx context.Context, id int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var sub *Submission
+	for i := range m.submissions {
+		if m.submissions[i].ID == id {
+			sub = &m.submissions[i]
+			break
+		}
+	}
+	if sub == nil {
+		return fmt.Errorf("submission %d not found", id)
+	}
+	for i := range m.snap.Stations {
+		if strings.EqualFold(m.snap.Stations[i].Domain, sub.Domain) {
+			m.snap.Stations[i].Payments = sub.Payments
+			m.snap.Stations[i].Invoice = sub.Invoice
+			m.snap.Stations[i].RefundPolicy = sub.RefundPolicy
+			return nil
+		}
+	}
+	return nil
+}
+

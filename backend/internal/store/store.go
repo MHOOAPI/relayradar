@@ -1262,3 +1262,19 @@ func (s *Store) Counts(ctx context.Context) (map[string]int, time.Time, error) {
 }
 
 func (s *Store) JSONPayload(v any) ([]byte, error) { return json.Marshal(v) }
+
+// UpdateSubmissionTerms stores the commercial terms captured on a submission.
+func (s *Store) UpdateSubmissionTerms(ctx context.Context, id int64, payments []string, invoice bool, refundPolicy string) error {
+	_, err := s.pool.Exec(ctx, `UPDATE submissions SET payments = $2, invoice = $3, refund_policy = $4 WHERE id = $1`,
+		id, payments, invoice, refundPolicy)
+	return err
+}
+
+// ApplyTermsToStation copies an approved submission's terms onto its station.
+func (s *Store) ApplyTermsToStation(ctx context.Context, id int64) error {
+	_, err := s.pool.Exec(ctx, `
+		UPDATE stations st SET payments = s.payments, invoice = s.invoice, refund_policy = s.refund_policy
+		FROM submissions s
+		WHERE s.id = $1 AND lower(st.domain) = lower(s.domain)`, id)
+	return err
+}
