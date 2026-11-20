@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.19**（模型列表改为模型信息优先的排版、站点图标 favicon 兜底、模型列表默认按报价筛选、带点模型 id 不再 404）
+- 版本：**v0.2.22**（接入 120 个公开目录站点、接口检测多选与检测项/过程/矩阵、模型列表改为模型信息优先、站点图标 favicon 兜底）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
@@ -26,6 +26,7 @@
 | mhoo 文本价 | mhoo `/api/ratio_config` | 真实，25 个，¥/1M |
 | mhoo 图片价 | mhoo `/api/pricing` | 真实，12 个，¥/张 |
 | 其他站点报价 | 演示合成 | 标记为演示数据 |
+| 站点目录（新增 120 家） | [daheiai/awesome-api-proxy](https://github.com/daheiai/awesome-api-proxy) 公开清单 | 名称/域名/简介为真实来源；倍率、探针、评分、纯度为演示值；支付/退款仅在原文提及时填写 |
 | 探针 | prober（容器内，每 10 分钟） | mhoo 真实探针正常入库（约 5s，记为 slow）；mock 目标已从本地 probes.json 移除 |
 | 评分 | 由探针计算 | 有真实数据后自动生效 |
 
@@ -43,6 +44,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 
 ### 站点与模型
 - 站点目录、详情、榜单、可达性历史、CSV 导出
+- 站点目录：143 个（23 个精选 + 120 个公开目录导入）；部署启动时 SyncDemoStations 只增量补齐新站点，不清空既有探针与后台改动
 - 模型页：报价列表、最低价高亮、移动端卡片
 - 模型列表范围：默认只看有站点报价的模型（150 个，不含 batch / free 变体），按报价站点数排序；「展开全部目录」看完整 491 个
 - 模型分类：文本 / 图片 / 视频

@@ -47,7 +47,7 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 		}
 	}
 
-	dialer := &net.Dialer{Timeout: 5 * time.Second}
+	dialer := &net.Dialer{Timeout: 2500 * time.Millisecond}
 	if proxy == nil {
 		dialer.Control = func(network, address string, c syscall.RawConn) error {
 			host, _, err := net.SplitHostPort(address)
@@ -65,14 +65,14 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 	f := &Fetcher{allowLocal: allowLocal, cache: map[string]entry{}}
 	transport := &http.Transport{
 		DialContext:         dialer.DialContext,
-		TLSHandshakeTimeout: 5 * time.Second,
+		TLSHandshakeTimeout: 3 * time.Second,
 		DisableKeepAlives:   true,
 	}
 	if proxy != nil {
 		transport.Proxy = http.ProxyURL(proxy)
 	}
 	f.client = &http.Client{
-		Timeout:   8 * time.Second,
+		Timeout:   4 * time.Second,
 		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= 3 {
@@ -116,19 +116,14 @@ func (f *Fetcher) Get(ctx context.Context, domain string) ([]byte, string, bool)
 }
 
 func (f *Fetcher) fetch(ctx context.Context, domain string) ([]byte, string, bool) {
-	candidates := []string{"https://" + domain + "/favicon.ico"}
-	// The s2 endpoint is a fixed public host, so it is safe to use as a
-	// fallback even when local targets are allowed. Skip obviously fake domains.
-	if !strings.HasSuffix(domain, ".invalid") && !strings.HasPrefix(domain, "localhost") {
-		candidates = append(candidates,
-			"https://www.google.com/s2/favicons?sz=64&domain="+url.QueryEscape(domain))
+	// Only the station's own /favicon.ico is tried. The former Google s2
+	// fallback doubled the outbound requests and made a directory page with a
+	// hundred stations depend on a third party; a miss now just renders the
+	// generated placeholder instead.
+	if strings.HasSuffix(domain, ".invalid") || strings.HasPrefix(domain, "localhost") {
+		return nil, "", false
 	}
-	for _, raw := range candidates {
-		if data, ctype, ok := f.get(ctx, raw); ok {
-			return data, ctype, true
-		}
-	}
-	return nil, "", false
+	return f.get(ctx, "https://"+domain+"/favicon.ico")
 }
 
 func (f *Fetcher) get(ctx context.Context, raw string) ([]byte, string, bool) {

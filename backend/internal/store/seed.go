@@ -16,6 +16,60 @@ var modelsCatalogJSON []byte
 //go:embed station_pricing.json
 var stationPricingJSON []byte
 
+//go:embed relay_stations.json
+var relayStationsJSON []byte
+
+// extraStation is one relay station imported from a public directory listing.
+// Name, domain and tagline come from the listing; rates, probes and scores are
+// demo values generated like the rest of the seeded dataset.
+type extraStation struct {
+	Slug     string     `json:"slug"`
+	Name     string     `json:"name"`
+	Domain   string     `json:"domain"`
+	Tagline  string     `json:"tagline"`
+	Services stringList `json:"services"`
+	Payments stringList `json:"payments"`
+	Invoice  bool       `json:"invoice"`
+	Uptime   float64    `json:"uptime"`
+}
+
+
+// stringList tolerates the JSON variants the directory export produces: a real
+// array, a single string, or an empty object for "no values".
+type stringList []string
+
+func (s *stringList) UnmarshalJSON(b []byte) error {
+	switch {
+	case len(b) == 0 || string(b) == "null":
+		*s = nil
+		return nil
+	case b[0] == '{':
+		*s = nil
+		return nil
+	case b[0] == '"':
+		var one string
+		if err := json.Unmarshal(b, &one); err != nil {
+			return err
+		}
+		*s = []string{one}
+		return nil
+	default:
+		var many []string
+		if err := json.Unmarshal(b, &many); err != nil {
+			return err
+		}
+		*s = many
+		return nil
+	}
+}
+func loadExtraStations() []extraStation {
+	var out []extraStation
+	if err := json.Unmarshal(relayStationsJSON, &out); err != nil {
+		return nil
+	}
+	return out
+}
+
 // CatalogModels returns the embedded OpenRouter catalog with categories filled.
 func CatalogModels() []Model {
 	var models []Model
@@ -410,6 +464,92 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 					Category: category, Summary: summary,
 				})
 				snap.GroupModels = append(snap.GroupModels, GroupModel{GroupID: gid, ModelID: mid, InputCNY: &in, OutputCNY: &out, CacheReadCNY: &in})
+			}
+		}
+	}
+
+	// Directory imports: real names/domains from a public list, demo metrics.
+	for i, ex := range loadExtraStations() {
+		sid := int64(len(snap.Stations) + 1)
+		days := 4 + (i*7)%96
+		// Third-party reported uptime shapes the synthetic probe quality, so a
+		// station listed at 99% does not look like a station listed at 93%.
+		quality := clamp01(0.55 + math.Max(-0.12, math.Min(0.38, (ex.Uptime-92)/8*0.38)))
+		rate := round2(1.0 + float64(i%7)*0.13)
+		snap.Stations = append(snap.Stations, Station{
+			ID: sid, Slug: ex.Slug, Name: ex.Name, Domain: ex.Domain,
+			BaseURL: "https://" + ex.Domain + "/v1", Tagline: ex.Tagline,
+			RateCNY: rate, MinTopupCNY: 10, Payments: ex.Payments,
+			Invoice: ex.Invoice, RefundPolicy: "未知", Claimed: false,
+			IconURL: stationIcon(ex.Slug), ListedAt: now.AddDate(0, 0, -days),
+		})
+
+		for _, svc := range ex.Services {
+			models := modelByService[svc]
+			if len(models) == 0 {
+				continue
+			}
+			gid := int64(len(snap.Groups) + 1)
+			mult := round2(0.35 + rng.Float64()*0.30)
+			snap.Groups = append(snap.Groups, Group{
+				ID: gid, StationID: sid, Slug: svc, Name: serviceLabel(svc) + " 默认组",
+				Service: svc, Multiplier: mult,
+			})
+			for _, m := range models {
+				in := round2(m.InputUSD * rate * mult)
+				out := round2(m.OutputUSD * rate * mult)
+				if in < 0.01 {
+					in = 0.01
+				}
+				if out < 0.01 {
+					out = 0.01
+				}
+				cache := round2(in * 0.1)
+				snap.GroupModels = append(snap.GroupModels, GroupModel{
+					GroupID: gid, ModelID: m.ID,
+					InputCNY: &in, OutputCNY: &out, CacheReadCNY: &cache,
+				})
+			}
+
+			// Light history: 14 days × 4 probes clears the 24-sample scoring
+			// threshold without inflating the demo dataset by 5x.
+			base := 0.62 + quality*0.375
+			for k := 13 * 4; k >= 0; k-- {
+				at := now.Add(-time.Duration(k) * 6 * time.Hour)
+				roll := rng.Float64()
+				status := "ok"
+				latency := int(650 + (1-quality)*4200 + rng.Float64()*380)
+				switch {
+				case roll < base:
+				case roll < base+0.015:
+					status = "slow"
+					latency += 2600 + int(rng.Float64()*1200)
+				default:
+					status = "down"
+					latency = 0
+				}
+				snap.Probes = append(snap.Probes, Probe{
+					GroupID: gid, Status: status, LatencyMS: latency, ProbedAt: at,
+				})
+			}
+
+			if svc == "claude" {
+				for d := 13; d >= 0; d -= 4 {
+					score := 12 + quality*86 + (rng.Float64()-0.5)*8
+					score = math.Max(0, math.Min(99, math.Round(score)))
+					tier := "mixed"
+					if score >= 80 {
+						tier = "official"
+					}
+					detected := ""
+					if score >= 60 {
+						detected = seedModels[0].ID
+					}
+					snap.Purity = append(snap.Purity, Purity{
+						GroupID: gid, Score: int(score), Tier: tier, DetectedModel: detected,
+						CheckedAt: now.AddDate(0, 0, -d),
+					})
+				}
 			}
 		}
 	}

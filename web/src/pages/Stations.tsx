@@ -94,7 +94,9 @@ export function StationsPage() {
     modelList.filter((m) => (s.modelIds ?? []).includes(m.id)).map((m) => m.name);
 
   const claimStats = useMemo(() => {
-    const list = (stations ?? []).filter((s) => !s.officialVendor);
+    // Stations without samples (e.g. a real-price-only station) would drag the
+    // averages to 0%; they are excluded from the claimed/unclaimed comparison.
+    const list = (stations ?? []).filter((s) => !s.officialVendor && s.samples > 0);
     const agg = (claimed: boolean) => {
       const group = list.filter((s) => s.claimed === claimed);
       if (group.length === 0) return null;
@@ -134,7 +136,7 @@ export function StationsPage() {
         <Link className="btn btn-ghost btn-sm" to="/">看实时榜单 →</Link>
       </div>
 
-      {claimStats.claimed && claimStats.unclaimed && (
+      {claimStats.claimed && claimStats.unclaimed && claimStats.claimed.count >= 2 && claimStats.unclaimed.count >= 3 && (
         <section className={`claim-compare ${compareOpen ? 'open' : ''}`}>
           <div className="claim-compare-col">
             <span className="mono">✓ 已认领 · {claimStats.claimed.count} 家</span>

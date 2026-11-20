@@ -5,8 +5,9 @@ import "testing"
 func TestBuildSeedSnapshot(t *testing.T) {
 	snap, reviews := BuildSeedSnapshot()
 
-	if len(snap.Stations) != 27 {
-		t.Fatalf("stations = %d, want 27", len(snap.Stations))
+	wantStations := 27 + len(loadExtraStations())
+	if len(snap.Stations) != wantStations {
+		t.Fatalf("stations = %d, want %d", len(snap.Stations), wantStations)
 	}
 	if len(snap.Models) < 100 {
 		t.Fatalf("models = %d, want at least 100", len(snap.Models))
@@ -60,6 +61,32 @@ func TestBuildSeedSnapshot(t *testing.T) {
 	}
 }
 
+// Imported directory stations must be complete and unique; the seed assigns
+// their IDs by order, so duplicates would corrupt the top-up path.
+func TestImportedStations(t *testing.T) {
+	extra := loadExtraStations()
+	if len(extra) < 100 {
+		t.Fatalf("imported stations = %d, want >= 100", len(extra))
+	}
+	slugs := map[string]bool{}
+	domains := map[string]bool{}
+	for _, st := range extra {
+		if st.Slug == "" || st.Name == "" || st.Domain == "" || st.Tagline == "" {
+			t.Errorf("incomplete station %+v", st)
+		}
+		if slugs[st.Slug] {
+			t.Errorf("duplicate slug %s", st.Slug)
+		}
+		if domains[st.Domain] {
+			t.Errorf("duplicate domain %s", st.Domain)
+		}
+		slugs[st.Slug], domains[st.Domain] = true, true
+		if len(st.Services) == 0 {
+			t.Errorf("station %s has no services", st.Slug)
+		}
+	}
+}
+
 // Every seeded station must carry an icon: a bundled logo when we have one,
 // otherwise the favicon proxy path the API serves at runtime.
 func TestSeedStationsHaveIcon(t *testing.T) {
@@ -79,4 +106,3 @@ func TestSeedStationsHaveIcon(t *testing.T) {
 		}
 	}
 }
-
