@@ -98,6 +98,28 @@ var seedModels = []Model{
 	{ID: "deepseek-v4-1-flash", Vendor: "deepseek", VendorName: "DeepSeek", Name: "DeepSeek V4.1 Flash", Service: "deepseek", ContextWindow: 1000000, InputUSD: 0.3, OutputUSD: 1.2, ReleasedAt: date("2026-10-17"), CodingScore: 88.5, ReasoningScore: 89.6, FreeTier: true, FreeNote: "新账号赠送 500 万 tokens，30 天有效", Summary: "开源权重高能效版，国产算力吞吐高。"},
 	{ID: "kimi-k3-1-pro", Vendor: "moonshot", VendorName: "Moonshot", Name: "Kimi K3.1 Pro", Service: "moonshot", ContextWindow: 1000000, InputUSD: 2, OutputUSD: 10, ReleasedAt: date("2026-11-04"), CodingScore: 90.4, ReasoningScore: 90.2, Summary: "开放权重，超长代码仓上下文稳定。"},
 	{ID: "qwen4-max", Vendor: "qwen", VendorName: "阿里通义", Name: "Qwen4-Max", Service: "qwen", ContextWindow: 1000000, InputUSD: 1.5, OutputUSD: 4.5, ReleasedAt: date("2026-11-01"), CodingScore: 89.4, ReasoningScore: 89.8, FreeTier: true, FreeNote: "阿里云百炼每日 100 万 tokens 免费额度", Summary: "万亿 MoE，中文结构化抽取标杆。"},
+	{ID: "gpt-6.2-nano", Vendor: "openai", VendorName: "OpenAI", Name: "GPT-6.2 Nano", Service: "openai", ContextWindow: 400000, InputUSD: 0.15, OutputUSD: 0.6, ReleasedAt: date("2026-11-17"), CodingScore: 84.2, ReasoningScore: 85.0, Summary: "超低延迟小模型，适合高频分类与路由。"},
+	{ID: "claude-haiku-5-5", Vendor: "anthropic", VendorName: "Anthropic", Name: "Claude Haiku 5.5", Service: "claude", ContextWindow: 500000, InputUSD: 0.8, OutputUSD: 4, ReleasedAt: date("2026-10-02"), CodingScore: 86.8, ReasoningScore: 86.1, Summary: "轻量 Claude，长上下文摘要与批处理便宜。"},
+	{ID: "gemini-4-nitrogen", Vendor: "google", VendorName: "Google", Name: "Gemini 4 Nitrogen", Service: "gemini", ContextWindow: 1000000, InputUSD: 0.4, OutputUSD: 1.6, ReleasedAt: date("2026-11-12"), CodingScore: 87.9, ReasoningScore: 88.4, Summary: "低成本多模态型号，适合大规模文档处理。"},
+	{ID: "deepseek-r2", Vendor: "deepseek", VendorName: "DeepSeek", Name: "DeepSeek R2", Service: "deepseek", ContextWindow: 256000, InputUSD: 0.5, OutputUSD: 2, ReleasedAt: date("2026-09-05"), CodingScore: 88.1, ReasoningScore: 91.2, Summary: "开源推理模型，数学与代码推理性价比高。"},
+	{ID: "kimi-k3-turbo", Vendor: "moonshot", VendorName: "Moonshot", Name: "Kimi K3 Turbo", Service: "moonshot", ContextWindow: 2000000, InputUSD: 0.6, OutputUSD: 2.4, ReleasedAt: date("2026-10-20"), CodingScore: 87.6, ReasoningScore: 87.9, Summary: "2M 超长上下文，适合整仓代码与长文档。"},
+	{ID: "qwen4-plus", Vendor: "qwen", VendorName: "阿里通义", Name: "Qwen4-Plus", Service: "qwen", ContextWindow: 1000000, InputUSD: 0.4, OutputUSD: 1.2, ReleasedAt: date("2026-10-08"), CodingScore: 86.4, ReasoningScore: 86.9, Summary: "中端主力，中文任务与函数调用稳定。"},
+	{ID: "grok-4-7-mini", Vendor: "xai", VendorName: "xAI", Name: "Grok 4.7 Mini", Service: "xai", ContextWindow: 256000, InputUSD: 0.5, OutputUSD: 1.5, ReleasedAt: date("2026-10-01"), CodingScore: 84.9, ReasoningScore: 86.2, Summary: "轻量 Grok，适合实时对话与检索。"},
+	{ID: "gpt-image-3", Vendor: "openai", VendorName: "OpenAI", Name: "GPT Image 3", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-10-30"), Category: "image", Summary: "文本渲染与多图一致性强的图像模型，约 $0.04/张。"},
+	{ID: "dall-e-4", Vendor: "openai", VendorName: "OpenAI", Name: "DALL·E 4", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-08-21"), Category: "image", Summary: "创意构图与风格化插画，约 $0.03/张。"},
+	{ID: "midjourney-v8", Vendor: "midjourney", VendorName: "Midjourney", Name: "Midjourney V8", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-09-12"), Category: "image", Summary: "审美与风格一致性领先，订阅制约 $10/月起。"},
+	{ID: "flux-2-pro", Vendor: "blackforest", VendorName: "Black Forest Labs", Name: "FLUX 2 Pro", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-07-18"), Category: "image", Summary: "开放权重生态，写实人像与局部重绘，约 $0.05/张。"},
+	{ID: "stable-diffusion-4", Vendor: "stability", VendorName: "Stability AI", Name: "Stable Diffusion 4", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-06-30"), Category: "image", Summary: "可自建部署的开源图像模型，边际成本最低。"},
+	{ID: "imagen-5", Vendor: "google", VendorName: "Google", Name: "Imagen 5", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-10-28"), Category: "image", Summary: "写实摄影与文字排版强，约 $0.06/张。"},
+	{ID: "seedream-5", Vendor: "bytedance", VendorName: "字节跳动", Name: "Seedream 5", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-02"), Category: "image", Summary: "中文海报与电商图，约 ¥0.2/张。"},
+	{ID: "qwen-image-2", Vendor: "qwen", VendorName: "阿里通义", Name: "Qwen-Image 2", Service: "image", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-09-25"), Category: "image", Summary: "开源中文图像模型，支持长文本渲染。"},
+	{ID: "sora-3", Vendor: "openai", VendorName: "OpenAI", Name: "Sora 3", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-05"), Category: "video", Summary: "长镜头叙事与音画同步，按秒计费约 $0.30/s。"},
+	{ID: "veo-4", Vendor: "google", VendorName: "Google", Name: "Veo 4", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-10-28"), Category: "video", Summary: "电影感运镜与 4K 输出，约 $0.35/s。"},
+	{ID: "kling-3", Vendor: "kuaishou", VendorName: "快手", Name: "Kling 3.0", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-09-18"), Category: "video", Summary: "人物动作与中文提示词强，约 ¥1.5/s。"},
+	{ID: "runway-gen5", Vendor: "runway", VendorName: "Runway", Name: "Runway Gen-5", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-08-08"), Category: "video", Summary: "镜头控制与风格迁移，订阅制。"},
+	{ID: "pika-3", Vendor: "pika", VendorName: "Pika", Name: "Pika 3", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-07-22"), Category: "video", Summary: "短视频特效与模板化生成，价格低。"},
+	{ID: "hailuo-03", Vendor: "minimax", VendorName: "MiniMax", Name: "Hailuo 03", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-10-10"), Category: "video", Summary: "国产短视频模型，人物一致性较好，约 ¥0.8/s。"},
+	{ID: "wan-3", Vendor: "qwen", VendorName: "阿里通义", Name: "Wan 3.0", Service: "video", ContextWindow: 0, InputUSD: 0, OutputUSD: 0, ReleasedAt: date("2026-11-08"), Category: "video", Summary: "开源视频模型，可自建推理，支持图生视频。"},
 }
 
 func date(s string) time.Time {
@@ -135,6 +157,11 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 		modelByService[m.Service] = append(modelByService[m.Service], m)
 	}
 	snap.Models = append(snap.Models, seedModels...)
+	for i := range snap.Models {
+		if snap.Models[i].Category == "" {
+			snap.Models[i].Category = "text"
+		}
+	}
 
 	var reviews []Review
 

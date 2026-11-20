@@ -84,10 +84,19 @@ export function ModelPage() {
           </div>
         </div>
         <div className="model-scores">
-          <div><span>官方输入</span><b className="mono">${model.inputUsd}</b></div>
-          <div><span>官方输出</span><b className="mono">${model.outputUsd}</b></div>
-          <div><span>编程分</span><b className="mono">{model.codingScore}</b></div>
-          <div><span>推理分</span><b className="mono">{model.reasoningScore}</b></div>
+          {model.category === 'text' || !model.category ? (
+            <>
+              <div><span>官方输入</span><b className="mono">${model.inputUsd}</b></div>
+              <div><span>官方输出</span><b className="mono">${model.outputUsd}</b></div>
+              <div><span>编程分</span><b className="mono">{model.codingScore}</b></div>
+              <div><span>推理分</span><b className="mono">{model.reasoningScore}</b></div>
+            </>
+          ) : (
+            <>
+              <div><span>类型</span><b>{model.category === 'image' ? '图片生成' : '视频生成'}</b></div>
+              <div><span>计费</span><b className="mono">按{model.category === 'image' ? '张' : '秒'}计费</b></div>
+            </>
+          )}
         </div>
       </section>
 

@@ -58,6 +58,7 @@ type Model struct {
 	FreeTier       bool      `json:"freeTier"`
 	FreeNote       string    `json:"freeNote"`
 	Summary        string    `json:"summary"`
+	Category       string    `json:"category"`
 }
 
 type Submission struct {
@@ -373,7 +374,7 @@ func (s *Store) Snapshot(ctx context.Context) (*Snapshot, error) {
 	rows, err = s.pool.Query(ctx, `
 		SELECT id, vendor, vendor_name, name, service, context_window, input_usd, output_usd,
 		       COALESCE(released_at, CURRENT_DATE), coding_score, reasoning_score,
-		       free_tier, free_note, summary
+		       free_tier, free_note, summary, category
 		FROM models ORDER BY released_at DESC NULLS LAST, id`)
 	if err != nil {
 		return nil, err
@@ -382,7 +383,7 @@ func (s *Store) Snapshot(ctx context.Context) (*Snapshot, error) {
 		var m Model
 		err := r.Scan(&m.ID, &m.Vendor, &m.VendorName, &m.Name, &m.Service, &m.ContextWindow,
 			&m.InputUSD, &m.OutputUSD, &m.ReleasedAt, &m.CodingScore, &m.ReasoningScore,
-			&m.FreeTier, &m.FreeNote, &m.Summary)
+			&m.FreeTier, &m.FreeNote, &m.Summary, &m.Category)
 		return m, err
 	})
 	if err != nil {

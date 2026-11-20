@@ -19,10 +19,10 @@ func (s *Store) Seed(ctx context.Context) error {
 	for _, m := range snap.Models {
 		if _, err := tx.Exec(ctx, `
 			INSERT INTO models (id, vendor, vendor_name, name, service, context_window, input_usd, output_usd,
-			                    released_at, coding_score, reasoning_score, free_tier, free_note, summary)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (id) DO NOTHING`,
+			                    released_at, coding_score, reasoning_score, free_tier, free_note, summary, category)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) ON CONFLICT (id) DO NOTHING`,
 			m.ID, m.Vendor, m.VendorName, m.Name, m.Service, m.ContextWindow, m.InputUSD, m.OutputUSD,
-			m.ReleasedAt, m.CodingScore, m.ReasoningScore, m.FreeTier, m.FreeNote, m.Summary); err != nil {
+			m.ReleasedAt, m.CodingScore, m.ReasoningScore, m.FreeTier, m.FreeNote, m.Summary, m.Category); err != nil {
 			return err
 		}
 	}
