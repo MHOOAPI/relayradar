@@ -15,12 +15,14 @@ const CATEGORIES = [
 ] as const;
 
 const CATEGORY_LABEL: Record<string, string> = { text: '文本', image: '图片', video: '视频' };
+const COMMON_VENDORS = new Set(['openai', 'anthropic', 'google', 'deepseek', 'xai', 'qwen', 'moonshot', 'minimax', 'meta', 'mistral']);
 
 export function ModelsPage() {
   const [items, setItems] = useState<ModelSummary[] | null>(null);
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
   const [cat, setCat] = useState(params.get('cat') ?? 'all');
+  const [common, setCommon] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,8 +40,10 @@ export function ModelsPage() {
   const rows = useMemo(() => {
     if (!items) return [];
     const n = q.trim().toLowerCase();
-    return items.filter((m) => (cat === 'all' || (m.category || 'text') === cat) && (!n || `${m.name} ${m.id} ${m.vendor}`.toLowerCase().includes(n)));
-  }, [items, q, cat]);
+    return items.filter((m) => (cat === 'all' || (m.category || 'text') === cat)
+      && (!common || (COMMON_VENDORS.has(m.vendor) && !/batch|free/i.test(m.id)))
+      && (!n || `${m.name} ${m.id} ${m.vendor}`.toLowerCase().includes(n)));
+  }, [items, q, cat, common]);
 
   return (
     <main className="wrap">
@@ -71,6 +75,13 @@ export function ModelsPage() {
           </button>
         ))}
       </div>
+
+      <p className="model-scope mono">
+        <button className="link-btn" onClick={() => setCommon(!common)}>
+          {common ? `仅显示常见模型 · 展开全部 ${items?.length ?? ''}` : `显示全部 · 回到常见模型`}
+        </button>
+        <span className="dim"> · 当前 {rows.length} 个</span>
+      </p>
 
       {error && <div className="error-box">{error}</div>}
 
