@@ -186,7 +186,7 @@ func (s *Server) handleFreeKeyClaim(w http.ResponseWriter, r *http.Request) {
 	_ = s.svc.Repo().IncrementFreeKeyClaims(r.Context(), id)
 	writeJSON(w, http.StatusOK, map[string]any{
 		"apiKey": k.Key, "baseUrl": k.BaseURL, "models": k.Models, "note": k.Note,
-		"warning": "Shared keys can be revoked or rate-limited at any time; never use them for production or billing.",
+		"warning": "共享 Key 可能随时被吊销或限流；不要用于生产环境，也不要绑定付费方式。",
 	})
 }
 
