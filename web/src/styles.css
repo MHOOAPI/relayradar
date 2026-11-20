@@ -1859,3 +1859,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 /* Submission payment picks */
 .pay-picks { display: flex; flex-wrap: wrap; gap: 10px; }
 .pay-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+
+/* Station commercial terms */
+.term-row { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-2); }
+.term-row em { font-style: normal; color: var(--text-3); margin-right: 6px; }
+.term-row span { display: inline-flex; align-items: baseline; }
