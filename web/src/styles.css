@@ -1863,5 +1863,9 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 /* Station commercial terms */
 .term-row { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-2); }
-.term-row em { font-style: normal; color: var(--text-3); margin-right: 6px; }
+.term-row em { font-style: normal; color: var(--text-2); margin-right: 6px; }
 .term-row span { display: inline-flex; align-items: baseline; }
+@media (max-width: 640px) {
+  .term-row { gap: 8px 14px; font-size: 11px; }
+  .term-row span { flex: 1 1 100%; }
+}
