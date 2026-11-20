@@ -371,9 +371,11 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 		Groups  []struct {
 			Name   string `json:"name"`
 			Models []struct {
-				Name     string  `json:"name"`
-				PriceUSD float64 `json:"priceUsd"`
-				Unit     string  `json:"unit"`
+				Name        string  `json:"name"`
+				PriceUSD    float64 `json:"priceUsd"`
+				PriceCNYIn  float64 `json:"priceCnyIn"`
+				PriceCNYOut float64 `json:"priceCnyOut"`
+				Unit        string  `json:"unit"`
 			} `json:"models"`
 		} `json:"groups"`
 	}
@@ -386,15 +388,26 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 		})
 		for _, g := range realStation.Groups {
 			gid := int64(len(snap.Groups) + 1)
-			snap.Groups = append(snap.Groups, Group{ID: gid, StationID: sid, Slug: "image", Name: g.Name, Service: "image", Multiplier: 1})
+			service := "image"
+			if g.Name == "text" {
+				service = "text"
+			}
+			snap.Groups = append(snap.Groups, Group{ID: gid, StationID: sid, Slug: service, Name: g.Name, Service: service, Multiplier: 1})
 			for _, m := range g.Models {
 				mid := realStation.Slug + "--" + m.Name
-				price := round2(m.PriceUSD * 7.2)
+				in, out := round2(m.PriceUSD*7.2), round2(m.PriceUSD*7.2)
+				category := "image"
+				summary := fmt.Sprintf("%s 实价 $%.2f/张", realStation.Slug, m.PriceUSD)
+				if m.Unit == "text" {
+					in, out = m.PriceCNYIn, m.PriceCNYOut
+					category = "text"
+					summary = fmt.Sprintf("%s 实价 ¥%.2f / ¥%.2f 每百万 tokens", realStation.Slug, in, out)
+				}
 				snap.Models = append(snap.Models, Model{
-					ID: mid, Vendor: "mhoo", VendorName: realStation.Slug, Name: m.Name, Service: "image",
-					Category: "image", Summary: fmt.Sprintf("%s 实价 $%.2f/张", realStation.Slug, m.PriceUSD),
+					ID: mid, Vendor: "mhoo", VendorName: realStation.Slug, Name: m.Name, Service: service,
+					Category: category, Summary: summary,
 				})
-				snap.GroupModels = append(snap.GroupModels, GroupModel{GroupID: gid, ModelID: mid, InputCNY: &price, OutputCNY: &price, CacheReadCNY: &price})
+				snap.GroupModels = append(snap.GroupModels, GroupModel{GroupID: gid, ModelID: mid, InputCNY: &in, OutputCNY: &out, CacheReadCNY: &in})
 			}
 		}
 	}

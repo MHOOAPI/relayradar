@@ -1,7 +1,4 @@
-// Command stationsync pulls a New-API style station's public pricing and
-// writes a snapshot used to seed real offers.
-//
-//	STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mhoo
+// Command stationsync pulls a New-API style station's pricing and writes a snapshot.
 package main
 
 import (
@@ -10,17 +7,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
 	"time"
 )
 
 type pricingModel struct {
-	ModelName   string   `json:"model_name"`
-	Description string   `json:"description"`
-	QuotaType   int      `json:"quota_type"`
-	ModelRatio  float64  `json:"model_ratio"`
-	ModelPrice  float64  `json:"model_price"`
-	Completion  float64  `json:"completion_ratio"`
-	Groups      []string `json:"enable_groups"`
+	ModelName  string   `json:"model_name"`
+	QuotaType  int      `json:"quota_type"`
+	ModelPrice float64  `json:"model_price"`
 }
 
 type stationSnapshot struct {
@@ -37,9 +32,11 @@ type group struct {
 }
 
 type model struct {
-	Name    string  `json:"name"`
-	PriceUSD float64 `json:"priceUsd"`
-	Unit    string  `json:"unit"`
+	Name        string  `json:"name"`
+	PriceUSD    float64 `json:"priceUsd,omitempty"`
+	PriceCNYIn  float64 `json:"priceCnyIn,omitempty"`
+	PriceCNYOut float64 `json:"priceCnyOut,omitempty"`
+	Unit        string  `json:"unit"`
 }
 
 func main() {
@@ -48,48 +45,81 @@ func main() {
 	out := flag.String("out", "internal/store/station_pricing.json", "output file")
 	flag.Parse()
 	if *base == "" || *slug == "" {
-		fmt.Fprintln(os.Stderr, "usage: stationsync -base URL -slug SLUG (STATION_API_KEY env required)")
+		fmt.Fprintln(os.Stderr, "usage: stationsync -base URL -slug SLUG")
 		os.Exit(2)
 	}
 	key := os.Getenv("STATION_API_KEY")
-	req, _ := http.NewRequest(http.MethodGet, *base+"/api/pricing", nil)
-	if key != "" {
-		req.Header.Set("Authorization", "Bearer "+key)
-	}
 	client := &http.Client{Timeout: 30 * time.Second, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "fetch:", err)
-		os.Exit(1)
-	}
-	defer resp.Body.Close()
-	var payload struct {
+
+	snap := stationSnapshot{Slug: *slug, Name: *slug, BaseURL: *base, SyncedAt: time.Now().UTC()}
+
+	var pricing struct {
 		Data []pricingModel `json:"data"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		fmt.Fprintln(os.Stderr, "decode:", err)
-		os.Exit(1)
+	if err := getJSON(client, *base+"/api/pricing", key, &pricing); err == nil {
+		var models []model
+		for _, m := range pricing.Data {
+			if m.QuotaType != 1 || m.ModelPrice <= 0 {
+				continue
+			}
+			models = append(models, model{Name: m.ModelName, PriceUSD: m.ModelPrice, Unit: "image"})
+		}
+		if len(models) > 0 {
+			snap.Groups = append(snap.Groups, group{Name: "image", Models: models})
+		}
 	}
 
-	byGroup := map[string][]model{}
-	for _, m := range payload.Data {
-		if m.QuotaType != 1 || m.ModelPrice <= 0 {
-			continue
-		}
-		g := "默认组"
-		if len(m.Groups) > 0 {
-			g = m.Groups[0]
-		}
-		byGroup[g] = append(byGroup[g], model{Name: m.ModelName, PriceUSD: m.ModelPrice, Unit: "image"})
+	texts := fetchTextPricing(client, *base, key)
+	if len(texts) > 0 {
+		snap.Groups = append(snap.Groups, group{Name: "text", Models: texts})
 	}
-	snap := stationSnapshot{Slug: *slug, Name: *slug, BaseURL: *base, SyncedAt: time.Now().UTC()}
-	for name, models := range byGroup {
-		snap.Groups = append(snap.Groups, group{Name: name, Models: models})
-	}
+
 	b, _ := json.MarshalIndent(snap, "", "  ")
 	if err := os.WriteFile(*out, append(b, '\n'), 0o644); err != nil {
 		fmt.Fprintln(os.Stderr, "write:", err)
 		os.Exit(1)
 	}
 	fmt.Printf("wrote %d groups to %s\n", len(snap.Groups), *out)
+}
+
+func fetchTextPricing(client *http.Client, base, key string) []model {
+	var payload struct {
+		Data struct {
+			BillingExpr map[string]string `json:"billing_expr"`
+		} `json:"data"`
+	}
+	if err := getJSON(client, base+"/api/ratio_config", key, &payload); err != nil {
+		return nil
+	}
+	re := regexp.MustCompile(`p \* ([0-9.]+) \+ c \* ([0-9.]+)`)
+	var out []model
+	for name, expr := range payload.Data.BillingExpr {
+		m := re.FindStringSubmatch(expr)
+		if len(m) != 3 {
+			continue
+		}
+		in, _ := strconv.ParseFloat(m[1], 64)
+		o, _ := strconv.ParseFloat(m[2], 64)
+		if in <= 0 {
+			continue
+		}
+		out = append(out, model{Name: name, PriceCNYIn: in, PriceCNYOut: o, Unit: "text"})
+	}
+	return out
+}
+
+func getJSON(client *http.Client, url, key string, dst any) error {
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	if key != "" {
+		req.Header.Set("Authorization", "Bearer "+key)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("status %d", resp.StatusCode)
+	}
+	return json.NewDecoder(resp.Body).Decode(dst)
 }
