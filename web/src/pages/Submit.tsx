@@ -120,7 +120,7 @@ export function SubmitPage() {
                     try {
                       const r = await api.prefill(form.baseUrl, apiKey);
                       setForm((f) => ({ ...f, domain: f.domain || r.domain, baseUrl: f.baseUrl || r.baseUrl }));
-                      setPrefillMsg(`已拉取 ${r.models.length} 个模型${r.pricingOk ? `、${r.pricing.length} 条按次价` : ''}`);
+                      setPrefillMsg(`已拉取 ${r.models.length} 个模型${r.pricingOk ? `、${r.pricing.length} 条按次价` : ''}${r.textPricingOk ? `、${r.textPricing.length} 条文本价` : ''}`);
                     } catch (e) {
                       setPrefillMsg((e as Error).message);
                     } finally {
