@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.22**（接入 120 个公开目录站点、接口检测多选与检测项/过程/矩阵、模型列表改为模型信息优先、站点图标 favicon 兜底）
+- 版本：**v0.2.23**（接入 120 个公开目录站点、favicon 启动预热、接口检测多选与检测项/过程/矩阵、模型列表改为模型信息优先）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

@@ -173,3 +173,39 @@ func sniff(b []byte) string {
 	}
 	return ""
 }
+
+// Warm fetches favicons for the given domains in the background so a large
+// directory page does not have to wait on third-party hosts. Cached entries are
+// skipped; failures are cached like normal misses.
+func (f *Fetcher) Warm(domains []string) {
+	sem := make(chan struct{}, 6)
+	var wg sync.WaitGroup
+	for _, d := range domains {
+		d = strings.ToLower(strings.TrimSpace(d))
+		if d == "" || !domainRe.MatchString(d) {
+			continue
+		}
+		f.mu.Lock()
+		e, ok := f.cache[d]
+		f.mu.Unlock()
+		if ok {
+			ttl := 24 * time.Hour
+			if !e.ok {
+				ttl = time.Hour
+			}
+			if time.Since(e.at) < ttl {
+				continue
+			}
+		}
+		wg.Add(1)
+		go func(domain string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_, _, _ = f.Get(ctx, domain)
+		}(d)
+	}
+	wg.Wait()
+}
