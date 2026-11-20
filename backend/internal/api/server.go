@@ -130,6 +130,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("DELETE /api/v1/subscriptions/{id}", s.handleSubDelete)
 	mux.HandleFunc("GET /api/v1/audit/{id}", s.handleAuditReport)
 	mux.HandleFunc("POST /api/v1/submissions", s.handleSubmission)
+	mux.HandleFunc("POST /api/v1/submissions/prefill", s.handlePrefill)
 	mux.HandleFunc("POST /api/v1/claims", s.handleClaim)
 	mux.HandleFunc("POST /api/v1/claims/{token}/verify", s.handleVerifyClaim)
 	mux.HandleFunc("GET /api/v1/claims/{token}/station", s.handleClaimedStation)
