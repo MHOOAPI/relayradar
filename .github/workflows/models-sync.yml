@@ -21,11 +21,16 @@ jobs:
       - name: Refresh catalog from OpenRouter
         working-directory: backend
         run: go run ./cmd/modelsync
+      - name: Refresh mhoo pricing
+        working-directory: backend
+        env:
+          STATION_API_KEY: ${{ secrets.STATION_API_KEY }}
+        run: go run ./cmd/stationsync -base https://api.mhoo.cc -slug mhoo
       - name: Open PR when the catalog changed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet -- backend/internal/store/models_catalog.json; then
+          if git diff --quiet -- backend/internal/store/models_catalog.json backend/internal/store/station_pricing.json; then
             echo "catalog is up to date"
             exit 0
           fi
@@ -33,8 +38,8 @@ jobs:
           git config user.email "bot@relayradar.local"
           branch="chore/modelsync-$(date -u +%Y%m%d)"
           git checkout -b "$branch"
-          git add backend/internal/store/models_catalog.json
-          git commit -m "chore(models): sync catalog from OpenRouter"
+          git add backend/internal/store/models_catalog.json backend/internal/store/station_pricing.json
+          git commit -m "chore(models): sync catalog and station pricing"
           git push -u origin "$branch"
           gh pr create --title "chore(models): sync catalog from OpenRouter" \
             --body "Automated daily refresh of the embedded model catalog." \
