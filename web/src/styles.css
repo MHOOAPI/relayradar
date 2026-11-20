@@ -550,6 +550,67 @@ select:hover { border-color: #303a49; }
 .report-fail b { color: var(--text); }
 .report-foot { padding: 0 16px 16px; }
 
+/* ---------- audit: what gets checked ---------- */
+.audit-checks { margin-bottom: 16px; }
+.audit-check-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1px; background: var(--line); border-top: 1px solid var(--line);
+}
+.audit-check-card {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 12px 14px; background: var(--panel); color: var(--text);
+  transition: background 0.14s;
+}
+.audit-check-card:hover { background: #10141b; }
+.ac-head { display: flex; align-items: baseline; gap: 8px; }
+.ac-head b { font-size: 12.5px; font-weight: 650; }
+.ac-index { font-size: 10px; }
+.audit-check-card p { font-size: 11.5px; color: var(--text-2); line-height: 1.5; }
+.ac-pass { margin-top: auto; font-size: 10.5px; color: var(--text-3); line-height: 1.5; }
+
+/* ---------- audit: run process ---------- */
+.audit-empty h3 { font-size: 12.5px; font-weight: 650; margin: 0 0 10px; color: var(--text); }
+.run-steps { display: grid; gap: 10px; margin: 0 0 12px; }
+.run-steps li { display: flex; gap: 10px; align-items: flex-start; }
+.run-step-index {
+  width: 20px; height: 20px; flex: none; border-radius: 50%;
+  border: 1px solid var(--line-2); color: var(--text-3);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
+}
+.run-steps b { font-size: 12px; font-weight: 600; color: var(--text); }
+.run-steps p { font-size: 11.5px; color: var(--text-2); margin-top: 1px; }
+.run-panel { padding: 14px 18px 16px; border-bottom: 1px solid var(--line); }
+.run-summary { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-2); }
+.run-bar { flex: 1; height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.run-bar i { display: block; height: 100%; background: var(--accent); transition: width 0.4s ease; }
+.run-list { display: grid; gap: 6px; margin-top: 10px; }
+.run-item { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-2); }
+.run-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); flex: none; }
+.run-item.running .run-dot { background: var(--accent); animation: livePulse 1.1s ease-in-out infinite; }
+.run-item.done .run-dot { background: var(--accent); opacity: 0.55; }
+.run-item.failed .run-dot { background: var(--red); }
+.run-model { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.run-status { font-size: 10.5px; color: var(--text-3); white-space: nowrap; }
+.run-item.done .run-status { color: var(--accent); }
+
+/* ---------- audit: check × model matrix ---------- */
+.matrix-block h3 { font-size: 12.5px; font-weight: 650; margin-bottom: 8px; }
+.result-matrix-wrap { border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.result-matrix { min-width: 0; }
+.result-matrix th, .result-matrix td { padding: 7px 10px; font-size: 11.5px; }
+.result-matrix th:first-child, .result-matrix td:first-child { padding-left: 12px; }
+.result-matrix .matrix-model {
+  max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 10.5px; color: var(--text-3); text-align: center;
+}
+.result-matrix td:first-child { color: var(--text-2); }
+.result-matrix td:first-child a:hover { color: var(--accent); }
+.matrix-cell { text-align: center; font-family: var(--mono); }
+.matrix-cell.pass { color: var(--accent); }
+.matrix-cell.warn { color: var(--amber); }
+.matrix-cell.fail { color: var(--red); }
+.matrix-cell.unknown { color: var(--text-3); }
+
 /* ---------- methodology ---------- */
 .method .panel { margin-bottom: 14px; }
 .method .pad { padding: 22px 24px; }
