@@ -336,6 +336,13 @@ func (s *Store) SyncModels(ctx context.Context) error {
 			return err
 		}
 	}
+	ids := make([]string, len(models))
+	for i, m := range models {
+		ids[i] = m.ID
+	}
+	if _, err := s.pool.Exec(ctx, `DELETE FROM models WHERE NOT (id = ANY($1))`, ids); err != nil {
+		return err
+	}
 	return nil
 }
 
