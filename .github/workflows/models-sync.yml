@@ -1,0 +1,42 @@
+name: Models Sync
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Refresh catalog from OpenRouter
+        working-directory: backend
+        run: go run ./cmd/modelsync
+      - name: Open PR when the catalog changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- backend/internal/store/models_catalog.json; then
+            echo "catalog is up to date"
+            exit 0
+          fi
+          git config user.name "relayradar-bot"
+          git config user.email "bot@relayradar.local"
+          branch="chore/modelsync-$(date -u +%Y%m%d)"
+          git checkout -b "$branch"
+          git add backend/internal/store/models_catalog.json
+          git commit -m "chore(models): sync catalog from OpenRouter"
+          git push -u origin "$branch"
+          gh pr create --title "chore(models): sync catalog from OpenRouter" \
+            --body "Automated daily refresh of the embedded model catalog." \
+            --base main --head "$branch"
+          gh pr merge "$branch" --squash --auto --delete-branch
