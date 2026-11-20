@@ -174,7 +174,6 @@ export function Home() {
             赞助位与广告不参与排名。
           </p>
           <div className="hero-cta">
-            <Link to="/audit" className="btn btn-primary">检测我的接口 →</Link>
             <Link to="/methodology" className="btn btn-ghost">评分怎么算的</Link>
           </div>
           <div className="trust-strip">

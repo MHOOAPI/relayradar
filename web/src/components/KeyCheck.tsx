@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api';
 
 export function KeyCheck() {
@@ -33,7 +34,16 @@ export function KeyCheck() {
         <input value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-..." aria-label="API Key" type="password" />
         <button className="btn btn-primary" disabled={loading}>{loading ? '检测中…' : '开始检测'}</button>
       </div>
-      {result && <p className={`kc-result ${result.ok ? 'ok' : 'err'}`}>{result.text}</p>}
+      {result && (
+        <p className={`kc-result ${result.ok ? 'ok' : 'err'}`}>
+          {result.text}
+          {result.ok && (
+            <Link className="kc-more" to={`/audit?url=${encodeURIComponent(baseUrl.trim())}`}>
+              继续做完整检测（8 项）→
+            </Link>
+          )}
+        </p>
+      )}
     </form>
   );
 }

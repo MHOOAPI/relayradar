@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.23**（接入 120 个公开目录站点、favicon 启动预热、接口检测多选与检测项/过程/矩阵、模型列表改为模型信息优先）
+- 版本：**v0.2.24**（首页收敛为单一检测入口、120 个公开目录站点、favicon 启动预热、接口检测多选与检测项/过程/矩阵）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
@@ -56,7 +56,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 - 站点页展示：支付 / 开票 / 退款
 
 ### 检测与审计
-- 首页内嵌 Key 检测（baseUrl + key → 模型数）
+- 首页内嵌 Key 检测（baseUrl + key → 模型数），是首页唯一的检测入口；成功后可直接跳转完整检测（8 项，自动带上 baseUrl）
 - 接口检测：页面顶部列出 **8 项检查**（内容 + 通过标准），检测中显示逐模型进度与耗时，结束后给出「检查项 × 模型」矩阵与逐项明细；从站点拉取模型后可**多选**，逐个检测并各自生成报告（单次最多 8 个，按服务端 4 秒限流排队，失败逐条展示）
 - 提交站点填 Key 自动填充（prefill：模型、按次价、文本价）
 - 官方状态页事件中文翻译（缓存 + 失败回退英文）
