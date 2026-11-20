@@ -213,7 +213,7 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 			BaseURL: "https://" + st.Domain + "/v1", Tagline: st.Tagline,
 			RateCNY: st.Rate, MinTopupCNY: st.MinTopup, Payments: st.Payments,
 			Invoice: st.Invoice, RefundPolicy: st.Refund, Claimed: st.Claimed,
-			IconURL:  seedLogos[st.Slug],
+			IconURL:  stationIcon(st.Slug),
 			ListedAt: now.AddDate(0, 0, -st.DaysOld),
 		})
 
@@ -462,3 +462,11 @@ func vendorForModel(name string) (string, string) {
 func round2(v float64) float64 { return math.Round(v*100) / 100 }
 
 func clamp01(v float64) float64 { return math.Max(0, math.Min(1, v)) }
+
+// stationIcon prefers a bundled logo, then falls back to the favicon proxy.
+func stationIcon(slug string) string {
+	if icon := seedLogos[slug]; icon != "" {
+		return icon
+	}
+	return "/api/v1/favicon/" + slug
+}
