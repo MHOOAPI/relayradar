@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api, ApiError } from '../api';
 import type { AuditCheckDoc, AuditReport, CheckStatus, ModelOption, ModelSummary } from '../types';
 import { Spinner } from '../components/ui';
+import { SliderCaptcha } from '../components/SliderCaptcha';
 import { AlertMark, CheckMark, XMark } from '../components/icons';
 import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
@@ -188,6 +189,7 @@ export function AuditPage() {
   const [now, setNow] = useState(() => Date.now());
   const [running, setRunning] = useState(false);
   const [stopped, setStopped] = useState(false);
+  const [captchaOK, setCaptchaOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { push } = useToast();
   const [remote, setRemote] = useState<ModelOption[]>([]);
@@ -461,12 +463,14 @@ export function AuditPage() {
               )}
             </div>
 
+            <SliderCaptcha onVerified={() => setCaptchaOK(true)} />
+
             <div className="audit-note">
               <b>关于 Key</b>
               <p>Key 只用于本次探测，不写日志、不落库；报告只保存端点、模型与测量结果。生产环境请始终使用可随时吊销的临时 Key。</p>
             </div>
 
-            <button className="btn btn-primary audit-submit" disabled={running || targets.length === 0}>
+            <button className="btn btn-primary audit-submit" disabled={running || targets.length === 0 || !captchaOK}>
               {running
                 ? <><Spinner /> {finished}/{runItems.length || targets.length} 已完成</>
                 : targets.length > 1 ? `开始检测 ${targets.length} 个模型 →` : '开始检测 →'}

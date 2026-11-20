@@ -34,6 +34,9 @@ type Server struct {
 	claimRL   *burstLimiter
 	verifyRL  *burstLimiter
 	metrics  *httpMetrics
+	captchaMu sync.Mutex
+	captcha   map[string]captchaItem
+	captchaKey []byte
 	startedAt time.Time
 	modelStatusMu sync.Mutex
 	modelStatus  []modelStatusItem
@@ -68,6 +71,7 @@ func New(svc *app.Service, cfg config.Config, log *slog.Logger) *Server {
 		reachDown:    map[string]int{},
 		transCache:   map[string]string{},
 	}
+	s.initCaptcha()
 	s.alerts = newAlertHub(s)
 	return s
 }
@@ -119,6 +123,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/v1/audit", s.handleAudit)
 	mux.HandleFunc("POST /api/v1/audit/models", s.handleAuditModels)
 	mux.HandleFunc("GET /api/v1/audit/checks", s.handleAuditChecks)
+	mux.HandleFunc("GET /api/v1/captcha", s.handleCaptchaIssue)
+	mux.HandleFunc("POST /api/v1/captcha/{id}/verify", s.handleCaptchaVerify)
 	mux.HandleFunc("GET /api/v1/audit/checks/en", s.handleAuditChecksEN)
 	mux.HandleFunc("GET /api/v1/audit/checks/en/{key}", s.handleAuditCheckEN)
 	mux.HandleFunc("GET /api/v1/audit/checks/{key}", s.handleAuditCheck)
@@ -540,6 +546,9 @@ func (s *Server) handleAudit(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if !s.requireCaptcha(w, r) {
 		return
 	}
 	if !s.rl.allow(clientIP(r)) {

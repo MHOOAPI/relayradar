@@ -20,6 +20,9 @@ type Config struct {
 	SeedDemo     bool
 	CORSOrigins  []string
 	AuditEnabled bool
+	// CaptchaEnabled requires the slider challenge for writes that cost
+	// resources or publish secrets (audit, submissions, register, free keys).
+	CaptchaEnabled bool
 	// SMTP settings for email alert subscriptions. Leave SMTPAddr empty to
 	// disable the email channel.
 	SMTPAddr string
@@ -62,6 +65,7 @@ func Load() Config {
 		FaviconProxyURL: env("FAVICON_PROXY_URL", ""),
 		SeedDemo:     envBool("SEED_DEMO", true),
 		AuditEnabled: envBool("AUDIT_ENABLED", true),
+		CaptchaEnabled: envBool("CAPTCHA_ENABLED", true),
 		CORSOrigins:  strings.Split(env("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"), ","),
 		SMTPAddr:     env("SMTP_ADDR", ""),
 		SMTPUser:     env("SMTP_USER", ""),

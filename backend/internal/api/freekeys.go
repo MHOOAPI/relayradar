@@ -93,6 +93,9 @@ func (s *Server) handleFreeKeyCreate(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusTooManyRequests, "too many submissions, retry later")
 		return
 	}
+	if !s.requireCaptcha(w, r) {
+		return
+	}
 	var body struct {
 		BaseURL   string `json:"baseUrl"`
 		APIKey    string `json:"apiKey"`

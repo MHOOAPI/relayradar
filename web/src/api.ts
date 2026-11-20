@@ -29,6 +29,12 @@ import type { GuideDetail, GuideEN, GuideSummary } from './types/guide';
 
 const BASE = '/api/v1';
 
+// Slider-captcha token for sensitive writes. The server issues it after the
+// puzzle is solved; requests simply carry it while it is valid.
+let captchaToken = '';
+export function setCaptchaToken(token: string) { captchaToken = token; }
+export function clearCaptchaToken() { captchaToken = ''; }
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -40,7 +46,11 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isForm = typeof FormData !== 'undefined' && init?.body instanceof FormData;
   const res = await fetch(BASE + path, {
-    headers: { Accept: 'application/json', ...(init?.body && !isForm ? { 'Content-Type': 'application/json' } : {}) },
+    headers: {
+      Accept: 'application/json',
+      ...(init?.body && !isForm ? { 'Content-Type': 'application/json' } : {}),
+      ...(captchaToken ? { 'X-Captcha-Token': captchaToken } : {}),
+    },
     ...init,
   });
   if (!res.ok) {
@@ -81,6 +91,10 @@ export const api = {
       body: JSON.stringify({ slug }),
     }),
   auditReport: (id: string) => request<AuditReport>(`/audit/${encodeURIComponent(id)}`),
+  captcha: () =>
+    request<{ id: string; background: string; piece: string; width: number; height: number; pieceSize: number; pieceY: number; maxX: number }>('/captcha'),
+  verifyCaptcha: (id: string, x: number) =>
+    request<{ token: string }>(`/captcha/${encodeURIComponent(id)}/verify`, { method: 'POST', body: JSON.stringify({ x }) }),
   auditChecks: () => request<{ items: AuditCheckDoc[]; count: number }>('/audit/checks'),
   auditCheck: (key: string) => request<AuditCheckDoc>(`/audit/checks/${encodeURIComponent(key)}`),
   auditChecksEn: () => request<{ items: AuditCheckDoc[] }>('/audit/checks/en'),

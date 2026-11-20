@@ -28,6 +28,9 @@ func randomToken(n int) string {
 }
 
 func (s *Server) handleSubmission(w http.ResponseWriter, r *http.Request) {
+	if !s.requireCaptcha(w, r) {
+		return
+	}
 	var body struct {
 		Name    string `json:"name"`
 		Domain  string `json:"domain"`
