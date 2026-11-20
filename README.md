@@ -1,5 +1,7 @@
 # RelayRadar · 中转雷达
 
+[![CI](https://github.com/MHOOAPI/relayradar/actions/workflows/ci.yml/badge.svg)](https://github.com/MHOOAPI/relayradar/actions/workflows/ci.yml)
+
 大模型 API 中转站的独立监测与排序站：连续探针测可用性、速度基准测延迟、思考签名抽检验真伪，公开倍率折算真实人民币价格。
 
 > 演示数据集：站点名称与域名取自公开站点，仅用于展示真实品牌图标；倍率、探针、评分与评价均为生成值，不代表真实商家表现。接入真实数据前请替换 `internal/store/seed.go`。
