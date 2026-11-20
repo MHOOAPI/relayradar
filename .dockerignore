@@ -1,0 +1,8 @@
+.cache/
+.git/
+docs/
+web/node_modules/
+probes.json
+backend/probes.json
+*.log
+.env

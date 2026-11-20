@@ -1,0 +1,6 @@
+{
+  "stations": [
+    { "slug": "aihubmix", "service": "claude", "baseUrl": "http://127.0.0.1:9199/v1", "apiKey": "sk-mock", "model": "claude-opus-5-5" },
+    { "slug": "apikl", "service": "openai", "baseUrl": "http://127.0.0.1:9199/v1", "apiKey": "sk-mock", "model": "gpt-6.2-sol" }
+  ]
+}

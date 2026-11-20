@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-20T01:50:00Z",
+  "title": "Design System: RelayRadar",
+  "extensions": {
+    "colorMeta": {
+      "signal-green": { "role": "primary", "displayName": "Signal Green", "canonical": "#2ee6a6" },
+      "deep-charcoal": { "role": "neutral", "displayName": "Deep Charcoal", "canonical": "#06070a" },
+      "surface": { "role": "neutral", "displayName": "Panel Surface", "canonical": "#0b0e13" },
+      "surface-raised": { "role": "neutral", "displayName": "Raised Surface", "canonical": "#11151c" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#1a1f28" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#e9edf4" },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#a7b1c2" },
+      "ink-faint": { "role": "neutral", "displayName": "Faint Ink", "canonical": "#6d788b" },
+      "warning-amber": { "role": "secondary", "displayName": "Warning Amber", "canonical": "#f5b942" },
+      "outage-red": { "role": "secondary", "displayName": "Outage Red", "canonical": "#ff5d5d" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Only the homepage hero." },
+      "headline": { "displayName": "Headline", "purpose": "Section and panel titles." },
+      "body": { "displayName": "Body", "purpose": "Prose and table copy." },
+      "label": { "displayName": "Label", "purpose": "Table headers, units, status labels." }
+    },
+    "shadows": [
+      { "name": "panel-rest", "value": "inset 0 1px 0 rgba(255,255,255,.035), 0 18px 44px rgba(0,0,0,.28)", "purpose": "Resting panel depth on the dark surface." },
+      { "name": "pop", "value": "0 30px 80px rgba(0,0,0,.45)", "purpose": "Dropdowns, modals and the hero score card." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(.2,.8,.2,1)", "purpose": "Hover and state transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "980px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action such as 检测我的接口 or 提交站点.",
+      "html": "<button class=\"ds-btn-primary\">检测我的接口 →</button>",
+      "css": ".ds-btn-primary { background: var(--accent, #2ee6a6); color: #06070a; border: 0; border-radius: 8px; height: 38px; padding: 0 18px; font-weight: 650; font-size: 13px; cursor: pointer; transition: background .15s; } .ds-btn-primary:hover { background: #5ff0bd; } .ds-btn-primary:focus-visible { outline: 2px solid #2ee6a6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action beside a primary button.",
+      "html": "<button class=\"ds-btn-ghost\">评分怎么算的</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: var(--text-2, #a7b1c2); border: 1px solid var(--line-2, #232b37); border-radius: 8px; height: 38px; padding: 0 16px; font-size: 13px; cursor: pointer; transition: color .15s, border-color .15s; } .ds-btn-ghost:hover { color: var(--text, #e9edf4); border-color: #33404f; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The main content container for tables and grouped data.",
+      "html": "<section class=\"ds-panel\"><h2>中转站实时榜单</h2><p>共 22 家站点，按综合分排序。</p></section>",
+      "css": ".ds-panel { background: linear-gradient(180deg, #0c1117, #090d12); border: 1px solid #1a1f28; border-radius: 16px; padding: 22px 24px; color: #e9edf4; } .ds-panel h2 { margin: 0 0 6px; font-size: 24px; letter-spacing: -.02em; } .ds-panel p { margin: 0; color: #a7b1c2; font-size: 13px; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Toolbar search for stations and models.",
+      "html": "<input class=\"ds-input\" placeholder=\"搜索站点 / 域名\" />",
+      "css": ".ds-input { background: #06070a; border: 1px solid #232b37; border-radius: 8px; height: 38px; padding: 0 12px; color: #e9edf4; font-size: 13px; width: 240px; } .ds-input::placeholder { color: #6d788b; } .ds-input:focus-visible { outline: 2px solid #2ee6a6; outline-offset: 2px; border-color: #2ee6a6; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "description": "Service and purity filters above the leaderboard.",
+      "html": "<button class=\"ds-chip on\">全部 <span>22</span></button>",
+      "css": ".ds-chip { background: transparent; border: 1px solid #232b37; border-radius: 999px; color: #a7b1c2; height: 30px; padding: 0 12px; font-size: 12px; cursor: pointer; } .ds-chip span { color: #6d788b; font-family: ui-monospace, Consolas, monospace; margin-left: 6px; } .ds-chip.on { background: rgba(46,230,166,.12); border-color: rgba(46,230,166,.3); color: #2ee6a6; }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "custom",
+      "description": "Operational / degraded / outage label used across status surfaces.",
+      "html": "<span class=\"ds-pill ok\">正常运行</span>",
+      "css": ".ds-pill { display: inline-flex; align-items: center; border: 1px solid #232b37; border-radius: 999px; padding: 2px 8px; font-size: 10.5px; font-family: ui-monospace, Consolas, monospace; color: #a7b1c2; } .ds-pill.ok { color: #2ee6a6; border-color: rgba(46,230,166,.3); } .ds-pill.warn { color: #f5b942; border-color: rgba(245,185,66,.3); } .ds-pill.bad { color: #ff5d5d; border-color: rgba(255,93,93,.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "监测仪表台",
+    "overview": "RelayRadar 看起来像一台持续运行的监测仪表：深炭底色压住画面，荧光绿只标记“信号正常”与主行动，数据以等宽字体成列排布。页面不追求营销页的装饰，而追求读数清晰、层级可扫、状态一眼可辨。信息密度高，但靠留白分组：标题上方留白大于下方，卡片只包裹真正成组的内容，其余用细线和编辑式分栏。动效克制，只服务于“数据在更新”和“状态变化”。",
+    "keyCharacteristics": ["深炭底、单一信号绿、三色状态（绿/琥珀/红）", "数据用等宽字体、表格数字对齐", "扁平为默认，浮起只属于 hover、浮层与告警", "中文优先，中文标题比英文标签重"],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "信号绿是“正常/主行动”的专用色；不要用它装饰标题、边框或背景。", "section": "colors" },
+      { "name": "The Status Only Rule", "body": "琥珀与红只表达状态，不用于品牌强调。", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "所有数字列使用 font-variant-numeric: tabular-nums，榜单不因刷新抖动。", "section": "typography" },
+      { "name": "The No Gradient Text Rule", "body": "强调靠字重、字号与颜色，不用渐变文字。", "section": "typography" }
+    ],
+    "dos": ["Do 让信号绿只出现在主行动、正常状态和关键数字上。", "Do 用等宽数字与表格对齐承载比较。", "Do 让标题上方留白大于下方。", "Do 用中文承担主要信息，英文只做辅助标签。"],
+    "donts": ["Don't 用渐变文字、光晕或玻璃模糊做装饰。", "Don't 用单侧彩色边条装饰卡片。", "Don't 用大数字 + 小标签的营销 Hero 替代真实数据。", "Don't 用琥珀或红色表达非状态信息。"]
+  }
+}

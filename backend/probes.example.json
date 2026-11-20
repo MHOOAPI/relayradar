@@ -1,0 +1,25 @@
+{
+  "stations": [
+    {
+      "slug": "aihubmix",
+      "service": "claude",
+      "baseUrl": "https://aihubmix.com/v1",
+      "apiKey": "sk-REPLACE_ME",
+      "model": "claude-opus-5-5"
+    },
+    {
+      "slug": "apikl",
+      "service": "claude",
+      "baseUrl": "https://apikl.ai/v1",
+      "apiKey": "sk-REPLACE_ME",
+      "model": "claude-opus-5-5"
+    },
+    {
+      "slug": "zenmux",
+      "service": "openai",
+      "baseUrl": "https://zenmux.ai/api/v1",
+      "apiKey": "sk-REPLACE_ME",
+      "model": "gpt-6.2-sol"
+    }
+  ]
+}
