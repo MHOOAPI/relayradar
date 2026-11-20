@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -19,11 +20,10 @@ type pricingModel struct {
 }
 
 type stationSnapshot struct {
-	Slug     string    `json:"slug"`
-	Name     string    `json:"name"`
-	BaseURL  string    `json:"baseUrl"`
-	SyncedAt time.Time `json:"syncedAt"`
-	Groups   []group   `json:"groups"`
+	Slug    string  `json:"slug"`
+	Name    string  `json:"name"`
+	BaseURL string  `json:"baseUrl"`
+	Groups  []group `json:"groups"`
 }
 
 type group struct {
@@ -51,7 +51,7 @@ func main() {
 	key := os.Getenv("STATION_API_KEY")
 	client := &http.Client{Timeout: 30 * time.Second, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}
 
-	snap := stationSnapshot{Slug: *slug, Name: *slug, BaseURL: *base, SyncedAt: time.Now().UTC()}
+	snap := stationSnapshot{Slug: *slug, Name: *slug, BaseURL: *base}
 
 	var pricing struct {
 		Data []pricingModel `json:"data"`
@@ -74,6 +74,10 @@ func main() {
 		snap.Groups = append(snap.Groups, group{Name: "text", Models: texts})
 	}
 
+	for i := range snap.Groups {
+		sort.Slice(snap.Groups[i].Models, func(a, b int) bool { return snap.Groups[i].Models[a].Name < snap.Groups[i].Models[b].Name })
+	}
+	sort.Slice(snap.Groups, func(i, j int) bool { return snap.Groups[i].Name < snap.Groups[j].Name })
 	b, _ := json.MarshalIndent(snap, "", "  ")
 	if err := os.WriteFile(*out, append(b, '\n'), 0o644); err != nil {
 		fmt.Fprintln(os.Stderr, "write:", err)
