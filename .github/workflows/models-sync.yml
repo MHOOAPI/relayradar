@@ -36,7 +36,7 @@ jobs:
           fi
           git config user.name "relayradar-bot"
           git config user.email "bot@relayradar.local"
-          branch="chore/modelsync-$(date -u +%Y%m%d)"
+          branch="chore/modelsync-$(date -u +%Y%m%d)-${{ github.run_id }}"
           git checkout -b "$branch"
           git add backend/internal/store/models_catalog.json backend/internal/store/station_pricing.json
           git commit -m "chore(models): sync catalog and station pricing"
