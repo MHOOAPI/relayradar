@@ -3,6 +3,7 @@ package store
 import (
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"math"
 	"math/rand"
 	"strings"
@@ -11,6 +12,9 @@ import (
 
 //go:embed models_catalog.json
 var modelsCatalogJSON []byte
+
+//go:embed station_pricing.json
+var stationPricingJSON []byte
 
 // CatalogModels returns the embedded OpenRouter catalog with categories filled.
 func CatalogModels() []Model {
@@ -357,6 +361,42 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 			Verified: true, CreatedAt: now.AddDate(0, 0, -r.Days),
 		})
 		reviews[len(reviews)-1].StationID = stationIDBySlug[r.Station]
+	}
+
+	// Real station snapshot (mhoo.cc): per-image USD pricing.
+	var realStation struct {
+		Slug    string `json:"slug"`
+		Name    string `json:"name"`
+		BaseURL string `json:"baseUrl"`
+		Groups  []struct {
+			Name   string `json:"name"`
+			Models []struct {
+				Name     string  `json:"name"`
+				PriceUSD float64 `json:"priceUsd"`
+				Unit     string  `json:"unit"`
+			} `json:"models"`
+		} `json:"groups"`
+	}
+	if err := json.Unmarshal(stationPricingJSON, &realStation); err == nil && len(realStation.Groups) > 0 {
+		sid := int64(len(seedStations) + 1)
+		snap.Stations = append(snap.Stations, Station{
+			ID: sid, Slug: realStation.Slug, Name: realStation.Slug, Domain: strings.TrimPrefix(realStation.BaseURL, "https://"),
+			BaseURL: realStation.BaseURL + "/v1", Tagline: "真实计价 · 按张计费", RateCNY: 7.2, MinTopupCNY: 0,
+			Payments: []string{"支付宝"}, RefundPolicy: "未知", Claimed: true, ListedAt: now,
+		})
+		for _, g := range realStation.Groups {
+			gid := int64(len(snap.Groups) + 1)
+			snap.Groups = append(snap.Groups, Group{ID: gid, StationID: sid, Slug: "image", Name: g.Name, Service: "image", Multiplier: 1})
+			for _, m := range g.Models {
+				mid := realStation.Slug + "--" + m.Name
+				price := round2(m.PriceUSD * 7.2)
+				snap.Models = append(snap.Models, Model{
+					ID: mid, Vendor: "mhoo", VendorName: realStation.Slug, Name: m.Name, Service: "image",
+					Category: "image", Summary: fmt.Sprintf("%s 实价 $%.2f/张", realStation.Slug, m.PriceUSD),
+				})
+				snap.GroupModels = append(snap.GroupModels, GroupModel{GroupID: gid, ModelID: mid, InputCNY: &price, OutputCNY: &price, CacheReadCNY: &price})
+			}
+		}
 	}
 
 	return snap, reviews
