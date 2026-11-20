@@ -15,6 +15,7 @@ import { ApiDocsPage } from './pages/ApiDocs';
 import { ChangesPage } from './pages/Changes';
 import { FaqPage } from './pages/Faq';
 import { AlertsPage } from './pages/Alerts';
+import { AccountPage } from './pages/Account';
 import { GoPage } from './pages/Go';
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="api-docs" element={<ApiDocsPage />} />
           <Route path="faq" element={<FaqPage />} />
           <Route path="alerts" element={<AlertsPage />} />
+          <Route path="account" element={<AccountPage />} />
           <Route path="go/:slug" element={<GoPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />

@@ -167,6 +167,13 @@ func noIndexPageMeta(base string, r *http.Request) (pageMeta, bool) {
 			Canonical: base + "/",
 			NoIndex:   true,
 		}, true
+	case "/account":
+		return pageMeta{
+			Title:     "个人中心 | RelayRadar",
+			Desc:      "账号资料、我的告警订阅、提交记录与关注列表。",
+			Canonical: base + "/account",
+			NoIndex:   true,
+		}, true
 	}
 	return pageMeta{}, false
 }

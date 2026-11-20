@@ -1,5 +1,6 @@
 import type {
   AdminSummary,
+  AccountData,
   AlertSubscription,
   DeliveryLog,
   FreeKeyView,
@@ -92,7 +93,7 @@ export const api = {
     }),
   auditReport: (id: string) => request<AuditReport>(`/audit/${encodeURIComponent(id)}`),
   captcha: () =>
-    request<{ id: string; background: string; piece: string; width: number; height: number; pieceSize: number; pieceY: number; maxX: number }>('/captcha'),
+    request<{ disabled?: boolean; id: string; background: string; piece: string; width: number; height: number; pieceSize: number; pieceY: number; maxX: number }>('/captcha'),
   verifyCaptcha: (id: string, x: number) =>
     request<{ token: string }>(`/captcha/${encodeURIComponent(id)}/verify`, { method: 'POST', body: JSON.stringify({ x }) }),
   auditChecks: () => request<{ items: AuditCheckDoc[]; count: number }>('/audit/checks'),
@@ -180,6 +181,11 @@ export const api = {
   windowLeaderboard: (days: number) =>
     request<{ items: WindowRow[]; windowDays: number }>(`/leaderboards/window?days=${days}`),
   me: () => request<{ user: User }>('/auth/me'),
+  account: () => request<AccountData>('/account'),
+  accountSetSub: (id: string, enabled: boolean) =>
+    request<{ ok: boolean }>(`/account/subscriptions/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ enabled }) }),
+  accountDeleteSub: (id: string) =>
+    request<{ ok: boolean }>(`/account/subscriptions/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   login: (email: string, password: string) =>
     request<{ user: User }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   register: (email: string, password: string, name: string) =>

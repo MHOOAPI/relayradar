@@ -423,3 +423,10 @@ export interface WindowRow {
   uptime: number;
   days: number;
 }
+
+export interface AccountData {
+  user: User;
+  stats: { subscriptions: number; active: number; submissions: number; pending: number };
+  subscriptions: AlertSubscription[];
+  submissions: Submission[];
+}
