@@ -73,6 +73,9 @@ func openRepo(ctx context.Context, cfg config.Config, log *slog.Logger) (store.R
 		st.Close()
 		return nil, func() {}, err
 	}
+	if err := st.SyncModels(ctx); err != nil {
+		log.Info("model catalog sync skipped", "err", err)
+	}
 	empty, err := st.IsEmpty(ctx)
 	if err != nil {
 		st.Close()

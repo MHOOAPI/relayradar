@@ -12,6 +12,22 @@ import (
 //go:embed models_catalog.json
 var modelsCatalogJSON []byte
 
+// CatalogModels returns the embedded OpenRouter catalog with categories filled.
+func CatalogModels() []Model {
+	var models []Model
+	if err := json.Unmarshal(modelsCatalogJSON, &models); err != nil {
+		return nil
+	}
+	for i := range models {
+		if models[i].Category == "" {
+			models[i].Category = "text"
+		}
+	}
+	return models
+}
+
+
+
 type seedStation struct {
 	Slug      string
 	Name      string
