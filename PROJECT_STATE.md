@@ -1,0 +1,106 @@
+# RelayRadar 项目状态（交接文档）
+
+> 用途：跨会话交接。新对话只需读这份文件 + 仓库即可继续，不依赖聊天历史。
+> 最后更新：2026-11-21
+
+## 1. 当前线上状态
+
+- 版本：**v0.2.17**
+- 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
+- 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
+- 访问：https://localhost/（自签证书）、http://localhost:8088/
+- 发布方式：打 `v*` tag → Deploy workflow 构建镜像 → GitHub Release 自动生成
+
+## 2. 技术栈
+
+- 后端：Go 1.25，net/http，pgx v5，内嵌 SQL 迁移（001–022）
+- 前端：React 19 + TS + Vite 8，手写 CSS，无 UI 框架
+- 部署：Docker Compose（db / api / nginx / nginx-http / prober）
+- CI：`.github/workflows/ci.yml`（backend / web / compose / smoke），main 必须过 CI 才能合并
+
+## 3. 数据现状（重要）
+
+| 数据 | 来源 | 状态 |
+|---|---|---|
+| 模型目录 | OpenRouter `/api/v1/models` | 真实，454 个，每日 11:00 自动同步 |
+| mhoo 文本价 | mhoo `/api/ratio_config` | 真实，25 个，¥/1M |
+| mhoo 图片价 | mhoo `/api/pricing` | 真实，12 个，¥/张 |
+| 其他站点报价 | 演示合成 | 标记为演示数据 |
+| 探针 | prober（mhoo 真实 + mock） | 真实探针仅宿主机可跑（容器出网受限） |
+| 评分 | 由探针计算 | 有真实数据后自动生效 |
+
+同步命令：
+
+```bash
+cd backend
+go run ./cmd/modelsync                  # 模型目录
+STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mhoo
+```
+
+密钥：`STATION_API_KEY` 存于 GitHub Secret；本地 `probes.json`（gitignored）也有明文。用户已决定暂不轮换。
+
+## 4. 已完成能力
+
+### 站点与模型
+- 站点目录、详情、榜单、可达性历史、CSV 导出
+- 模型页：报价列表、最低价高亮、移动端卡片
+- 模型分类：文本 / 图片 / 视频；默认只显示常见厂商模型（178/454），可展开全部
+- 厂商图标：内置 simple-icons 官方 SVG path；站点图标：自动 favicon → 自定义上传
+
+### 商业字段
+- 提交表单：支付方式多选、开票、退款政策
+- 后台审核：内联编辑（chips + 校验 + 已保存提示），通过时按 domain 覆盖站点
+- 站点页展示：支付 / 开票 / 退款
+
+### 检测与审计
+- 首页内嵌 Key 检测（baseUrl + key → 模型数）
+- 提交站点填 Key 自动填充（prefill：模型、按次价、文本价）
+- 官方状态页事件中文翻译（缓存 + 失败回退英文）
+- 后台操作日志覆盖：图标、商务字段、审核、探针配置等
+
+### 图标
+- 上传 png/jpeg/webp ≤2MB
+- 前端中心裁剪 256×256
+- 恢复默认回到 favicon
+- 替换/恢复时清理旧文件；Docker 卷 `icons`
+
+## 5. 已知限制 / 待办
+
+1. **真实站点只有 mhoo 一家**，全网最低价意义有限；
+2. **容器内 prober 无法出网**，真实探测要宿主机跑（代理问题）；
+3. **模型常见列表是规则筛选**，未人工精选；
+4. **官方价 `—`**：mhoo 只给人民币倍率，没有官方美元价；
+5. mhoo key 曾暴露在聊天/本地文件，用户选择暂不轮换；
+6. Audit 报告页（`/audit/{id}`）未加 noindex（用户提过类似担忧，尚未做）；
+7. 英文页面已全部移除，后端仍保留 `/api/v1/guides/en` 等数据接口。
+
+## 6. 关键设计与决策
+
+- 设计系统见 `DESIGN.md`：信号绿 `#2ee6a6`、炭黑、One Signal / Status Only / Tabular / No Gradient Text
+- 产品定位见 `PRODUCT.md`：独立探针 + 可复算评分，广告不参与排名
+- 数据边界：站点真实、价格部分真实、探针真实，评分与部分报价为演示
+- 分支保护：main 必须通过 CI；所有改动走 PR + auto-merge
+- 模型 ID 采用 `vendor--model` 形式（斜杠替换），避免路由问题
+
+## 7. 常用命令
+
+```bash
+# 本地开发
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+cd web && npm run build
+cd backend && go test ./...
+
+# 发版
+git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z
+
+# 本地 CI
+pwsh scripts/ci.ps1 -SkipInstall -SkipDocker
+```
+
+## 8. 建议的下一步
+
+1. 接入 2–3 个真实站点（提供 baseUrl + key 即可复用 stationsync）
+2. 宿主机定时跑 prober，或用可达代理让容器出网
+3. 模型常见列表人工精选
+4. `/audit/{id}` 加 noindex
+5. mhoo key 轮换（可选）
