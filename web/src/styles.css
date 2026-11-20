@@ -1813,3 +1813,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .home-step { background: none; border: 0; border-top: 1px solid var(--line-2); border-radius: 0; padding: 14px 0 0; }
 .home-step span { display: none; }
 .home-step b { margin: 0 0 6px; font-size: 15px; }
+
+/* Model page: lowest-price offer emphasis */
+.offer-best td { background: rgba(46, 230, 166, .045); }
+.offer-best td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
+.best-chip { font-size: 9.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }

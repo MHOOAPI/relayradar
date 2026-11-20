@@ -47,6 +47,8 @@ export function ModelPage() {
   if (error) return <main className="wrap"><div className="error-box">{error}</div></main>;
   if (!model) return <main className="wrap"><div className="loading-page"><Spinner /> 读取模型…</div></main>;
 
+  const best = offers.find((o) => o.purityTier !== 'counterfeit' && o.inputCny > 0);
+
   return (
     <main className="wrap">
       <div className="crumbs mono">
@@ -95,7 +97,10 @@ export function ModelPage() {
             <h2>全网报价（按输入价升序）</h2>
             <p className="sub">同一模型可能在不同分组的倍率下差价数倍，注意同时看纯度与可用性。</p>
           </div>
-          <span className="mono dim">{offers.length} 条报价</span>
+          <span className="mono dim">
+            {offers.length} 条报价
+            {best && ` · 最低 ${fmtCny(best.inputCny)} · ${best.stationName}`}
+          </span>
         </div>
         <div className="table-wrap">
           <table className="index-table">
@@ -110,13 +115,14 @@ export function ModelPage() {
                 <tr><td colSpan={8} className="loading">暂无中转站报价；以上为官方价参考。</td></tr>
               )}
               {offers.map((o, i) => (
-                <tr key={`${o.stationSlug}-${o.groupSlug}`}>
+                <tr key={`${o.stationSlug}-${o.groupSlug}`} className={o === best ? 'offer-best' : undefined}>
                   <td className="num rank dim">{i + 1}</td>
                   <td>
                     <div className="cell-station">
-                      <StationMark slug={o.stationSlug} name={o.stationName} size={26} />
+                      <StationMark slug={o.stationSlug} name={o.stationName} iconUrl={o.iconUrl} size={26} />
                       <Link className="station-name" to={`/stations/${o.stationSlug}`}>{o.stationName}</Link>
                       {o.claimed && <span className="badge-ok" title="站长已认领">✓</span>}
+                      {o === best && <span className="best-chip">最低价</span>}
                     </div>
                   </td>
                   <td><span className="mono dim">{o.groupName}</span></td>

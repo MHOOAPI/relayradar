@@ -302,6 +302,7 @@ export interface Offer {
   purityTier: PurityTier;
   availability: number;
   claimed: boolean;
+  iconUrl?: string;
 }
 
 export interface Meta {
