@@ -148,7 +148,6 @@ export function Layout() {
                   </div>
                 )}
                 <Link className="btn btn-ghost btn-sm" to="/submit">提交站点</Link>
-                <Link className="btn btn-primary btn-sm" to="/audit">检测我的 Key</Link>
               </>
             )}
           </div>
