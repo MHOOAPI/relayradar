@@ -13,6 +13,9 @@ export function SubmitPage() {
   const [stations, setStations] = useState<Station[]>([]);
 
   const [form, setForm] = useState({ name: '', domain: '', baseUrl: '', contact: '', note: '' });
+  const [apiKey, setApiKey] = useState('');
+  const [prefilling, setPrefilling] = useState(false);
+  const [prefillMsg, setPrefillMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +108,30 @@ export function SubmitPage() {
               <label><span>站点名称 *</span><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="例如 灵犀 API" required /></label>
               <label><span>主域名 *</span><input value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} placeholder="lingxi-api.com" required /></label>
               <label><span>Base URL *</span><input value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })} placeholder="https://lingxi-api.com/v1" required /></label>
+              <label><span>API Key（可选，用于自动填充）</span><input value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." type="password" /></label>
+              <div className="form-actions span-2">
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  disabled={!apiKey || prefilling}
+                  onClick={async () => {
+                    setPrefilling(true);
+                    setPrefillMsg(null);
+                    try {
+                      const r = await api.prefill(form.baseUrl, apiKey);
+                      setForm((f) => ({ ...f, domain: f.domain || r.domain, baseUrl: f.baseUrl || r.baseUrl }));
+                      setPrefillMsg(`已拉取 ${r.models.length} 个模型${r.pricingOk ? `、${r.pricing.length} 条按次价` : ''}`);
+                    } catch (e) {
+                      setPrefillMsg((e as Error).message);
+                    } finally {
+                      setPrefilling(false);
+                    }
+                  }}
+                >
+                  {prefilling ? '拉取中…' : '自动填充'}
+                </button>
+                {prefillMsg && <span className="fine">{prefillMsg}</span>}
+              </div>
               <label><span>联系方式 *</span><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="邮箱 / Telegram" required /></label>
               <label className="span-2"><span>备注</span><textarea rows={3} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="倍率、分组、退款政策、可否开票等" maxLength={500} /></label>
               <div className="form-actions span-2">

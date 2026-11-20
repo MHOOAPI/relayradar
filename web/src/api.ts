@@ -86,6 +86,11 @@ export const api = {
   auditCheckEn: (key: string) => request<AuditCheckDoc>(`/audit/checks/en/${encodeURIComponent(key)}`),
   submitStation: (body: { name: string; domain: string; baseUrl: string; contact: string; note: string }) =>
     request<Submission>('/submissions', { method: 'POST', body: JSON.stringify(body) }),
+  prefill: (baseUrl: string, apiKey: string) =>
+    request<{ domain: string; baseUrl: string; models: string[]; modelsOk: boolean; pricing: { name: string; priceUsd: number }[]; pricingOk: boolean }>(
+      '/submissions/prefill',
+      { method: 'POST', body: JSON.stringify({ baseUrl, apiKey }) },
+    ),
   claim: (body: { slug: string; email: string }) =>
     request<ClaimResponse>('/claims', { method: 'POST', body: JSON.stringify(body) }),
   claimedStation: (token: string) => request<ClaimedStation>(`/claims/${encodeURIComponent(token)}/station`),
