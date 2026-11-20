@@ -63,6 +63,17 @@ docker compose up --build
 
 本地 HTTPS 需要 `deploy/certs/fullchain.pem` 与 `privkey.pem`；没有正式证书时可用自签证书。`nginx-http` 服务同时提供 `http://localhost:8088`，不经过证书，适合本地开发。
 
+## 生产部署（预构建镜像）
+
+镜像发布在 GHCR，生产不必本地 build：
+
+```bash
+RELAYRADAR_TAG=v0.1.0 \
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+`docker-compose.prod.yml` 会把 `api` 与 `prober` 切换到 `ghcr.io/mhooapi/relayradar:<tag>`。
+
 ## 本地端口
 
 | 端口 | 归属 | 说明 |
