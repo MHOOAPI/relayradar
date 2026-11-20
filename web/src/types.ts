@@ -74,7 +74,7 @@ export interface Group {
   name: string;
   service: string;
   multiplier: number;
-  status: 'ok' | 'slow' | 'down';
+  status: 'ok' | 'slow' | 'down' | 'unknown';
   latencyMs: number;
   availability: number;
   speed: number;

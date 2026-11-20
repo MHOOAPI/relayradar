@@ -299,7 +299,7 @@ export function StationPage() {
                   <td className="num mono">{g.multiplier.toFixed(2)}×</td>
                   <td>
                     <span className={`status status-${g.status}`}>
-                      <i />{g.status === 'ok' ? '正常' : g.status === 'slow' ? '偏慢' : '不可用'}
+                      <i />{g.status === 'ok' ? '正常' : g.status === 'slow' ? '偏慢' : g.status === 'unknown' || !g.status ? '未探测' : '不可用'}
                     </span>
                   </td>
                   <td className="num mono dim">{g.latencyMs ? `${g.latencyMs} ms` : '—'}</td>

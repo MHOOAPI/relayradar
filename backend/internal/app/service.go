@@ -440,7 +440,7 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 
 		gv := &GroupView{
 			Slug: g.Slug, Name: g.Name, Service: g.Service, Multiplier: g.Multiplier,
-			Status: lastStatus, LatencyMS: latencyOf(probes),
+			Status: statusOrDefault(lastStatus), LatencyMS: latencyOf(probes),
 			Availability: scoring.Round1(axis.Availability),
 			Speed:        scoring.Round1(axis.Speed),
 			Consistency:  scoring.Round1(axis.Consistency),
@@ -828,4 +828,11 @@ func Filter(items []StationView, q, service, tier, sortKey string) []StationView
 		sort.SliceStable(out, func(i, j int) bool { return out[i].ModelsCount > out[j].ModelsCount })
 	}
 	return out
+}
+
+func statusOrDefault(s string) string {
+	if s == "" {
+		return "unknown"
+	}
+	return s
 }
