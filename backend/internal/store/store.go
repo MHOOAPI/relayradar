@@ -1278,3 +1278,15 @@ func (s *Store) ApplyTermsToStation(ctx context.Context, id int64) error {
 		WHERE s.id = $1 AND lower(st.domain) = lower(s.domain)`, id)
 	return err
 }
+
+// UpdateStationIcon sets a station's icon URL.
+func (s *Store) UpdateStationIcon(ctx context.Context, slug, iconURL string) error {
+	tag, err := s.pool.Exec(ctx, `UPDATE stations SET icon_url = $2 WHERE slug = $1`, slug, iconURL)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("station %s not found", slug)
+	}
+	return nil
+}

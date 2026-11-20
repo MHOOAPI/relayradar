@@ -170,6 +170,16 @@ export function AdminPage() {
     }
   };
 
+  const uploadIcon = async (slug: string, file: File | undefined) => {
+    if (!file) return;
+    try {
+      await api.adminUploadIcon(slug, file);
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
   const decideEdit = async (id: number, approve: boolean) => {
     const note = approve ? '' : (window.prompt('拒绝理由（会发给站长，可留空）') ?? '');
     try {
@@ -488,6 +498,11 @@ export function AdminPage() {
                     <td>{e.invoice ? '支持' : '不支持'}</td>
                     <td><span className={`status-pill ${e.status === 'pending' ? 'degraded' : e.status === 'approved' ? 'operational' : 'outage'}`}>{e.status}</span></td>
                     <td>
+                      <label className="link-btn" style={{ cursor: 'pointer' }}>
+                        图标
+                        <input type="file" accept="image/png,image/jpeg,image/webp" hidden
+                          onChange={(ev) => uploadIcon(e.stationSlug, ev.target.files?.[0])} />
+                      </label>
                       {e.status === 'pending' && (
                         <>
                           <button className="link-btn" onClick={() => decideEdit(e.id, true)}>通过</button>
