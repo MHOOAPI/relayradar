@@ -20,6 +20,7 @@ func (s *Server) handleAdminStationIconReset(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	iconURL := "/api/v1/favicon/" + slug
+	removeStationIconFiles(s.cfg.IconDir, slug)
 	if err := s.svc.Repo().UpdateStationIcon(r.Context(), slug, iconURL); err != nil {
 		writeError(w, http.StatusNotFound, fmt.Sprintf("station %s not found", slug))
 		return
@@ -71,10 +72,21 @@ func (s *Server) handleAdminStationIcon(w http.ResponseWriter, r *http.Request) 
 		s.fail(w, http.StatusInternalServerError, err)
 		return
 	}
+	for _, other := range []string{".png", ".jpg", ".webp"} {
+		if other != ext {
+			_ = os.Remove(filepath.Join(dir, slug+other))
+		}
+	}
 	iconURL := "/icons/" + name
 	if err := s.svc.Repo().UpdateStationIcon(r.Context(), slug, iconURL); err != nil {
 		writeError(w, http.StatusNotFound, fmt.Sprintf("station %s not found", slug))
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"iconUrl": iconURL})
+}
+
+func removeStationIconFiles(dir, slug string) {
+	for _, ext := range []string{".png", ".jpg", ".webp"} {
+		_ = os.Remove(filepath.Join(dir, slug+ext))
+	}
 }

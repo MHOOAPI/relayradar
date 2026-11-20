@@ -332,7 +332,7 @@ export function StationPage() {
         </div>
         <div className="table-wrap">
           <p className="table-hint">左右滑动查看全部列</p>
-          <table className="index-table">
+          <table className="index-table station-models">
             <thead>
               <tr>
                 <th>模型</th><th className="hide-sm">厂商</th><th className="num hide-sm">上下文</th>
