@@ -492,17 +492,77 @@ func (s *Server) bodyLeaderboards(d *app.Dataset) template.HTML {
 func (s *Server) bodyModels(d *app.Dataset) template.HTML {
 	rows := make([][]string, 0, len(d.Models))
 	for _, m := range d.Models {
+		ctx, official := "—", "—"
+		if m.Category == "" || m.Category == "text" {
+			ctx = fmtContextWindow(m.ContextWindow)
+			if m.InputUSD > 0 {
+				official = fmt.Sprintf("$%.2f / $%.2f", m.InputUSD, m.OutputUSD)
+			}
+		}
+		released := "—"
+		if !m.ReleasedAt.IsZero() {
+			released = m.ReleasedAt.Format("2006-01")
+		}
+		price := "—"
+		if m.MinInputCNY >= 0 {
+			price = fmt.Sprintf("¥%.2f", m.MinInputCNY)
+		}
 		rows = append(rows, []string{
 			`<a href="/models/` + escHTML(m.ID) + `">` + escHTML(m.Name) + `</a>`,
-			escHTML(m.VendorName),
-			escHTML(fmt.Sprintf("%d", m.ContextWindow)),
-			fmt.Sprintf("$%.2f / $%.2f", m.InputUSD, m.OutputUSD),
-			fmt.Sprintf("¥%.2f", m.MinInputCNY),
+			escHTML(displayVendor(m.Vendor, m.VendorName)),
+			escHTML(ctx),
+			released,
+			escHTML(official),
+			price,
 			fmt.Sprintf("%d", m.OffersCount),
 		})
 	}
-	return template.HTML(`<article><h1>模型目录与全网最低价</h1><p>官方美元价对比中转站折算人民币实价。</p>` +
-		string(tableHTML([]string{"模型", "厂商", "上下文", "官方价/1M", "全网最低输入", "报价站点"}, rows)) + `</article>`)
+	return template.HTML(`<article><h1>模型与报价</h1><p>按厂商、上下文与发布时间浏览模型；官方美元价与站点折算人民币价并列，并标注报价站点数。金额单位：官方价为美元 / 每百万 Token，最低价为人民币（文本按每百万 Token，图片按张，视频按秒）。</p>` +
+		string(tableHTML([]string{"模型", "厂商", "上下文", "发布", "官方价", "最低价", "报价站点"}, rows)) + `</article>`)
+}
+
+// displayVendor turns the catalog's vendor slug into a readable name; the
+// upstream catalog leaves a few vendors ("meta", "~z-ai") without a proper one.
+func displayVendor(vendor, name string) string {
+	base := strings.TrimPrefix(vendor, "~")
+	if label, ok := vendorLabels[base]; ok {
+		return label
+	}
+	if name != "" && name != vendor {
+		return name
+	}
+	return base
+}
+
+var vendorLabels = map[string]string{
+	"openai":     "OpenAI",
+	"anthropic":  "Anthropic",
+	"google":     "Google",
+	"deepseek":   "DeepSeek",
+	"qwen":       "阿里通义",
+	"z-ai":       "智谱",
+	"moonshotai": "Moonshot",
+	"minimax":    "MiniMax",
+	"x-ai":       "xAI",
+	"meta":       "Meta",
+	"meta-llama": "Meta",
+	"mistralai":  "Mistral",
+	"tencent":    "腾讯",
+}
+
+// fmtContextWindow renders a token window the way the models table does.
+func fmtContextWindow(n int) string {
+	switch {
+	case n <= 0:
+		return "—"
+	case n >= 1000000:
+		if n%1000000 == 0 {
+			return fmt.Sprintf("%dM", n/1000000)
+		}
+		return fmt.Sprintf("%.1fM", float64(n)/1000000)
+	default:
+		return fmt.Sprintf("%dK", n/1000)
+	}
 }
 
 func bodyStationsDirectory(d *app.Dataset) template.HTML {
