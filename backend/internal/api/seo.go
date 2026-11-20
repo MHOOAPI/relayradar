@@ -116,12 +116,55 @@ func missingContent(path string) bool {
 	return false
 }
 
-func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {	d, err := s.svc.Dataset(r.Context())
+// noIndexPageMeta covers pages that must never appear in search results:
+// archived audit reports (they contain a third party's endpoint), claim tokens,
+// e-mail verification / password reset links and alert management links that
+// carry a secret in the query string. They are reachable and render normally,
+// they just ask crawlers to drop them from the index.
+func noIndexPageMeta(base string, r *http.Request) (pageMeta, bool) {
+	path := r.URL.Path
+	if path == "/audit" {
+		if id := r.URL.Query().Get("report"); id != "" {
+			return pageMeta{
+				Title:     "接口检测报告 " + id + " | RelayRadar",
+				Desc:      "已存档的接口检测报告：模型回显、usage、分词一致性、缓存透传与首字延迟。",
+				Canonical: base + "/audit",
+				NoIndex:   true,
+			}, true
+		}
+		return pageMeta{}, false
+	}
+	if strings.HasPrefix(path, "/claim/") {
+		return pageMeta{
+			Title:     "认领站点档案 | RelayRadar",
+			Desc:      "用令牌认领站点档案并提交资料修改，修改经后台审核后生效。",
+			Canonical: base + "/submit",
+			NoIndex:   true,
+		}, true
+	}
+	switch path {
+	case "/verify", "/reset", "/forgot", "/alerts":
+		return pageMeta{
+			Title:     "账户操作 | RelayRadar",
+			Desc:      "邮箱验证、密码重置与告警订阅管理。",
+			Canonical: base + "/",
+			NoIndex:   true,
+		}, true
+	}
+	return pageMeta{}, false
+}
+
+func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
+	d, err := s.svc.Dataset(r.Context())
 	if err != nil {
 		return pageMeta{}, false
 	}
 	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
 	path := r.URL.Path
+
+	if m, ok := noIndexPageMeta(base, r); ok {
+		return m, true
+	}
 
 	if key, ok := strings.CutPrefix(path, "/audit/"); ok && key != "" {
 		if c := auditCheckByKey(key); c != nil {
@@ -671,10 +714,10 @@ func (s *Server) handleRobots(w http.ResponseWriter, r *http.Request) {
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /audit
 Disallow: /go/
 Disallow: /admin
 Disallow: /metrics
+Disallow: /claim/
 
 User-agent: GPTBot
 Allow: /
