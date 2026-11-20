@@ -345,8 +345,8 @@ export function StationPage() {
                     </div>
                   </td>
                   <td className="hide-sm dim">{m.model.vendorName}</td>
-                  <td className="num mono dim hide-sm">{fmtCtx(m.model.contextWindow)}</td>
-                  <td className="num mono dim">${m.model.inputUsd} / ${m.model.outputUsd}</td>
+                  <td className="num mono dim hide-sm">{m.model.contextWindow > 0 ? fmtCtx(m.model.contextWindow) : '—'}</td>
+                  <td className="num mono dim">{m.model.inputUsd > 0 ? `$${m.model.inputUsd} / $${m.model.outputUsd}` : '—'}</td>
                   <td className="num mono">{fmtCny(m.bestInputCny)}</td>
                   <td className="num mono accent">{fmtCny(m.bestOutputCny)}</td>
                   <td className="hide-sm dim">{m.cheapestGroup}</td>
