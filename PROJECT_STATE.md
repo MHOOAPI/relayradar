@@ -44,7 +44,8 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 ### 站点与模型
 - 站点目录、详情、榜单、可达性历史、CSV 导出
 - 模型页：报价列表、最低价高亮、移动端卡片
-- 模型分类：文本 / 图片 / 视频；默认只显示常见厂商模型（178/454），可展开全部
+- 模型列表范围：默认只看有站点报价的模型（150 个，不含 batch / free 变体），按报价站点数排序；「展开全部目录」看完整 491 个
+- 模型分类：文本 / 图片 / 视频
 - 厂商图标：内置 simple-icons 官方 SVG path；站点图标：自动 favicon → 自定义上传
 
 ### 商业字段
@@ -57,6 +58,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 - 提交站点填 Key 自动填充（prefill：模型、按次价、文本价）
 - 官方状态页事件中文翻译（缓存 + 失败回退英文）
 - 后台操作日志覆盖：图标、商务字段、审核、探针配置等
+- 归档检测报告（`/audit?report=`）、认领/验证/重置/告警令牌页均返回 `noindex,follow`；`/audit` 与检测说明页保持可索引
 
 ### 图标
 - 上传 png/jpeg/webp ≤2MB
@@ -68,11 +70,11 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 
 1. **真实站点只有 mhoo 一家**，全网最低价意义有限；
 2. **容器内 prober 无法出网**，真实探测要宿主机跑（代理问题）；
-3. **模型常见列表是规则筛选**，未人工精选；
+3. **模型列表范围按「有无站点报价」筛选**，不是人工精选；
 4. **官方价 `—`**：mhoo 只给人民币倍率，没有官方美元价；
 5. mhoo key 曾暴露在聊天/本地文件，用户选择暂不轮换；
-6. Audit 报告页（`/audit/{id}`）未加 noindex（用户提过类似担忧，尚未做）；
-7. 英文页面已全部移除，后端仍保留 `/api/v1/guides/en` 等数据接口。
+6. 英文页面已全部移除，后端仍保留 `/api/v1/guides/en` 等数据接口；
+7. 本机 git 推送不通（TLS/连接被重置），改动通过 GitHub API 提交，见第 9 节。
 
 ## 6. 关键设计与决策
 
@@ -101,6 +103,16 @@ pwsh scripts/ci.ps1 -SkipInstall -SkipDocker
 
 1. 接入 2–3 个真实站点（提供 baseUrl + key 即可复用 stationsync）
 2. 宿主机定时跑 prober，或用可达代理让容器出网
-3. 模型常见列表人工精选
-4. `/audit/{id}` 加 noindex
-5. mhoo key 轮换（可选）
+3. mhoo key 轮换（可选）
+4. 模型列表：等真实站点变多后，用真实报价数据替代演示值
+
+## 9. 本机推送问题
+
+`git fetch/push` 到 GitHub 会报 `schannel: AcquireCredentialsHandle failed` 或 `Recv failure: Connection was reset`（只有 `gh` CLI 能通）。工作方式：
+
+```powershell
+# 1) 本地提交 2) 用 GitHub API 建 blob/tree/commit/ref 3) gh pr create + gh pr merge --auto
+# 脚本样例：.cache/ghpush/publish.ps1（gitignored，可重写）
+```
+
+`git config --local http.sslBackend openssl` 可以救回部分 fetch，但 push 仍不稳定。

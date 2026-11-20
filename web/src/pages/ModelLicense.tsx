@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
-import { fmtCny, Spinner } from '../components/ui';
+import { fmtCny, fmtUsd, Spinner } from '../components/ui';
 import { VendorMark } from '../components/marks';
 
 const LABEL: Record<string, string> = {
@@ -86,7 +86,7 @@ export function ModelLicensePage() {
                     </div>
                   </td>
                   <td>{m.vendorName}</td>
-                  <td className="num mono">${m.inputUsd} / ${m.outputUsd}</td>
+                  <td className="num mono">{fmtUsd(m.inputUsd)} / {fmtUsd(m.outputUsd)}</td>
                   <td className="num mono accent">{fmtCny(m.minInputCny)}</td>
                 </tr>
               ))}

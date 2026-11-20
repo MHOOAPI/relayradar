@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { StatusHistoryDay, StationDetail } from '../types';
-import { External, fmtCny, fmtDate, Spinner, Stars, TierBadge, WatchStar } from '../components/ui';
+import { External, fmtCny, fmtDate, fmtUsd, Spinner, Stars, TierBadge, WatchStar } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
 import { ArrowUpRight, CalendarIcon, CoinIcon, CopyIcon, ProbeIcon, PulseIcon, ReceiptIcon, ShieldIcon, WalletIcon } from '../components/icons';
@@ -354,7 +354,7 @@ export function StationPage() {
                   </td>
                   <td className="hide-sm dim">{m.model.vendorName}</td>
                   <td className="num mono dim hide-sm">{m.model.contextWindow > 0 ? fmtCtx(m.model.contextWindow) : '—'}</td>
-                  <td className="num mono dim hide-sm">{m.model.inputUsd > 0 ? `$${m.model.inputUsd} / $${m.model.outputUsd}` : '—'}</td>
+                  <td className="num mono dim hide-sm">{m.model.inputUsd > 0 ? `${fmtUsd(m.model.inputUsd)} / ${fmtUsd(m.model.outputUsd)}` : '—'}</td>
                   <td className="num mono">{fmtCny(m.bestInputCny)}</td>
                   <td className="num mono accent">{fmtCny(m.bestOutputCny)}</td>
                   <td className="hide-sm dim">{m.cheapestGroup}</td>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
-import { fmtCny, Spinner } from '../components/ui';
+import { fmtCny, fmtUsd, Spinner } from '../components/ui';
 import { VendorMark } from '../components/marks';
 
 const ctx = (n: number) => (n >= 1000000 ? `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2)}M` : `${Math.round(n / 1000)}K`);
@@ -51,8 +51,8 @@ export function ModelComparePage() {
   const rows: Array<[string, (m: ModelSummary) => string]> = [
     ['厂商', (m) => m.vendorName],
     ['上下文', (m) => ctx(m.contextWindow)],
-    ['官方输入 /1M', (m) => `$${m.inputUsd}`],
-    ['官方输出 /1M', (m) => `$${m.outputUsd}`],
+    ['官方输入 /1M', (m) => fmtUsd(m.inputUsd)],
+    ['官方输出 /1M', (m) => fmtUsd(m.outputUsd)],
     ['全网最低输入', (m) => fmtCny(m.minInputCny)],
     ['编程分', (m) => m.codingScore.toFixed(1)],
     ['推理分', (m) => m.reasoningScore.toFixed(1)],

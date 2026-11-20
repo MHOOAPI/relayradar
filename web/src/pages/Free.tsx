@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
-import { fmtCny, Spinner } from '../components/ui';
+import { fmtCny, fmtUsd, Spinner } from '../components/ui';
 import { VendorMark } from '../components/marks';
 
 const CONSOLE: Record<string, string> = {
@@ -65,8 +65,8 @@ export function FreePage() {
             </div>
             <p className="free-note">{m.freeNote}</p>
             <dl className="free-kv">
-              <div><dt>官方输入</dt><dd className="mono">${m.inputUsd}</dd></div>
-              <div><dt>官方输出</dt><dd className="mono">${m.outputUsd}</dd></div>
+              <div><dt>官方输入</dt><dd className="mono">{fmtUsd(m.inputUsd)}</dd></div>
+              <div><dt>官方输出</dt><dd className="mono">{fmtUsd(m.outputUsd)}</dd></div>
               <div><dt>中转最低</dt><dd className="mono accent">{fmtCny(m.minInputCny)}</dd></div>
               <div><dt>报价站点</dt><dd className="mono">{m.offersCount}</dd></div>
             </dl>

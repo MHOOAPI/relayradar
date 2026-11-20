@@ -1890,6 +1890,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 .model-scope { margin: 10px 0 0; font-size: 11px; }
 .model-scope .link-btn { color: var(--accent); }
+.model-scope-note { margin: 4px 0 0; }
 
 /* Mobile station table: keep the model name visible while scrolling */
 @media (max-width: 640px) {

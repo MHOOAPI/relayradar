@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
-import { fmtCny } from '../components/ui';
+import { fmtCny, fmtUsd } from '../components/ui';
 import { VendorMark } from '../components/marks';
 
 const fmtCtx = (n: number) => (n >= 1000000 ? `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2)}M` : `${Math.round(n / 1000)}K`);
@@ -15,14 +15,28 @@ const CATEGORIES = [
 ] as const;
 
 const CATEGORY_LABEL: Record<string, string> = { text: '文本', image: '图片', video: '视频' };
-const COMMON_VENDORS = new Set(['openai', 'anthropic', 'google', 'deepseek', 'xai', 'qwen', 'moonshot', 'minimax', 'meta', 'mistral']);
+
+// Batch pricing and free tiers answer a different question than "what does this
+// model cost per token", so they never appear in the default shortlist. They
+// stay reachable from the full catalog.
+const VARIANT_RE = /(?:^|[-:])batch|(?:^|[-:])free/i;
+
+const hasOffer = (m: ModelSummary) => m.offersCount > 0 && !VARIANT_RE.test(m.id);
+
+// Most-listed first: the number of stations offering a model is the only
+// popularity signal we actually measure, and priced rows are what this page is
+// about. Ties stay grouped by vendor so families read together.
+const byOffers = (a: ModelSummary, b: ModelSummary) =>
+  b.offersCount - a.offersCount ||
+  a.vendorName.localeCompare(b.vendorName, 'zh-CN') ||
+  a.name.localeCompare(b.name, 'zh-CN');
 
 export function ModelsPage() {
   const [items, setItems] = useState<ModelSummary[] | null>(null);
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
   const [cat, setCat] = useState(params.get('cat') ?? 'all');
-  const [common, setCommon] = useState(true);
+  const [all, setAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,13 +51,19 @@ export function ModelsPage() {
     api.models().then((r) => setItems(r.items)).catch((e: Error) => setError(e.message));
   }, []);
 
+  const priced = useMemo(() => (items ?? []).filter(hasOffer), [items]);
+  // With no prices in the dataset the shortlist would be empty; fall back to the
+  // full catalog instead of showing a blank table.
+  const showAll = all || (items !== null && priced.length === 0);
+  const scopeItems = useMemo(() => (items ? (showAll ? items : priced) : []), [items, showAll, priced]);
+
   const rows = useMemo(() => {
-    if (!items) return [];
     const n = q.trim().toLowerCase();
-    return items.filter((m) => (cat === 'all' || (m.category || 'text') === cat)
-      && (!common || (COMMON_VENDORS.has(m.vendor) && !/batch|free/i.test(m.id)))
-      && (!n || `${m.name} ${m.id} ${m.vendor}`.toLowerCase().includes(n)));
-  }, [items, q, cat, common]);
+    return scopeItems
+      .filter((m) => (cat === 'all' || (m.category || 'text') === cat)
+        && (!n || `${m.name} ${m.id} ${m.vendor}`.toLowerCase().includes(n)))
+      .sort(byOffers);
+  }, [scopeItems, q, cat]);
 
   return (
     <main className="wrap">
@@ -71,17 +91,28 @@ export function ModelsPage() {
         {CATEGORIES.map(([key, label]) => (
           <button key={key} className={`cat-tab ${cat === key ? 'on' : ''}`} onClick={() => setCat(key)}>
             {label}
-            <span>{key === 'all' ? items?.length ?? '' : items?.filter((m) => (m.category || 'text') === key).length ?? ''}</span>
+            <span>{key === 'all' ? scopeItems.length : scopeItems.filter((m) => (m.category || 'text') === key).length}</span>
           </button>
         ))}
       </div>
 
       <p className="model-scope mono">
-        <button className="link-btn" onClick={() => setCommon(!common)}>
-          {common ? `仅显示常见模型 · 展开全部 ${items?.length ?? ''}` : `显示全部 · 回到常见模型`}
-        </button>
+        {priced.length === 0 ? (
+          <span className="dim">暂无站点报价 · 显示全部目录</span>
+        ) : (
+          <button className="link-btn" onClick={() => setAll(!showAll)}>
+            {showAll
+              ? `显示全部目录 ${items?.length ?? ''} · 回到有报价 ${priced.length}`
+              : `只看有报价 ${priced.length} 个 · 展开全部目录 ${items?.length ?? ''}`}
+          </button>
+        )}
         <span className="dim"> · 当前 {rows.length} 个</span>
       </p>
+      {!showAll && (
+        <p className="fine model-scope-note">
+          报价来自站点公开倍率；batch 与免费额度不计入，没有站点报价的模型仍可在全部目录中找到。
+        </p>
+      )}
 
       {error && <div className="error-box">{error}</div>}
 
@@ -120,7 +151,7 @@ export function ModelsPage() {
                   </td>
                   <td className="hide-sm dim">{m.vendorName}</td>
                   <td className="num mono dim hide-sm">{m.category === 'text' || !m.category ? fmtCtx(m.contextWindow) : '—'}</td>
-                  <td className="num mono dim">{m.category && m.category !== 'text' ? '按张/秒计费' : m.inputUsd > 0 ? `$${m.inputUsd} / $${m.outputUsd}` : '—'}</td>
+                  <td className="num mono dim">{m.category && m.category !== 'text' ? '按张/秒计费' : m.inputUsd > 0 ? `${fmtUsd(m.inputUsd)} / ${fmtUsd(m.outputUsd)}` : '—'}</td>
                   <td className="num mono accent">{fmtCny(m.minInputCny)}</td>
                   <td className="num mono dim">{m.offersCount}</td>
                 </tr>
