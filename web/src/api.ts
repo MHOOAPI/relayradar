@@ -38,8 +38,9 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isForm = typeof FormData !== 'undefined' && init?.body instanceof FormData;
   const res = await fetch(BASE + path, {
-    headers: { Accept: 'application/json', ...(init?.body ? { 'Content-Type': 'application/json' } : {}) },
+    headers: { Accept: 'application/json', ...(init?.body && !isForm ? { 'Content-Type': 'application/json' } : {}) },
     ...init,
   });
   if (!res.ok) {
@@ -178,6 +179,11 @@ export const api = {
     request<{ ok: boolean }>('/auth/reset', { method: 'POST', body: JSON.stringify({ token, password }) }),
   adminSummary: () => request<AdminSummary>('/admin/summary'),
   adminSubmissions: () => request<{ items: Submission[] }>('/admin/submissions'),
+  adminUploadIcon: (slug: string, file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return request<{ iconUrl: string }>(`/admin/stations/${encodeURIComponent(slug)}/icon`, { method: 'POST', body });
+  },
   adminSetSubmission: (id: number, status: string, terms?: { payments: string[]; invoice: boolean; refundPolicy: string }) =>
     request<{ ok: boolean }>(`/admin/submissions/${id}`, { method: 'PATCH', body: JSON.stringify({ status, ...(terms ?? {}) }) }),
   adminDeleteReview: (id: number) => request<{ ok: boolean }>(`/admin/reviews/${id}`, { method: 'DELETE' }),

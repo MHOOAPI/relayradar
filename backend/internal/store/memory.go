@@ -1,4 +1,4 @@
-﻿package store
+package store
 
 import (
 	"fmt"
@@ -49,6 +49,7 @@ type Repo interface {
 	DeleteSession(ctx context.Context, tokenHash string) error
 	ListSubmissions(ctx context.Context) ([]Submission, error)
 	UpdateSubmissionStatus(ctx context.Context, id int64, status string) error
+	UpdateStationIcon(ctx context.Context, slug, iconURL string) error
 	UpdateSubmissionTerms(ctx context.Context, id int64, payments []string, invoice bool, refundPolicy string) error
 	ApplyTermsToStation(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
@@ -1071,5 +1072,18 @@ func (m *Memory) ApplyTermsToStation(ctx context.Context, id int64) error {
 		}
 	}
 	return nil
+}
+
+
+func (m *Memory) UpdateStationIcon(ctx context.Context, slug, iconURL string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for i := range m.snap.Stations {
+		if m.snap.Stations[i].Slug == slug {
+			m.snap.Stations[i].IconURL = iconURL
+			return nil
+		}
+	}
+	return fmt.Errorf("station %s not found", slug)
 }
 

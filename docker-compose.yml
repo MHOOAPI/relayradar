@@ -33,6 +33,9 @@ services:
       FAVICON_PROXY_URL: ${FAVICON_PROXY_URL:-}
       PROBE_INGEST_TOKEN: ${PROBE_INGEST_TOKEN:-}
       REACHABILITY_ENABLED: "true"
+      ICON_DIR: /data/icons
+    volumes:
+      - icons:/data/icons
     depends_on:
       db:
         condition: service_healthy
@@ -79,3 +82,4 @@ services:
 
 volumes:
   pgdata:
+  icons:

@@ -40,6 +40,8 @@ type Config struct {
 	ProbeConfigPath string
 	// TranslateEnabled turns official incident text into Chinese at request time.
 	TranslateEnabled bool
+	// IconDir stores uploaded station icons.
+	IconDir string
 	// AdminEmails grants the admin role to these addresses on registration.
 	AdminEmails []string
 	// AllowLocalTargets relaxes the SSRF guard for local development only.
@@ -72,6 +74,7 @@ func Load() Config {
 		ProbeIngestToken:          env("PROBE_INGEST_TOKEN", ""),
 		ProbeConfigPath:           env("PROBES_CONFIG_PATH", "probes.json"),
 		TranslateEnabled:          env("TRANSLATE_ENABLED", "true") != "false",
+		IconDir:                   env("ICON_DIR", "/data/icons"),
 		AdminEmails:  splitCSV(env("ADMIN_EMAILS", "")),
 	}
 	c.AllowLocalTargets = envBool("ALLOW_LOCAL_TARGETS", false)
