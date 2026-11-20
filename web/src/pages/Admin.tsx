@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import type { AdminSummary, Submission } from '../types';
@@ -77,16 +77,22 @@ export function AdminPage() {
     }
   };
 
-  const editTerms = async (s: Submission) => {
-    const payments = window.prompt('支付方式（逗号分隔）', (s.payments ?? []).join(',')) ?? '';
-    const invoice = window.prompt('支持开票？y / n', s.invoice ? 'y' : 'n') ?? 'n';
-    const refundPolicy = window.prompt('退款政策', s.refundPolicy ?? '') ?? '';
+  const [editId, setEditId] = useState<number | null>(null);
+  const [draft, setDraft] = useState({ payments: '', invoice: false, refundPolicy: '' });
+
+  const startEdit = (s: Submission) => {
+    setEditId(s.id);
+    setDraft({ payments: (s.payments ?? []).join(','), invoice: s.invoice ?? false, refundPolicy: s.refundPolicy ?? '' });
+  };
+
+  const saveTerms = async (s: Submission) => {
     try {
       await api.adminSetSubmission(s.id, s.status, {
-        payments: payments.split(',').map((x) => x.trim()).filter(Boolean),
-        invoice: invoice.toLowerCase() === 'y',
-        refundPolicy,
+        payments: draft.payments.split(',').map((x) => x.trim()).filter(Boolean),
+        invoice: draft.invoice,
+        refundPolicy: draft.refundPolicy,
       });
+      setEditId(null);
       load();
     } catch (e) {
       setError((e as Error).message);
@@ -225,18 +231,35 @@ export function AdminPage() {
               <tbody>
                 {subs.length === 0 && <tr><td colSpan={6}><span className="fine">暂无提交</span></td></tr>}
                 {subs.map((s) => (
-                  <tr key={s.id}>
+                  <Fragment key={s.id}>
+                  <tr>
                     <td className="num mono dim">{s.id}</td>
                     <td>{s.name}</td>
                     <td className="mono dim">{s.domain}</td>
                     <td><span className={`status-pill ${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</span></td>
                     <td className="mono dim">{new Date(s.createdAt).toLocaleDateString('zh-CN')}</td>
                     <td>
-                      <button className="link-btn" onClick={() => editTerms(s)}>商务信息</button>
+                      <button className="link-btn" onClick={() => startEdit(s)}>商务信息</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'approved')}>通过</button>
                       <button className="link-btn" onClick={() => setStatus(s.id, 'rejected')}>拒绝</button>
                     </td>
                   </tr>
+                  {editId === s.id && (
+                    <tr key={`edit-${s.id}`} className="term-edit-row">
+                      <td colSpan={6}>
+                        <div className="term-edit">
+                          <label><span>支付方式</span><input value={draft.payments} onChange={(e) => setDraft({ ...draft, payments: e.target.value })} placeholder="支付宝,微信,USDT" /></label>
+                          <label className="term-check"><input type="checkbox" checked={draft.invoice} onChange={(e) => setDraft({ ...draft, invoice: e.target.checked })} /> 支持开票</label>
+                          <label><span>退款政策</span><input value={draft.refundPolicy} onChange={(e) => setDraft({ ...draft, refundPolicy: e.target.value })} placeholder="例如 7 天未用可退" /></label>
+                          <div className="term-actions">
+                            <button className="btn btn-sm btn-primary" onClick={() => saveTerms(s)}>保存</button>
+                            <button className="btn btn-sm" onClick={() => setEditId(null)}>取消</button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
