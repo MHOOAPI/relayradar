@@ -91,7 +91,7 @@ export function ModelPage() {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel model-offers">
         <div className="panel-head">
           <div>
             <h2>全网报价（按输入价升序）</h2>
@@ -102,7 +102,7 @@ export function ModelPage() {
             {best && ` · 最低 ${fmtCny(best.inputCny)} · ${best.stationName}`}
           </span>
         </div>
-        <div className="table-wrap">
+        <div className="table-wrap offer-table">
           <table className="index-table">
             <thead>
               <tr>
@@ -135,6 +135,32 @@ export function ModelPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="offer-cards">
+          {offers.map((o, i) => (
+            <Link key={`${o.stationSlug}-${o.groupSlug}`} to={`/stations/${o.stationSlug}`} className={`offer-card${o === best ? ' best' : ''}`}>
+              <div className="oc-head">
+                <span className="mono dim">{i + 1}</span>
+                <StationMark slug={o.stationSlug} name={o.stationName} iconUrl={o.iconUrl} size={28} />
+                <div className="oc-id">
+                  <b>{o.stationName}</b>
+                  <small className="mono">{o.groupName}</small>
+                </div>
+                {o.claimed && <span className="badge-ok" title="站长已认领">✓</span>}
+              </div>
+              {o === best && <span className="best-chip">最低价</span>}
+              <div className="oc-prices">
+                <span>输入 <b className="mono">{fmtCny(o.inputCny)}</b></span>
+                <span>输出 <b className="mono">{fmtCny(o.outputCny)}</b></span>
+                <span>倍率 <b className="mono">{o.multiplier.toFixed(2)}×</b></span>
+              </div>
+              <div className="oc-foot">
+                <TierBadge tier={o.purityTier} />
+                <span className="mono dim">可用性 {o.availability.toFixed(1)}</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 

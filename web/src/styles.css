@@ -1818,3 +1818,24 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .offer-best td { background: rgba(46, 230, 166, .045); }
 .offer-best td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
 .best-chip { font-size: 9.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }
+
+/* Model offers: mobile cards */
+.offer-cards { display: none; }
+@media (max-width: 640px) {
+  .offer-table { display: none; }
+  .offer-cards { display: grid; gap: 8px; padding: 12px; }
+  .offer-card { border: 1px solid var(--line); border-radius: 10px; background: #0a0f14; padding: 12px; display: grid; gap: 8px; }
+  .offer-card.best { border-color: rgba(46, 230, 166, .35); background: rgba(46, 230, 166, .04); }
+  .oc-head { display: flex; align-items: center; gap: 8px; }
+  .oc-id { display: flex; flex-direction: column; min-width: 0; }
+  .oc-id b { font-size: 13px; }
+  .oc-id small { font-size: 10px; color: var(--text-3); }
+  .oc-prices { display: flex; gap: 12px; flex-wrap: wrap; font-size: 10.5px; color: var(--text-3); }
+  .oc-prices b { color: var(--text); font-size: 12px; }
+  .oc-foot { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; }
+}
+
+@media (max-width: 640px) {
+  .model-offers .panel-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .model-offers .panel-head .mono.dim { white-space: normal; }
+}
