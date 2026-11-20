@@ -107,7 +107,6 @@ export function ModelComparePage() {
       <div className="crumbs mono"><Link to="/models">模型</Link><span>/</span><span className="dim">对比</span></div>
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />MODEL COMPARE</span>
           <h1>模型对比</h1>
           <p className="sub">同一张表里看官方价、全网最低实价与能力分；绿色为该行更优。选择结果写进 URL，可直接分享。</p>
         </div>

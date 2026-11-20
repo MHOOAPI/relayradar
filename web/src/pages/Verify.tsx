@@ -26,7 +26,6 @@ export function VerifyPage() {
   return (
     <main className="wrap">
       <section className="panel auth-card">
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>邮箱验证</h1>
         {state === 'loading' && <p className="sub"><Spinner /> 正在验证…</p>}
         {state === 'ok' && <p className="sub">邮箱已验证，可以正常使用账号。</p>}

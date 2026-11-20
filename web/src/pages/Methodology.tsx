@@ -13,7 +13,6 @@ export function MethodologyPage() {
     <main className="wrap method">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />METHODOLOGY v2</span>
           <h1>评分方法 v2</h1>
           <p className="sub">
             所有分数都能用手算复现：三个 0–100 的轴、两组公开权重、一个明确的样本门槛。

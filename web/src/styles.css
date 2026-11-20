@@ -8,7 +8,7 @@
   --line-2: #232b37;
   --text: #e9edf4;
   --text-2: #a7b1c2;
-  --text-3: #6d788b;
+  --text-3: #7a8599;
   --accent: #2ee6a6;
   --accent-dim: rgba(46, 230, 166, 0.12);
   --accent-line: rgba(46, 230, 166, 0.3);
@@ -144,12 +144,6 @@ ul { list-style: none; padding: 0; }
   display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 48px;
   padding: 60px 0 40px; align-items: center;
 }
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em;
-  color: var(--accent); text-transform: uppercase;
-}
-.eyebrow i { width: 16px; height: 1px; background: var(--accent); display: inline-block; }
 .hero h1 {
   margin: 16px 0 14px; font-size: clamp(34px, 4.2vw, 50px); line-height: 1.12;
   letter-spacing: -0.035em; font-weight: 800;
@@ -234,7 +228,7 @@ select:hover { border-color: #303a49; }
 .table-wrap { width: 100%; overflow-x: auto; }
 .index-table { width: 100%; border-collapse: collapse; }
 .index-table th {
-  text-align: left; font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em;
+  text-align: left; font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em;
   color: var(--text-3); background: #090c10; padding: 9px 12px;
   border-bottom: 1px solid var(--line); white-space: nowrap;
 }
@@ -316,9 +310,10 @@ select:hover { border-color: #303a49; }
 /* ---------- page head / crumbs ---------- */
 .page-head {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
-  padding: 40px 0 22px;
+  padding: 32px 0 20px;
 }
-.page-head h1 { font-size: 28px; letter-spacing: -0.03em; margin: 12px 0 8px; font-weight: 800; }
+.page-head h1 { font-size: clamp(26px, 2.4vw, 30px); letter-spacing: -0.03em; margin: 0 0 8px; font-weight: 800; line-height: 1.15; }
+.page-head .sub { max-width: 78ch; line-height: 1.7; }
 .crumbs { display: flex; gap: 8px; font-size: 11px; color: var(--text-2); padding: 22px 0 0; }
 .crumbs a:hover { color: var(--accent); }
 
@@ -1792,8 +1787,7 @@ body { font-size: 14.5px; }
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
   gap: 64px; padding: 92px 0 64px; align-items: center;
 }
-.home .eyebrow { font-size: 11.5px; letter-spacing: .22em; }
-.home .hero h1 {
+.home .home .hero h1 {
   font-size: clamp(46px, 5.4vw, 78px); line-height: 1.02; letter-spacing: -.045em;
   margin: 22px 0 20px; font-weight: 850;
 }
@@ -2276,4 +2270,11 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .fk-hero-main h1 { font-size: 26px; }
   .fk-hero-stats { gap: 18px; width: 100%; justify-content: space-between; }
   .fk-how { grid-template-columns: 1fr; }
+}
+/* ---------- list pagination (home / stations / models) ---------- */
+.list-more { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 0 6px; }
+.list-more .mono { font-size: 11px; color: var(--text-3); }
+@media (max-width: 760px) {
+  .page-head { padding: 26px 0 16px; }
+  .page-head h1 { font-size: 24px; }
 }

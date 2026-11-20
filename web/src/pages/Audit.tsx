@@ -346,7 +346,6 @@ export function AuditPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />ZERO-TRUST PROBE</span>
           <h1>接口检测</h1>
           <p className="sub">
             对任意 OpenAI 兼容端点发两次真实请求，核对 8 项协议与计费信号：端点可达、鉴权、流式完整性、模型回显、usage、分词一致性、缓存透传与首字延迟。

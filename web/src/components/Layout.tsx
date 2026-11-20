@@ -35,7 +35,6 @@ export function Layout() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
-  const isEN = pathname === '/en' || pathname.startsWith('/en/');
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -47,26 +46,24 @@ export function Layout() {
   }, []);
 
   return (
-    <div className={`app${isEN ? ' en' : ''}`}>
+    <div className="app">
       <div className="topbar">
         <div className="wrap topbar-inner">
           <div className="topbar-left">
             <span className="live"><i />LIVE</span>
             <span className="mono">
-              {isEN ? 'data' : '数据时间'} {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}
+              {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}
             </span>
             <span className="dot-sep" />
             <span className="mono dim">
               {meta
-                ? isEN
-                  ? `${meta.stations} stations · ${meta.groups} groups · ${meta.probes.toLocaleString('en-US')} probes`
-                  : `${meta.stations} 站点 · ${meta.groups} 分组 · ${meta.probes.toLocaleString('zh-CN')} 次探针`
-                : isEN ? 'connecting…' : '连接中…'}
+                ? `${meta.stations} 站点 · ${meta.groups} 分组 · ${meta.probes.toLocaleString('zh-CN')} 次探针`
+                : '连接中…'}
             </span>
           </div>
           <div className="topbar-right">
-            {meta?.demo && <span className="demo-tag">{isEN ? 'DEMO' : 'DEMO 数据集'}</span>}
-            <span className="mono dim">{isEN ? 'method' : '方法'} v{meta?.methodologyVersion ?? '1.0'}</span>
+            {meta?.demo && <span className="demo-tag">DEMO 数据集</span>}
+            <span className="mono dim">方法 v{meta?.methodologyVersion ?? '1.0'}</span>
           </div>
         </div>
       </div>
@@ -77,44 +74,30 @@ export function Layout() {
             <Logo />
             <span className="brand-text">
               <b>RelayRadar</b>
-              <small>{isEN ? 'relay index' : '中转雷达'}</small>
+              <small>中转雷达</small>
             </span>
           </Link>
 
           <nav className="nav">
-            {isEN ? (
-              <>
-                <NavLink to="/en" end>Rankings</NavLink>
-                <NavLink to="/en/leaderboards">Leaderboard</NavLink>
-                <NavLink to="/en/models">Models</NavLink>
-                <NavLink to="/en/audit">Audit</NavLink>
-                <NavLink to="/en/methodology">Methodology</NavLink>
-                <NavLink to="/en/guides">Guides</NavLink>
-                <NavLink to="/en/faq">FAQ</NavLink>
-                <NavLink to="/">中文</NavLink>
-              </>
-            ) : (
-              <>
-                <NavLink to="/" end>榜单</NavLink>
-                <NavLink to="/models">模型</NavLink>
-                <NavLink to="/leaderboards">排行榜</NavLink>
-                <NavLink to="/compare">对比</NavLink>
-                <NavLink to="/changes">变更</NavLink>
-                <NavLink to="/audit">检测</NavLink>
-                <NavLink to="/free-api-keys">免费 API</NavLink>
-                <div className="ref">
-                  <button type="button" className="ref-btn">更多 <span>▾</span></button>
-                  <div className="ref-menu">
-                    <Link to="/free"><b>免费额度</b><small>官方免费层与赠送额度</small></Link>
-                    <Link to="/status"><b>服务状态</b><small>本站 API / 探针 / 投递</small></Link>
-                    <Link to="/model-status"><b>模型 API 状态</b><small>OpenAI / Anthropic / Gemini 等</small></Link>
-                    <Link to="/stations"><b>站点目录</b><small>模型覆盖、支付、退款与评价</small></Link>
-                    <Link to="/submit"><b>提交与认领</b><small>站点提交、DNS 认领</small></Link>
-                    <Link to="/guides"><b>指南</b><small>选择、计费与验真</small></Link>
-                    <Link to="/sponsor"><b>赞助与广告</b><small>位置、规则与示例报价</small></Link>
-                    <Link to="/faq"><b>常见问题</b><small>中转站、评分与数据口径</small></Link>
-                    <Link to="/methodology"><b>评分方法 v2</b><small>公式、权重与局限</small></Link>
-                    <Link to="/api-docs"><b>公开 API</b><small>JSON 接口与 llms.txt</small></Link>
+            <NavLink to="/" end>榜单</NavLink>
+            <NavLink to="/stations">站点</NavLink>
+            <NavLink to="/models">模型</NavLink>
+            <NavLink to="/leaderboards">排行</NavLink>
+            <NavLink to="/changes">变更</NavLink>
+            <NavLink to="/audit">检测</NavLink>
+            <NavLink to="/free-api-keys">免费 API</NavLink>
+            <div className="ref">
+              <button type="button" className="ref-btn">更多 <span>▾</span></button>
+              <div className="ref-menu">
+                <Link to="/compare"><b>横向对比</b><small>按可用性、价格与纯度并排</small></Link>
+                <Link to="/free"><b>免费额度</b><small>官方免费层与赠送额度</small></Link>
+                <Link to="/submit"><b>提交与认领</b><small>站点提交、DNS 认领</small></Link>
+                <Link to="/guides"><b>指南</b><small>选择、计费与验真</small></Link>
+                <Link to="/faq"><b>常见问题</b><small>中转站、评分与数据口径</small></Link>
+                <Link to="/methodology"><b>评分方法 v2</b><small>公式、权重与局限</small></Link>
+                <Link to="/api-docs"><b>公开 API</b><small>JSON 接口与 llms.txt</small></Link>
+                <Link to="/status"><b>服务状态</b><small>本站 API / 探针 / 投递</small></Link>
+                <Link to="/model-status"><b>模型 API 状态</b><small>OpenAI / Anthropic / Gemini 等</small></Link>
                     <div className="ref-sep" />
                     <span className="ref-label mono">参考站</span>
                     {REFS.map((r) => (
@@ -123,33 +106,25 @@ export function Layout() {
                         <small>{r.desc}</small>
                       </a>
                     ))}
-                  </div>
-                </div>
-              </>
-            )}
+              </div>
+            </div>
           </nav>
 
           <div className="header-actions">
-            {isEN ? (
-              <Link className="btn btn-ghost btn-sm" to="/">中文站</Link>
+            <CommandPalette />
+            {user ? (
+              <div className="header-user">
+                {user.role === 'admin' && <Link className="link-btn" to="/admin">后台</Link>}
+                <Link className="mono dim header-account" to="/account" title="个人中心">{user.name || '个人中心'}</Link>
+                <button type="button" className="link-btn" onClick={() => void logout()}>退出</button>
+              </div>
             ) : (
-              <>
-                <CommandPalette />
-                {user ? (
-                  <div className="header-user">
-                    {user.role === 'admin' && <Link className="link-btn" to="/admin">后台</Link>}
-                    <Link className="mono dim header-account" to="/account" title="个人中心">{user.name || '个人中心'}</Link>
-                    <button type="button" className="link-btn" onClick={() => void logout()}>退出</button>
-                  </div>
-                ) : (
-                  <div className="header-user">
-                    <Link className="link-btn" to="/login">登录</Link>
-                    <Link className="link-btn" to="/register">注册</Link>
-                  </div>
-                )}
-                <Link className="btn btn-ghost btn-sm" to="/submit">提交站点</Link>
-              </>
+              <div className="header-user">
+                <Link className="link-btn" to="/login">登录</Link>
+                <Link className="link-btn" to="/register">注册</Link>
+              </div>
             )}
+            <Link className="btn btn-ghost btn-sm" to="/submit">提交站点</Link>
           </div>
 
           <button
@@ -172,40 +147,23 @@ export function Layout() {
               <button type="button" className="mm-close" aria-label="关闭菜单" onClick={() => setMenuOpen(false)}>✕</button>
             </div>
             <nav className="mm-links">
-              {isEN ? (
-                <>
-                  <Link to="/en">Rankings</Link>
-                  <Link to="/en/leaderboards">Leaderboard</Link>
-                  <Link to="/en/models">Models</Link>
-                  <Link to="/en/audit">Audit</Link>
-                  <Link to="/en/methodology">Methodology</Link>
-                  <Link to="/en/guides">Guides</Link>
-                  <Link to="/en/faq">FAQ</Link>
-                  <Link to="/en/changes">Changes</Link>
-                  <Link to="/en/free">Free tiers</Link>
-                  <Link to="/" className="mm-lang">中文站</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/">榜单</Link>
-                  <Link to="/models">模型价格</Link>
-                  <Link to="/leaderboards">排行榜</Link>
-                  <Link to="/compare">横向对比</Link>
-                  <Link to="/changes">变更雷达</Link>
-                  <Link to="/audit">接口检测</Link>
-                  <Link to="/free">免费额度</Link>
-                  <Link to="/free-api-keys">免费 API Key</Link>
-                  <Link to="/status">服务状态</Link>
-                  <Link to="/model-status">模型 API 状态</Link>
-                  <Link to="/stations">站点目录</Link>
-                  <Link to="/guides">指南</Link>
-                  <Link to="/submit">提交站点</Link>
-                  <Link to="/faq">常见问题</Link>
-                  <Link to="/methodology">评分方法</Link>
-                  {user ? <Link to="/admin">后台</Link> : <Link to="/login">登录 / 注册</Link>}
-                  <Link to="/en" className="mm-lang">English</Link>
-                </>
-              )}
+              <Link to="/">榜单</Link>
+              <Link to="/stations">站点目录</Link>
+              <Link to="/models">模型价格</Link>
+              <Link to="/leaderboards">排行榜</Link>
+              <Link to="/changes">变更雷达</Link>
+              <Link to="/audit">接口检测</Link>
+              <Link to="/free-api-keys">免费 API Key</Link>
+              <Link to="/compare">横向对比</Link>
+              <Link to="/free">免费额度</Link>
+              <Link to="/guides">指南</Link>
+              <Link to="/submit">提交站点</Link>
+              <Link to="/faq">常见问题</Link>
+              <Link to="/methodology">评分方法</Link>
+              <Link to="/api-docs">公开 API</Link>
+              <Link to="/status">服务状态</Link>
+              <Link to="/model-status">模型 API 状态</Link>
+              {user ? <Link to="/account">个人中心</Link> : <Link to="/login">登录 / 注册</Link>}
             </nav>
           </div>
         </div>
@@ -214,17 +172,8 @@ export function Layout() {
       {meta?.demo && (
         <div className="demo-bar">
           <div className="wrap">
-            {isEN ? (
-              <>
-                <b>Demo dataset</b> Provider names are real; scores, probes and reviews are generated and do not
-                describe the real providers.
-              </>
-            ) : (
-              <>
-                <b>演示数据</b>
-                站点域名用于展示真实图标；评分、探针与评价均为生成值，不代表真实商家表现。
-              </>
-            )}
+            <b>演示数据</b>
+            站点域名用于展示真实图标；评分、探针与评价均为生成值，不代表真实商家表现。
           </div>
         </div>
       )}
@@ -243,53 +192,6 @@ export function Layout() {
 
       <Outlet />
 
-      <footer className="footer footer-en">
-        <div className="wrap footer-grid">
-          <div>
-            <div className="brand footer-brand">
-              <Logo size={22} />
-              <span className="brand-text"><b>RelayRadar</b><small>relay index</small></span>
-            </div>
-            <p className="fine">
-              Independent relay monitoring. We do not process payments, hold funds or guarantee any provider. Scores
-              come from probes only; sponsors never change ordering.
-            </p>
-          </div>
-          <div>
-            <h4>Product</h4>
-            <Link to="/en">Rankings</Link>
-            <Link to="/en/models">Models</Link>
-            <Link to="/en/methodology">Methodology</Link>
-            <Link to="/en/guides">Guides</Link>
-            <Link to="/en/changes">Changes</Link>
-            <Link to="/en/free">Free tiers</Link>
-            <Link to="/en/faq">FAQ</Link>
-          </div>
-          <div>
-            <h4>Data</h4>
-            <a href="/api/v1/stations">JSON API</a>
-            <a href="/llms.txt">llms.txt</a>
-            <a href="/sitemap.xml">sitemap</a>
-            <Link to="/">中文站</Link>
-          </div>
-          <div>
-            <h4>Note</h4>
-            <span>Demo dataset</span>
-            <span>Not investment advice</span>
-            <span>Prices are CNY per 1M tokens</span>
-          </div>
-        </div>
-        <div className="wrap footer-status mono">
-          <span><i className="status-dot" /> <Link to={isEN ? '/en/status' : '/status'}>{isEN ? 'service status' : '服务状态'}</Link></span>
-          <span>{isEN ? 'updated' : '数据更新'} {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}</span>
-          <span>{isEN ? 'independent monitoring · not investment advice' : '独立监测 · 不构成购买建议'}</span>
-
-        </div>
-        <div className="wrap footer-bottom mono">
-          <span>© 2026 RelayRadar</span>
-          <span>Go · React/TypeScript · PostgreSQL · custom CSS</span>
-        </div>
-      </footer>
 
       <footer className="footer">
         <div className="wrap footer-grid">
@@ -330,17 +232,14 @@ export function Layout() {
           <div>
             <h4>声明</h4>
             <Link to="/methodology">评分方法</Link>
-            <Link to="/sponsor">赞助与广告</Link>
-            <Link to="/en">English</Link>
             <span>数据为演示数据集</span>
             <span>不构成购买建议</span>
           </div>
         </div>
         <div className="wrap footer-status mono">
-          <span><i className="status-dot" /> <Link to={isEN ? '/en/status' : '/status'}>{isEN ? 'service status' : '服务状态'}</Link></span>
-          <span>{isEN ? 'updated' : '数据更新'} {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}</span>
-          <span>{isEN ? 'independent monitoring · not investment advice' : '独立监测 · 不构成购买建议'}</span>
-
+          <span><i className="status-dot" /> <Link to="/status">服务状态</Link></span>
+          <span>数据更新 {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}</span>
+          <span>独立监测 · 不构成购买建议</span>
         </div>
         <div className="wrap footer-bottom mono">
           <span>© 2026 RelayRadar</span>

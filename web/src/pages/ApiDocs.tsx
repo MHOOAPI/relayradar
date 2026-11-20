@@ -26,7 +26,6 @@ export function ApiDocsPage() {
     <main className="wrap docs">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />PUBLIC API</span>
           <h1>公开接口</h1>
           <p className="sub">
             只读接口无需鉴权，限流按 IP。所有时间均为 UTC，价格单位为人民币 / 百万 Token。

@@ -89,7 +89,6 @@ export function FreeKeysPage() {
 
       <section className="panel fk-hero">
         <div className="fk-hero-main">
-          <span className="eyebrow"><i />FREE API KEYS</span>
           <h1>免费 API Key</h1>
           <p className="sub">
             社区共享的 OpenAI 兼容 Key，无需登录即可领取。每个 Key 提交时会自动探测一次，并显示社区判定；共享 Key 随时可能被吊销，

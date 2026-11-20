@@ -83,7 +83,6 @@ export function SubmitPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />CONTRIBUTE</span>
           <h1>提交与认领</h1>
           <p className="sub">提交新站点进入观察队列；站长可通过 DNS TXT 认领档案，补充倍率、退款与发票信息。</p>
         </div>

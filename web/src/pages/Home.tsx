@@ -143,6 +143,10 @@ export function Home() {
     return list;
   }, [stations, service, tier, sort, q, onlyWatch, watched]);
 
+  const [visible, setVisible] = useState(60);
+  useEffect(() => setVisible(60), [q, service, tier, sort, onlyWatch]);
+  const shown = rows.slice(0, visible);
+
   const exportCsv = () => {
     const esc = (v: string | number | boolean) => `"${String(v).replace(/"/g, '""')}"`;
     const header = ['rank', 'name', 'domain', 'services', 'rankScore', 'uptimePct', 'speed', 'purityTier', 'purity', 'models', 'fromPriceCny', 'minTopupCny', 'invoice'];
@@ -346,7 +350,7 @@ export function Home() {
               {stations && rows.length === 0 && (
                 <tr><td colSpan={10} className="loading">没有符合条件的站点，试试放宽筛选。</td></tr>
               )}
-              {rows.map((s) => (
+              {shown.map((s) => (
                 <tr key={s.slug} onClick={() => navigate(`/stations/${s.slug}`)}>
                   <td className={`col-rank rank r${Math.min(s.rank, 4)}`}>{s.rank || '—'}</td>
                   <td>
@@ -406,7 +410,7 @@ export function Home() {
             </div>
           ))}
           {stations && rows.length === 0 && <p className="fine" style={{ padding: 16 }}>没有符合条件的站点，试试放宽筛选。</p>}
-          {rows.map((s) => (
+          {shown.map((s) => (
             <Link key={s.slug} to={`/stations/${s.slug}`} className="station-card">
               <div className="sc-row1">
                 <span className={`rank r${Math.min(s.rank, 4)}`}>{s.rank || '—'}</span>
@@ -426,6 +430,15 @@ export function Home() {
             </Link>
           ))}
         </div>
+
+        {rows.length > shown.length && (
+          <div className="list-more">
+            <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 120)}>
+              显示更多站点
+            </button>
+            <span className="mono">已显示 {shown.length} / {rows.length}</span>
+          </div>
+        )}
 
         <div className="panel-foot mono dim">
           价格 = 官方 USD 单价 × 站点结算汇率 × 分组倍率；取该站全部模型中的最低输入价，非单一模型报价。

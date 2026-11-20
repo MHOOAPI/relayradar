@@ -38,7 +38,6 @@ export function FreePage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />FREE TIER</span>
           <h1>免费额度目录</h1>
           <p className="sub">官方免费层与赠送额度，按“能持续多久 / 要不要绑卡 / 限速多少”筛选，不收录来路不明的共享 Key。</p>
         </div>

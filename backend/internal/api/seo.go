@@ -493,12 +493,6 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 		return pageMeta{Title: "注册 | RelayRadar", Desc: "创建账号，管理提交与告警订阅。", Canonical: base + path, NoIndex: true}, true
 	case "/admin":
 		return pageMeta{Title: "后台 | RelayRadar", Desc: "站点运营后台。", Canonical: base + path, NoIndex: true}, true
-	case "/sponsor":
-		return pageMeta{
-			Title:     "赞助与广告：位置、规则与报价 | RelayRadar",
-			Desc:      "赞助位明确标注、不参与评分与排序；首页赞助条、目录卡片与榜单页位置的示例报价。",
-			Canonical: base + path,
-		}, true
 	case "/faq":
 		return pageMeta{
 			Title:     "常见问题：中转站怎么选、评分怎么算 | RelayRadar",
@@ -725,7 +719,6 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 	add("/free", "weekly", "0.7")
 	add("/free-api-keys", "hourly", "0.7")
 	add("/faq", "monthly", "0.7")
-	add("/sponsor", "monthly", "0.4")
 	add("/status", "hourly", "0.6")
 	add("/model-status", "hourly", "0.7")
 	for _, p := range modelProviders {

@@ -311,6 +311,11 @@ func aggregateProviderHistory(rows []store.ProviderSnapshot, since time.Time) ma
 // translateIncidentItems returns a copy with incident titles and the first
 // few update bodies translated to Chinese. Failures keep the original English.
 func (s *Server) translateIncidentItems(ctx context.Context, items []modelStatusItem) []modelStatusItem {
+	// Translation is best-effort: the status page must not hang when the
+	// translation endpoint is slow, so the whole batch shares one budget.
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	out := make([]modelStatusItem, len(items))
 	copy(out, items)
 

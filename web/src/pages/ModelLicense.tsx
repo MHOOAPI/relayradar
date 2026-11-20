@@ -42,7 +42,6 @@ export function ModelLicensePage() {
       <main className="wrap">
         <div className="page-head">
           <div>
-            <span className="eyebrow"><i />LICENSES</span>
             <h1>按许可证浏览模型</h1>
             <p className="sub">许可证决定权重能否自托管、能否商用；这里按许可证聚合模型与实价。</p>
           </div>
@@ -66,7 +65,6 @@ export function ModelLicensePage() {
       <div className="crumbs mono"><Link to="/models">模型</Link><span>/</span><Link to="/models/license">许可证</Link><span>/</span><span className="dim">{license}</span></div>
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />LICENSE</span>
           <h1>{LABEL[license] ?? license} 许可证模型</h1>
           <p className="sub">{list.length} 个模型使用该许可证。</p>
         </div>

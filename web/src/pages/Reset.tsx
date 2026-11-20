@@ -32,7 +32,6 @@ export function ResetPage() {
   return (
     <main className="wrap">
       <section className="panel auth-card">
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>重置密码</h1>
         {!token && <p className="form-error">链接缺少 token，请从邮件里重新打开。</p>}
         {done ? (

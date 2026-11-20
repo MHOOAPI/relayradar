@@ -99,7 +99,6 @@ export function ComparePage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />COMPARE</span>
           <h1>横向对比</h1>
           <p className="sub">最多同时对比 4 家。绿色为该行最优项，但“便宜”与“稳”经常不可兼得。</p>
         </div>

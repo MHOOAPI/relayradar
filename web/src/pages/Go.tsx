@@ -62,7 +62,6 @@ export function GoPage() {
   return (
     <main className="wrap">
       <section className="panel go-card">
-        <span className="eyebrow"><i />LEAVING RELAYRADAR</span>
         <h1>即将离开本站，前往 {s.name}</h1>
 
         <div className="go-target">

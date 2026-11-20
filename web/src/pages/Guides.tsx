@@ -19,7 +19,6 @@ export function GuidesPage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />GUIDES</span>
           <h1>指南</h1>
           <p className="sub">关于中转站选择、计费与验真的长文，全部可被搜索引擎与 AI 引擎直接读取。</p>
         </div>

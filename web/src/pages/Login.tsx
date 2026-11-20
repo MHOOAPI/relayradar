@@ -27,7 +27,6 @@ export function LoginPage() {
   return (
     <main className="wrap">
       <section className="panel auth-card">
-        <span className="eyebrow"><i />ACCOUNT</span>
         <h1>登录</h1>
         <p className="sub">登录后可提交站点、管理告警订阅；管理员可进入后台。</p>
         <form className="auth-form" onSubmit={submit}>

@@ -81,6 +81,13 @@ func (s *Server) Routes() http.Handler {
 
 	mux.Handle("GET /icons/", http.StripPrefix("/icons/", http.FileServer(http.Dir(s.cfg.IconDir))))
 	mux.HandleFunc("GET /healthz", s.handleHealth)
+	// Pages that were folded into others keep their old URLs alive.
+	mux.HandleFunc("GET /sponsor", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/faq", http.StatusMovedPermanently)
+	})
+	mux.HandleFunc("GET /leaderboards/window", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/leaderboards", http.StatusMovedPermanently)
+	})
 	mux.HandleFunc("GET /metrics", s.handleMetrics)
 	mux.HandleFunc("GET /api/v1/model-status", s.handleModelStatus)
 	mux.HandleFunc("GET /api/v1/status", s.handleStatus)

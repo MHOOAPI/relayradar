@@ -133,8 +133,6 @@ func (s *Server) bodyFor(r *http.Request, d *app.Dataset) template.HTML {
 		return enMethodologyBody()
 	case path == "/en/faq":
 		return enFaqBody()
-	case path == "/sponsor":
-		return sponsorBody()
 	case path == "/api-docs":		return template.HTML(`<article><h1>公开 API</h1>
 <p>只读 JSON 接口，按 IP 限流。榜单 <a href="/api/v1/stations">/api/v1/stations</a>，站点档案 <code>/api/v1/stations/{slug}</code>，模型 <code>/api/v1/models/{id}</code>，变更 <a href="/api/v1/changes">/api/v1/changes</a>，AI 摘要 <a href="/llms.txt">/llms.txt</a> 与 <a href="/llms-full.txt">/llms-full.txt</a>。</p></article>`)
 	}
@@ -1149,21 +1147,6 @@ func auditBody() template.HTML {
 <h2>检测项目</h2>
 <ul><li><a href="/audit/reachable">端点可达</a></li><li><a href="/audit/auth">鉴权通过</a></li><li><a href="/audit/stream">流式完整性</a></li><li><a href="/audit/model_echo">模型回显</a></li><li><a href="/audit/usage">用量上报</a></li><li><a href="/audit/token_consistency">分词一致性</a></li><li><a href="/audit/cache">缓存透传</a></li><li><a href="/audit/ttft">首字延迟</a></li></ul>
 <p><a href="/audit">打开检测工具</a> · <a href="/methodology">评分方法</a></p></article>`)
-}
-
-func sponsorBody() template.HTML {
-	return template.HTML(`<article><h1>赞助与广告</h1>
-<p>赞助位用于覆盖探针与带宽成本，不改变分数、排序或测评结论。</p>
-<h2>规则</h2>
-<ul><li>所有赞助内容标注 Sponsor，不与自然结果混排。</li><li>赞助不参与评分，也不能要求删除负面检测结果。</li><li>文案与数据分离：评分与探针由本站独立生成。</li><li>不接受无法核实主体的投放。</li></ul>
-<h2>位置与示例报价</h2>
-<table class="index-table"><thead><tr><th>位置</th><th>示例价格</th><th>说明</th></tr></thead><tbody>
-<tr><td>首页赞助条</td><td>¥149 / 月</td><td>顶部一条文字赞助，标注 Sponsor</td></tr>
-<tr><td>目录赞助卡</td><td>¥249 / 月</td><td>目录侧栏卡片，展示 logo 与简介</td></tr>
-<tr><td>榜单页赞助位</td><td>¥399 / 月</td><td>固定位置，与自然结果分离</td></tr>
-</tbody></table>
-<p>示例报价，最终以合同为准；当前为演示部署，不构成真实要约。</p>
-<p><a href="/methodology">评分方法</a> · <a href="/">返回榜单</a></p></article>`)
 }
 
 func faqBody() template.HTML {	var b strings.Builder

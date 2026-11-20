@@ -40,7 +40,6 @@ export function AuditCheckPage() {
       </div>
 
       <section className="panel audit-doc">
-        <span className="eyebrow"><i />AUDIT CHECK</span>
         <h1>{doc.label}</h1>
         <p className="audit-lead">{doc.short}</p>
 

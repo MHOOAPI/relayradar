@@ -52,7 +52,6 @@ export function FaqPage() {
     <main className="wrap method">
       <div className="page-head">
         <div>
-          <span className="eyebrow"><i />FAQ</span>
           <h1>常见问题</h1>
           <p className="sub">关于中转站、评分口径、数据来源与接口检测的高频问题。</p>
         </div>
