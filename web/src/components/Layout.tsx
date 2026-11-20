@@ -138,7 +138,7 @@ export function Layout() {
                 {user ? (
                   <div className="header-user">
                     {user.role === 'admin' && <Link className="link-btn" to="/admin">后台</Link>}
-                    <span className="mono dim">{user.name}</span>
+                    <Link className="mono dim header-account" to="/account" title="个人中心">{user.name || '个人中心'}</Link>
                     <button type="button" className="link-btn" onClick={() => void logout()}>退出</button>
                   </div>
                 ) : (

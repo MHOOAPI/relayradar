@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, setCaptchaToken } from '../api';
 
 interface Challenge {
+  disabled?: boolean;
   id: string;
   background: string;
   piece: string;
@@ -32,6 +33,12 @@ export function SliderCaptcha({ onVerified, hint = '按住滑块，把缺口拖�
     setX(0);
     try {
       const c = await api.captcha();
+      if (c.disabled) {
+        // Server-side captcha is off (CAPTCHA_ENABLED=false): treat as passed.
+        setStatus('done');
+        onVerified?.('disabled');
+        return;
+      }
       setChallenge(c);
       setStatus('idle');
     } catch (err) {
