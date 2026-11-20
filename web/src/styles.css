@@ -1839,3 +1839,11 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .model-offers .panel-head { flex-direction: column; align-items: flex-start; gap: 6px; }
   .model-offers .panel-head .mono.dim { white-space: normal; }
 }
+
+/* Model categories */
+.cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; }
+.cat-tab { border: 1px solid var(--line); background: transparent; color: var(--text-2); border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.cat-tab span { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.cat-tab.on { border-color: rgba(46,230,166,.5); color: var(--accent); background: rgba(46,230,166,.06); }
+.cat-tab.on span { color: var(--accent); }
+.cat-chip { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--text-3); white-space: nowrap; }

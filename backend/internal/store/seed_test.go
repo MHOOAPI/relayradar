@@ -8,8 +8,8 @@ func TestBuildSeedSnapshot(t *testing.T) {
 	if len(snap.Stations) != 26 {
 		t.Fatalf("stations = %d, want 26", len(snap.Stations))
 	}
-	if len(snap.Models) != 13 {
-		t.Fatalf("models = %d, want 13", len(snap.Models))
+	if len(snap.Models) != 35 {
+		t.Fatalf("models = %d, want 35", len(snap.Models))
 	}
 	if len(snap.Groups) < 30 {
 		t.Fatalf("groups = %d, want >= 30", len(snap.Groups))

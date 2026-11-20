@@ -48,6 +48,7 @@ export interface ModelSpec {
   vendorName: string;
   name: string;
   service: string;
+  category?: 'text' | 'image' | 'video';
   contextWindow: number;
   inputUsd: number;
   outputUsd: number;
