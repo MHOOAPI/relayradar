@@ -112,6 +112,13 @@ export function StationPage() {
               <WatchStar slug={s.slug} size={16} />
             </div>
             <p className="tagline">{s.tagline}</p>
+            <div className="detail-links mono" style={{ marginTop: 6 }}>
+              <span>支付 {(s as unknown as { payments?: string[] }).payments?.join(' / ') || '—'}</span>
+              <span>·</span>
+              <span>开票 {(s as unknown as { invoice?: boolean }).invoice ? '支持' : '不支持'}</span>
+              <span>·</span>
+              <span>退款 {(s as unknown as { refundPolicy?: string }).refundPolicy || '—'}</span>
+            </div>
             <div className="detail-links mono">
               <Link to={`/go/${s.slug}`}>{s.domain} <External /></Link>
               <span className="dim">{s.baseUrl}</span>
