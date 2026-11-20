@@ -68,6 +68,9 @@ type Submission struct {
 	BaseURL   string    `json:"baseUrl"`
 	Contact   string    `json:"contact"`
 	Note      string    `json:"note"`
+	Payments  []string  `json:"payments"`
+	Invoice   bool      `json:"invoice"`
+	RefundPolicy string `json:"refundPolicy"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -776,7 +779,7 @@ func (s *Store) DeleteSession(ctx context.Context, tokenHash string) error {
 
 func (s *Store) ListSubmissions(ctx context.Context) ([]Submission, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, name, domain, base_url, contact, note, status, created_at
+		SELECT id, name, domain, base_url, contact, note, payments, invoice, refund_policy, status, created_at
 		FROM submissions ORDER BY id DESC`)
 	if err != nil {
 		return nil, err
@@ -785,7 +788,7 @@ func (s *Store) ListSubmissions(ctx context.Context) ([]Submission, error) {
 	var out []Submission
 	for rows.Next() {
 		var sub Submission
-		if err := rows.Scan(&sub.ID, &sub.Name, &sub.Domain, &sub.BaseURL, &sub.Contact, &sub.Note, &sub.Status, &sub.CreatedAt); err != nil {
+		if err := rows.Scan(&sub.ID, &sub.Name, &sub.Domain, &sub.BaseURL, &sub.Contact, &sub.Note, &sub.Payments, &sub.Invoice, &sub.RefundPolicy, &sub.Status, &sub.CreatedAt); err != nil {
 			return nil, err
 		}
 		out = append(out, sub)
@@ -1154,11 +1157,11 @@ func (s *Store) GetAudit(ctx context.Context, id string) (AuditReport, error) {	
 
 func (s *Store) CreateSubmission(ctx context.Context, sub Submission) (Submission, error) {
 	err := s.pool.QueryRow(ctx, `
-		INSERT INTO submissions (name, domain, base_url, contact, note)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, name, domain, base_url, contact, note, status, created_at`,
-		sub.Name, sub.Domain, sub.BaseURL, sub.Contact, sub.Note).
-		Scan(&sub.ID, &sub.Name, &sub.Domain, &sub.BaseURL, &sub.Contact, &sub.Note, &sub.Status, &sub.CreatedAt)
+		INSERT INTO submissions (name, domain, base_url, contact, note, payments, invoice, refund_policy)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id, name, domain, base_url, contact, note, payments, invoice, refund_policy, status, created_at`,
+		sub.Name, sub.Domain, sub.BaseURL, sub.Contact, sub.Note, sub.Payments, sub.Invoice, sub.RefundPolicy).
+		Scan(&sub.ID, &sub.Name, &sub.Domain, &sub.BaseURL, &sub.Contact, &sub.Note, &sub.Payments, &sub.Invoice, &sub.RefundPolicy, &sub.Status, &sub.CreatedAt)
 	return sub, err
 }
 
