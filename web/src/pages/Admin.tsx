@@ -81,21 +81,24 @@ export function AdminPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [savedId, setSavedId] = useState<number | null>(null);
   const [draft, setDraft] = useState({ payments: '', invoice: false, refundPolicy: '' });
+  const [editError, setEditError] = useState<string | null>(null);
 
   const startEdit = (s: Submission) => {
     setEditId(s.id);
     setSavedId(null);
+    setEditError(null);
     setDraft({ payments: (s.payments ?? []).join(','), invoice: s.invoice ?? false, refundPolicy: s.refundPolicy ?? '' });
   };
 
   const saveTerms = async (s: Submission) => {
+    setEditError(null);
     const payments = draft.payments.split(',').map((x) => x.trim()).filter(Boolean);
     if (payments.length === 0) {
-      setError('请至少选择一种支付方式');
+      setEditError('请至少选择一种支付方式');
       return;
     }
     if (draft.refundPolicy.length > 200) {
-      setError('退款政策不能超过 200 字');
+      setEditError('退款政策不能超过 200 字');
       return;
     }
     try {
@@ -289,6 +292,7 @@ export function AdminPage() {
                             <button className="btn btn-sm btn-primary" onClick={() => saveTerms(s)}>保存</button>
                             <button className="btn btn-sm" onClick={() => setEditId(null)}>取消</button>
                           </div>
+                          {editError && <span className="term-error">{editError}</span>}
                         </div>
                       </td>
                     </tr>

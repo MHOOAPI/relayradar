@@ -331,6 +331,7 @@ export function StationPage() {
           <span className="mono dim">{models.length} 个模型</span>
         </div>
         <div className="table-wrap">
+          <p className="table-hint">左右滑动查看全部列</p>
           <table className="index-table">
             <thead>
               <tr>

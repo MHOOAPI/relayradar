@@ -1883,3 +1883,10 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .term-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .term-chip { border: 1px solid var(--line); background: transparent; color: var(--text-2); border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
 .term-chip.on { border-color: rgba(46,230,166,.5); color: var(--accent); background: rgba(46,230,166,.07); }
+
+.term-error { color: #ff6b6b; font-size: 11px; align-self: center; }
+.table-hint { display: none; }
+@media (max-width: 640px) { .table-hint { display: block; font-size: 11px; color: var(--text-3); margin: 6px 0 0; } }
+
+.model-scope { margin: 10px 0 0; font-size: 11px; }
+.model-scope .link-btn { color: var(--accent); }
