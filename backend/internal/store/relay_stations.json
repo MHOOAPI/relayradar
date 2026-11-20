@@ -1,0 +1,1541 @@
+[
+    {
+        "slug":  "wawapii",
+        "name":  "瓦瓦AI",
+        "domain":  "wawapii.com",
+        "tagline":  "Claude / GPT / Gemini · 自建号池",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "code28",
+        "name":  "可乐AI",
+        "domain":  "code28.ccwu.cc",
+        "tagline":  "Claude / GPT / Gemini · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "closedai",
+        "name":  "酸奶AI",
+        "domain":  "closedai.kylenqaq.com",
+        "tagline":  "Claude / GPT / Gemini · 编程向 · 可开票",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "moonshot"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "wawazz",
+        "name":  "WAWA ZZ",
+        "domain":  "wawazz.xyz",
+        "tagline":  "Claude / GPT · 自建号池",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  96.7
+    },
+    {
+        "slug":  "x-llm",
+        "name":  "X-LLM",
+        "domain":  "x-llm.net",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "anyaigc",
+        "name":  "AnyAIGC中转站",
+        "domain":  "anyaigc.com",
+        "tagline":  "Claude / GPT / 绘图 · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "qiuqiutoken",
+        "name":  "球球Token",
+        "domain":  "qiuqiutoken.net",
+        "tagline":  "Claude / GPT / Gemini · 企业级 · 可开票",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "aicodemirror",
+        "name":  "AICodeMirror",
+        "domain":  "aicodemirror.ai",
+        "tagline":  "Claude / GPT / Gemini · 编程向 · 可开票",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "xiaoyenai",
+        "name":  "椰奶AI",
+        "domain":  "xiaoyenai.com",
+        "tagline":  "Claude · 低价",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  92.9
+    },
+    {
+        "slug":  "mxcapi",
+        "name":  "mxcAPI 中转",
+        "domain":  "mxcapi.dedyn.io",
+        "tagline":  "Claude / GPT / Grok · 自建号池 · 可开票",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "xai"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "uo",
+        "name":  "UoCode",
+        "domain":  "uo.mentoe.com",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "newapi-dragon3api",
+        "name":  "DragonAPI",
+        "domain":  "newapi.dragon3api.com",
+        "tagline":  "Claude / GPT / Gemini · 企业级",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "pandasrouter",
+        "name":  "pandasrouter",
+        "domain":  "pandasrouter.com",
+        "tagline":  "DeepSeek / 通义 / Kimi · 第三方中转",
+        "services":  [
+                         "deepseek",
+                         "qwen",
+                         "moonshot"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  97.6
+    },
+    {
+        "slug":  "moxin",
+        "name":  "墨信AI",
+        "domain":  "moxin.studio",
+        "tagline":  "Claude / Gemini · 企业级 · 可开票",
+        "services":  [
+                         "claude",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "foxcode",
+        "name":  "foxcode",
+        "domain":  "foxcode.rjj.cc",
+        "tagline":  "Claude · 低价",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api",
+        "name":  "IkunCode",
+        "domain":  "api.ikuncode.cc",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "linkapi",
+        "name":  "LinkAPI",
+        "domain":  "linkapi.ai",
+        "tagline":  "Claude / GPT · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "superoute",
+        "name":  "superoute",
+        "domain":  "superoute.uk",
+        "tagline":  "Claude / GPT · 企业级",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.4
+    },
+    {
+        "slug":  "routescope",
+        "name":  "routescope",
+        "domain":  "routescope.ai",
+        "tagline":  "Claude / GPT · 企业级",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "suanzhou",
+        "name":  "算舟云",
+        "domain":  "suanzhou.top",
+        "tagline":  "GPT · 自建号池 · 可开票",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-2",
+        "name":  "柏拉图AI",
+        "domain":  "api.bltcy.ai",
+        "tagline":  "Claude / GPT · 可开票",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  true,
+        "uptime":  99.1
+    },
+    {
+        "slug":  "azapi",
+        "name":  "azapi",
+        "domain":  "azapi.com.cn",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "right",
+        "name":  "RightCode",
+        "domain":  "right.codes",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "qqqrouter",
+        "name":  "QQQRouter",
+        "domain":  "qqqrouter.com",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "071129",
+        "name":  "071129",
+        "domain":  "071129.xyz",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "marketplace",
+        "name":  "Alsa",
+        "domain":  "marketplace.aisa.one",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "aicodewith",
+        "name":  "AIcodewith",
+        "domain":  "aicodewith.com",
+        "tagline":  "Claude / GPT / Gemini · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "fumeng",
+        "name":  "Codex 无限续杯",
+        "domain":  "fumeng.top",
+        "tagline":  "Claude / GPT / Gemini · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "ccapi",
+        "name":  "CC API",
+        "domain":  "ccapi.chat",
+        "tagline":  "GPT / 绘图 · 第三方中转",
+        "services":  [
+                         "openai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "wqdsjhaoai",
+        "name":  "ttapi",
+        "domain":  "wqdsjhaoai.site",
+        "tagline":  "GPT · 聚合站",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "co",
+        "name":  "YesCode",
+        "domain":  "co.yes.vg",
+        "tagline":  "Claude · 编程向",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "hahacode",
+        "name":  "hahacode",
+        "domain":  "hahacode.com",
+        "tagline":  "Claude / GPT / Gemini · 低价",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-3",
+        "name":  "HubAGI",
+        "domain":  "api.hubagi.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "magic666",
+        "name":  "Magic666",
+        "domain":  "magic666.top",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-anc1ent",
+        "name":  "Anc1ent API",
+        "domain":  "api.anc1ent.top",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.2
+    },
+    {
+        "slug":  "airouter",
+        "name":  "AiRouter-ITStudio",
+        "domain":  "airouter.service.itstudio.club",
+        "tagline":  "Claude / GPT · 自建号池",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "greatwalllink",
+        "name":  "AlphaCode/GreatWall",
+        "domain":  "greatwalllink.top",
+        "tagline":  "Claude · 第三方中转",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "claudecn",
+        "name":  "ClaudeCN",
+        "domain":  "claudecn.top",
+        "tagline":  "Claude · 第三方中转",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "fast",
+        "name":  "乾行AI",
+        "domain":  "fast.qianxing.pro",
+        "tagline":  "Claude / GPT / Gemini · 低价",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "88996",
+        "name":  "一叶知秋API",
+        "domain":  "88996.cloud",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.1
+    },
+    {
+        "slug":  "aiberm",
+        "name":  "aiberm",
+        "domain":  "aiberm.com",
+        "tagline":  "Claude · 第三方中转",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "vip",
+        "name":  "undyingapi",
+        "domain":  "vip.undyingapi.com",
+        "tagline":  "Gemini · 第三方中转",
+        "services": ["gemini"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "goapi",
+        "name":  "GPTNB",
+        "domain":  "goapi.gptnb.ai",
+        "tagline":  "GPT · 聚合站",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "sparkcode",
+        "name":  "SparkCode",
+        "domain":  "sparkcode.top",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "claudeapi",
+        "name":  "claudeapi.com",
+        "domain":  "claudeapi.com",
+        "tagline":  "Claude · 编程向",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "ai",
+        "name":  "PawsAI",
+        "domain":  "ai.furry.edu.gr",
+        "tagline":  "Claude / GPT / DeepSeek · 自建号池",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "deepseek"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "bkbk",
+        "name":  "问鼎AI",
+        "domain":  "bkbk.baby",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-4",
+        "name":  "nekoapi",
+        "domain":  "api.nekoapi.com",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "amutes",
+        "name":  "Gemini站点",
+        "domain":  "amutes.com",
+        "tagline":  "Gemini · 低价",
+        "services": ["gemini"],
+        "payments": ["微信"],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "anyrouter",
+        "name":  "AnyRouter",
+        "domain":  "anyrouter.top",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "jiekou",
+        "name":  "接口AI",
+        "domain":  "jiekou.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "hapiopen",
+        "name":  "HAPI",
+        "domain":  "hapiopen.cc",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.1
+    },
+    {
+        "slug":  "api-tu-zi",
+        "name":  "兔子API",
+        "domain":  "api.tu-zi.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  94.1
+    },
+    {
+        "slug":  "openai-labs",
+        "name":  "openaiLabs",
+        "domain":  "openai-labs.com",
+        "tagline":  "Claude / GPT · 企业级",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-5",
+        "name":  "非凡极算api开放平台",
+        "domain":  "api.fincal.cn",
+        "tagline":  "Claude / GPT / 绘图 · 低价",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  96.9
+    },
+    {
+        "slug":  "api-6",
+        "name":  "毫秒API",
+        "domain":  "api.holdai.top",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "one",
+        "name":  "ocoolAPI",
+        "domain":  "one.ooo.cool",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "husanai",
+        "name":  "HusanAI",
+        "domain":  "husanai.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "apipro-maynor1024",
+        "name":  "MaynorAPI",
+        "domain":  "apipro.maynor1024.live",
+        "tagline":  "Claude · 编程向",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "zen-ai",
+        "name":  "ZEN-AI",
+        "domain":  "zen-ai.top",
+        "tagline":  "GPT · 低价",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "yourapi",
+        "name":  "YourAPI",
+        "domain":  "yourapi.cn",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "chat01",
+        "name":  "chat01",
+        "domain":  "chat01.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "poloai",
+        "name":  "PoloAPI",
+        "domain":  "poloai.top",
+        "tagline":  "Claude / GPT · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "uselunora",
+        "name":  "Lunora AI API",
+        "domain":  "uselunora.com",
+        "tagline":  "Claude / GPT / Gemini · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.4
+    },
+    {
+        "slug":  "pateway",
+        "name":  "PatewayAI",
+        "domain":  "pateway.ai",
+        "tagline":  "Claude / GPT / DeepSeek · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "deepseek",
+                         "qwen"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-7",
+        "name":  "老张API",
+        "domain":  "api.laozhang.ai",
+        "tagline":  "Claude · 第三方中转",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-top",
+        "name":  "Top-api",
+        "domain":  "api-top.com",
+        "tagline":  "Claude / GPT / Gemini · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "aiapi",
+        "name":  "RelayOne",
+        "domain":  "aiapi.aiqji.cn",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  83.3
+    },
+    {
+        "slug":  "code0",
+        "name":  "code0.ai",
+        "domain":  "code0.ai",
+        "tagline":  "Claude / GPT / Gemini · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "taijiai",
+        "name":  "TaijiAI",
+        "domain":  "taijiai.online",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "ofox",
+        "name":  "Ofox",
+        "domain":  "ofox.io",
+        "tagline":  "Claude / GPT / Gemini · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "deepseek",
+                         "qwen"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "51ssg",
+        "name":  "51SSG",
+        "domain":  "51ssg.net",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "dgrid",
+        "name":  "DGrid AI",
+        "domain":  "dgrid.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "easychat",
+        "name":  "EasyChat",
+        "domain":  "easychat.site",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.4
+    },
+    {
+        "slug":  "api-8",
+        "name":  "HUAHUAapi",
+        "domain":  "api.huahuaapi.com",
+        "tagline":  "Claude / GPT / 绘图 · 自建号池",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-9",
+        "name":  "ephone",
+        "domain":  "api.ephone.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "ai-2",
+        "name":  "gettokenapi",
+        "domain":  "ai.gettokenapi.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "aigocode",
+        "name":  "aigocode",
+        "domain":  "aigocode.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "last-api",
+        "name":  "LAST API",
+        "domain":  "last-api.ai",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "omniakey",
+        "name":  "Omniakey",
+        "domain":  "omniakey.com",
+        "tagline":  "Claude / GPT / Gemini · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "deepseek",
+                         "xai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "gcccode",
+        "name":  "gcccode",
+        "domain":  "gcccode.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.4
+    },
+    {
+        "slug":  "tian-shu",
+        "name":  "天枢",
+        "domain":  "tian-shu.org",
+        "tagline":  "Claude / GPT / Gemini · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "new",
+        "name":  "XYChatAI",
+        "domain":  "new.xychatai.com",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  98.5
+    },
+    {
+        "slug":  "xn-vduyey89e",
+        "name":  "空悲惬API",
+        "domain":  "xn--vduyey89e.com",
+        "tagline":  "Claude / GPT / Gemini · 编程向",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "sssaicode",
+        "name":  "SSSAICode",
+        "domain":  "sssaicode.com",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "crun",
+        "name":  "Crun",
+        "domain":  "crun.ai",
+        "tagline":  "GPT / Grok / 绘图 · 聚合站",
+        "services":  [
+                         "openai",
+                         "xai",
+                         "image"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "cnapi",
+        "name":  "kksj",
+        "domain":  "cnapi.kksj.org",
+        "tagline":  "Claude / GPT · 企业级",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "jeniya",
+        "name":  "简易API",
+        "domain":  "jeniya.top",
+        "tagline":  "Claude / GPT / DeepSeek · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "deepseek"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "aiwts",
+        "name":  "WTS中转站",
+        "domain":  "aiwts.com",
+        "tagline":  "Claude / GPT / Gemini · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "deepseek",
+                         "xai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  98.8
+    },
+    {
+        "slug":  "api1",
+        "name":  "zhtec",
+        "domain":  "api1.zhtec.xyz",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-atalk-ai",
+        "name":  "云鲸AI",
+        "domain":  "api.atalk-ai.com",
+        "tagline":  "Claude / GPT · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  70.9
+    },
+    {
+        "slug":  "cubence",
+        "name":  "Cubence",
+        "domain":  "cubence.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "sub-3vw",
+        "name":  "3VW",
+        "domain":  "sub.3vw.net",
+        "tagline":  "GPT · 自建号池",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "pdhlzy",
+        "name":  "PdhAPI",
+        "domain":  "pdhlzy.com",
+        "tagline":  "GPT · 低价",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-openai-ch",
+        "name":  "GalaxyAPI",
+        "domain":  "api.openai-ch.top",
+        "tagline":  "GPT · 第三方中转",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "privnode",
+        "name":  "PrivNode",
+        "domain":  "privnode.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "openai-hk",
+        "name":  "OpenAI-HK",
+        "domain":  "openai-hk.com",
+        "tagline":  "GPT · 第三方中转",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "routin",
+        "name":  "Routin AI",
+        "domain":  "routin.ai",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "1openapi",
+        "name":  "1openapi",
+        "domain":  "1openapi.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  92.9
+    },
+    {
+        "slug":  "dawclaudecode",
+        "name":  "DawClaudeCode",
+        "domain":  "dawclaudecode.com",
+        "tagline":  "Claude · 编程向",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.4
+    },
+    {
+        "slug":  "api-10",
+        "name":  "Nio",
+        "domain":  "api.nio.gs",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "us",
+        "name":  "us.vveai.com",
+        "domain":  "us.vveai.com",
+        "tagline":  "Claude / GPT / Gemini · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai"
+                     ],
+        "payments":  [
+                         "微信",
+                         "信用卡",
+                         "USDT"
+                     ],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "mnapi",
+        "name":  "MNAPI",
+        "domain":  "mnapi.com",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "sub-ip233",
+        "name":  "IP233",
+        "domain":  "sub.ip233.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-11",
+        "name":  "khaix",
+        "domain":  "api.khaix.net",
+        "tagline":  "GPT / DeepSeek / 通义 · 自建号池",
+        "services":  [
+                         "openai",
+                         "deepseek",
+                         "qwen",
+                         "moonshot"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "demo",
+        "name":  "VoAPI",
+        "domain":  "demo.voapi.top",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  95.8
+    },
+    {
+        "slug":  "allcode",
+        "name":  "AllCode",
+        "domain":  "allcode.cc",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "anytokens",
+        "name":  "anytokens.cc",
+        "domain":  "anytokens.cc",
+        "tagline":  "Claude / GPT / Gemini · 聚合站",
+        "services":  [
+                         "claude",
+                         "openai",
+                         "gemini",
+                         "xai"
+                     ],
+        "payments":  [
+                         "支付宝",
+                         "信用卡"
+                     ],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "go",
+        "name":  "sbgpt",
+        "domain":  "go.sbgpt.site",
+        "tagline":  "GPT · 低价",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-12",
+        "name":  "OAIPro",
+        "domain":  "api.oaipro.com",
+        "tagline":  "Claude / GPT · 第三方中转",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-v3",
+        "name":  "v3",
+        "domain":  "api.v3.cm",
+        "tagline":  "Claude / GPT · 低价",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "yunai",
+        "name":  "凌云API",
+        "domain":  "yunai.chat",
+        "tagline":  "GPT · 第三方中转",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "faucet",
+        "name":  "水龙头",
+        "domain":  "faucet.openkey.cloud",
+        "tagline":  "GPT · 第三方中转",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-996444",
+        "name":  "清风阁",
+        "domain":  "api.996444.cn",
+        "tagline":  "GPT · 低价",
+        "services": ["openai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "88code",
+        "name":  "88Code",
+        "domain":  "88code.ai",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-13",
+        "name":  "ZetaTechs API",
+        "domain":  "api.zetatechs.com",
+        "tagline":  "Grok · 第三方中转",
+        "services": ["xai"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  99.7
+    },
+    {
+        "slug":  "ai18n",
+        "name":  "ai18n",
+        "domain":  "ai18n.chat",
+        "tagline":  "Claude · 第三方中转",
+        "services": ["claude"],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "comput",
+        "name":  "ComputChat",
+        "domain":  "comput.chat",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "uucode",
+        "name":  "UUCode",
+        "domain":  "uucode.org",
+        "tagline":  "Claude / GPT · 编程向",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    },
+    {
+        "slug":  "api-14",
+        "name":  "MKEAI",
+        "domain":  "api.mkeai.com",
+        "tagline":  "Claude / GPT · 企业级",
+        "services":  [
+                         "claude",
+                         "openai"
+                     ],
+        "payments": [],
+        "invoice":  false,
+        "uptime":  100
+    }
+]

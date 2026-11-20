@@ -8,7 +8,7 @@
 
 ## 功能
 
-- **中转站榜单**：22 家第三方中转 / 聚合站，按评分 v2 排序
+- **中转站榜单**：140+ 家第三方中转 / 聚合站，按评分 v2 排序
 - **评分 v2**：可用性 0.62、速度 0.26、稳定性 0.12，Wilson 95% 下界 + p50/p95
 - **纯度抽检**：Claude thinking 签名抽检，识别疑似掺假
 - **模型库与报价**：13 个模型，按分组倍率折算人民币价格；最低价跳过疑似掺假站
@@ -102,7 +102,7 @@ WEB_DIR=../web/dist ADMIN_EMAILS=admin@example.com \
 go run ./cmd/api
 ```
 
-首次启动自动建表并写入演示数据：**26 家站点 / 52 个分组 / 25,681 条探针**，覆盖 35 天。
+首次启动自动建表并写入演示数据：**143 个站点 / 308 个分组 / 约 39,000 条探针**。精选站点的探针覆盖 35 天；从公开目录导入的站点使用 14 天轻量历史，足够进入评分。
 
 ## 页面
 
@@ -168,7 +168,10 @@ go run ./cmd/api
 
 ## 数据说明
 
-- 站点：AIHubMix、302.AI、OpenRouter、PackyAPI、CloseAI、DMXAPI、OfoxAI、OhMyGPT、Weelinking、n1n.ai、API易、云雾 API、老板 AI、Poixe AI、API 快连、ZenMux、GPTGOD、UiUiAPI、FerryAPI、玄枢 API、MKEAI、WolfCheap（虚构黑榜样例）
+- 站点：23 个精选站点（含 mhoo 的真实计价数据与 WolfCheap 这个虚构黑榜样例）+ **120 个从公开目录导入的站点**（名称、域名、简介取自 [daheiai/awesome-api-proxy](https://github.com/daheiai/awesome-api-proxy) 的公开清单，见 `backend/internal/store/relay_stations.json`）。
+- 导入站点的倍率、探针、评分、纯度为演示值；支付方式、发票、退款只在清单文字明确提及时才填，其余保持「未知」。
+- 官方厂商（阿里云百炼、硅基流动、七牛云、PPIO）保留在数据集中用于官方价对照，但不进入中转站榜单
+- 探针数据为生成值，禁止用于真实购买决策
 - 官方厂商（阿里云百炼、硅基流动、七牛云、PPIO）保留在数据集中用于官方价对照，但不进入中转站榜单
 - 探针数据为生成值，禁止用于真实购买决策
 

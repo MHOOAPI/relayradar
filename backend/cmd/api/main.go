@@ -88,6 +88,13 @@ func openRepo(ctx context.Context, cfg config.Config, log *slog.Logger) (store.R
 			return nil, func() {}, err
 		}
 	}
+	if cfg.SeedDemo {
+		// Append stations added to the seed since the last deploy without
+		// touching existing rows or probe history.
+		if err := st.SyncDemoStations(ctx); err != nil {
+			log.Warn("demo station top-up skipped", "err", err)
+		}
+	}
 	return st, st.Close, nil
 }
 
