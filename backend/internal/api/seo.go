@@ -471,7 +471,7 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 	case "/audit":
 		return pageMeta{
 			Title:     "API 中转站接口检测：签名、计费与缓存 | RelayRadar",
-			Desc:      "对任意 OpenAI 兼容端点发两次相同请求，检查模型回显、usage、分词一致性、缓存透传与首字延迟。",
+			Desc:      "对任意 OpenAI 兼容端点发两次相同请求，检查模型回显、usage、分词一致性、缓存透传与首字延迟；模型可多选，逐个生成报告。",
 			Canonical: base + path,
 		}, true
 	case "/submit":
