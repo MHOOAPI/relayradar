@@ -123,6 +123,9 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		out.History = []componentHistory{}
 	}
 	if incidents, err := s.svc.Repo().ListIncidents(r.Context(), true); err == nil {
+		if incidents == nil {
+			incidents = []store.Incident{}
+		}
 		out.Incidents = incidents
 	} else {
 		out.Incidents = []store.Incident{}

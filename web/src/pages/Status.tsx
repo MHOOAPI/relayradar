@@ -130,7 +130,7 @@ export function StatusPage() {
           <div><h2>最近事件</h2><p className="sub">公开事故与维护记录，按开始时间倒序。</p></div>
           <a className="mono dim tiny" href="/status.rss">RSS</a>
         </div>
-        {data && data.incidents.length > 0 ? (
+        {data && (data.incidents?.length ?? 0) > 0 ? (
           <ul className="incident-list">
             {data.incidents.map((i) => (
               <li key={i.id} className={`incident incident-${i.status}`}>
