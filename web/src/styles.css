@@ -1878,3 +1878,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .term-edit input[type="text"], .term-edit input:not([type]) { background: #070b0f; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; color: var(--text); font-size: 12px; min-width: 180px; }
 .term-check { flex-direction: row !important; align-items: center; gap: 6px; }
 .term-actions { display: flex; gap: 8px; }
+
+/* Admin term payment chips */
+.term-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.term-chip { border: 1px solid var(--line); background: transparent; color: var(--text-2); border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
+.term-chip.on { border-color: rgba(46,230,166,.5); color: var(--accent); background: rgba(46,230,166,.07); }
