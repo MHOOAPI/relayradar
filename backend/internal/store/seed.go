@@ -1,11 +1,16 @@
 package store
 
 import (
+	_ "embed"
+	"encoding/json"
 	"math"
 	"math/rand"
 	"strings"
 	"time"
 )
+
+//go:embed models_catalog.json
+var modelsCatalogJSON []byte
 
 type seedStation struct {
 	Slug      string
@@ -160,16 +165,24 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 	now := time.Now().UTC().Truncate(time.Hour)
 	snap := &Snapshot{TakenAt: now}
 
-	modelByService := map[string][]Model{}
-	for _, m := range seedModels {
-		modelByService[m.Service] = append(modelByService[m.Service], m)
+	models := seedModels
+	var catalog []Model
+	if err := json.Unmarshal(modelsCatalogJSON, &catalog); err == nil && len(catalog) > 0 {
+		models = catalog
 	}
-	snap.Models = append(snap.Models, seedModels...)
-	for i := range snap.Models {
-		if snap.Models[i].Category == "" {
-			snap.Models[i].Category = "text"
+	for i := range models {
+		if models[i].Category == "" {
+			models[i].Category = "text"
 		}
 	}
+	modelByService := map[string][]Model{}
+	for _, m := range models {
+		if m.Service == "" {
+			continue
+		}
+		modelByService[m.Service] = append(modelByService[m.Service], m)
+	}
+	snap.Models = append(snap.Models, models...)
 
 	var reviews []Review
 
@@ -196,6 +209,12 @@ func BuildSeedSnapshot() (*Snapshot, []Review) {
 			for _, m := range modelByService[svc] {
 				in := round2(m.InputUSD * st.Rate * mult)
 				out := round2(m.OutputUSD * st.Rate * mult)
+				if in < 0.01 {
+					in = 0.01
+				}
+				if out < 0.01 {
+					out = 0.01
+				}
 				cache := round2(in * 0.1)
 				snap.GroupModels = append(snap.GroupModels, GroupModel{
 					GroupID: groupID, ModelID: m.ID,
