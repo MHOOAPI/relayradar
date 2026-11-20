@@ -91,6 +91,7 @@ func (s *Server) bodyFor(r *http.Request, d *app.Dataset) template.HTML {
 	case path == "/methodology":
 		return template.HTML(`<article><h1>评分方法 v2</h1>
 <p>综合分 = 0.62 × 可用性 + 0.26 × 速度 + 0.12 × 稳定性。可用性取 Wilson 95% 置信下界，速度由延迟中位数映射，稳定性衡量 p95 抖动；每个轴先做覆盖加权，再与最差分组混合（80% / 20%）。纯度与价格单独展示，不参与排名。</p>
+<p>模型档案页另有「供给评分」：价格 0.35 · 覆盖 0.20 · 可用性 0.20 · 纯度 0.15 · 上下文 0.10，按可用维度归一；价格分 = 100 ×（1 − 最低价 ÷ 中位价 ÷ 2）。它只衡量购买成本与供给质量，不评价模型能力——能力需要公开基准，本站不做自测，因此不提供编程分或推理分。</p>
 <p>完整公式、权重与 v1→v2 修订原因见 <a href="/methodology">评分方法页</a>。</p></article>`)
 	case path == "/audit":
 		return auditBody()
@@ -725,9 +726,45 @@ func (s *Server) bodyModel(d *app.Dataset, id string) template.HTML {
 		return ""
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, `<article><h1>%s</h1><p>%s</p>`, escHTML(m.Name), escHTML(m.Summary))
-	fmt.Fprintf(&b, `<p>官方 $%.2f / $%.2f per 1M · 上下文 %d · 编程分 %.1f · 推理分 %.1f · 全网最低 ¥%.2f</p>`,
-		m.InputUSD, m.OutputUSD, m.ContextWindow, m.CodingScore, m.ReasoningScore, m.MinInputCNY)
+	fmt.Fprintf(&b, `<article><h1>%s</h1><p>%s</p>`, escHTML(m.Name), escHTML(zhModelIntro(m)))
+
+	b.WriteString(`<h2>关键数据</h2><ul>`)
+	fmt.Fprintf(&b, `<li>厂商：%s · 分类：%s · 上下文：%s · 许可证：%s</li>`,
+		escHTML(m.VendorName), escHTML(categoryLabel(m.Category)), escHTML(fmtContextWindow(m.ContextWindow)), escHTML(licenseLabel(m.License)))
+	if m.Category == "" || m.Category == "text" {
+		fmt.Fprintf(&b, `<li>官方价：%s / %s 每百万 Token；全网最低：%s（%s）；报价站点：%d 个</li>`,
+			moneyUSD(m.InputUSD), moneyUSD(m.OutputUSD), moneyCNY(m.MinInputCNY), escHTML(m.BestStation), m.OffersCount)
+	} else {
+		fmt.Fprintf(&b, `<li>计费：按%s；最低价：%s（%s）；报价站点：%d 个</li>`,
+			unitLabel(m.Category), moneyCNY(m.MinInputCNY), escHTML(m.BestStation), m.OffersCount)
+	}
+	fmt.Fprintf(&b, `<li>供给评分：%s / 100（价格 %s · 覆盖 %s · 可用性 %s · 纯度 %s · 上下文 %s）</li></ul>`,
+		scoreText(m.RelayScore), scoreText(m.PriceScore), scoreText(m.CoverageScore),
+		scoreText(m.AvailabilityScore), scoreText(m.PurityScore), scoreText(m.ContextScore))
+
+	b.WriteString(`<h2>模型评分</h2><p>评分只衡量“现在买这个模型有多划算、供给有多稳”，不评价模型能力；能力需要公开基准，本站没有自测。</p>`)
+	scoreRows := [][]string{
+		{"价格", scoreText(m.PriceScore), priceScoreNote(m)},
+		{"覆盖", scoreText(m.CoverageScore), fmt.Sprintf("%d 个站点有报价", m.OffersCount)},
+		{"可用性", scoreText(m.AvailabilityScore), fmt.Sprintf("报价站点平均可用性 %.1f", m.AvgAvailability)},
+		{"纯度", scoreText(m.PurityScore), fmt.Sprintf("官方直连 %d · 混合 %d · 未检测 %d · 疑似掺假 %d", m.PurityOfficial, m.PurityMixed, m.PurityUnknown, m.PurityCounterfeit)},
+		{"上下文", scoreText(m.ContextScore), fmt.Sprintf("窗口 %s", fmtContextWindow(m.ContextWindow))},
+	}
+	b.WriteString(string(tableHTML([]string{"维度", "分数", "依据"}, scoreRows)))
+
+	b.WriteString(`<h2>价格与供给</h2><ul>`)
+	if m.PriceLowCNY > 0 {
+		fmt.Fprintf(&b, `<li>实价区间：%s – %s（中位 %s），共 %d 个报价</li>`, moneyCNY(m.PriceLowCNY), moneyCNY(m.PriceHighCNY), moneyCNY(m.PriceMedianCNY), m.OffersCount)
+	} else {
+		b.WriteString(`<li>暂无中转站报价，以下为官方价参考。</li>`)
+	}
+	if m.PriceRatio > 0 {
+		fmt.Fprintf(&b, `<li>最低价 ÷ 中位价：%.2f×（越低说明越值得比价）</li>`, m.PriceRatio)
+	}
+	if m.Category == "" || m.Category == "text" {
+		fmt.Fprintf(&b, `<li>上下文窗口：%s；发布日期：%s</li>`, fmtContextWindow(m.ContextWindow), dateLabel(m.ReleasedAt))
+	}
+	b.WriteString(`</ul>`)
 
 	b.WriteString(`<h2>全网报价</h2>`)
 	rows := make([][]string, 0, 12)
@@ -745,6 +782,7 @@ func (s *Server) bodyModel(d *app.Dataset, id string) template.HTML {
 		})
 	}
 	b.WriteString(string(tableHTML([]string{"站点", "分组", "倍率", "输入/1M", "输出/1M", "纯度"}, rows)))
+
 	if changes := d.PriceChanges[m.ID]; len(changes) > 0 {
 		b.WriteString(`<h2>价格变动记录</h2>`)
 		rows := make([][]string, 0, len(changes))
@@ -759,8 +797,149 @@ func (s *Server) bodyModel(d *app.Dataset, id string) template.HTML {
 		}
 		b.WriteString(string(tableHTML([]string{"站点", "分组", "输入价", "变动", "记录时间"}, rows)))
 	}
-	b.WriteString(`<p><a href="/models/` + escHTML(m.ID) + `">查看交互版</a> · <a href="/md/model/` + escHTML(m.ID) + `">Markdown 版本</a></p></article>`)
+
+	// Same-vendor models give crawlers and readers a way to compare.
+	related := make([]string, 0, 6)
+	for _, other := range d.Models {
+		if other.ID == m.ID || other.Vendor != m.Vendor {
+			continue
+		}
+		related = append(related, `<li><a href="/models/`+escHTML(other.ID)+`">`+escHTML(other.Name)+`</a></li>`)
+		if len(related) >= 6 {
+			break
+		}
+	}
+	if len(related) > 0 {
+		fmt.Fprintf(&b, `<h2>同厂商模型</h2><ul>%s</ul>`, strings.Join(related, ""))
+	}
+
+	b.WriteString(`<h2>常见问题</h2>`)
+	for _, q := range modelFAQ(m) {
+		fmt.Fprintf(&b, `<h3>%s</h3><p>%s</p>`, escHTML(q.Q), escHTML(q.A))
+	}
+
+	b.WriteString(`<p><a href="/models/` + escHTML(m.ID) + `">查看交互版</a> · <a href="/md/model/` + escHTML(m.ID) + `">Markdown 版本</a> · <a href="/audit?url=">检测该模型所在接口</a></p></article>`)
 	return template.HTML(b.String())
+}
+
+// categoryLabel renders a model category for humans.
+func categoryLabel(c string) string {
+	switch c {
+	case "image":
+		return "图片生成"
+	case "video":
+		return "视频生成"
+	default:
+		return "文本"
+	}
+}
+
+func unitLabel(c string) string {
+	if c == "image" {
+		return "张"
+	}
+	if c == "video" {
+		return "秒"
+	}
+	return "百万 Token"
+}
+
+func moneyUSD(v float64) string {
+	if v <= 0 {
+		return "—"
+	}
+	return fmt.Sprintf("$%.2f", v)
+}
+
+func moneyCNY(v float64) string {
+	if v < 0 {
+		return "—"
+	}
+	return fmt.Sprintf("¥%.2f", v)
+}
+
+func scoreText(v float64) string {
+	if v <= 0 {
+		return "—"
+	}
+	return fmt.Sprintf("%.1f", v)
+}
+
+func dateLabel(t time.Time) string {
+	if t.IsZero() {
+		return "—"
+	}
+	return t.Format("2006-01-02")
+}
+
+func priceScoreNote(m *app.ModelView) string {
+	if m.PriceLowCNY <= 0 || m.PriceMedianCNY <= 0 {
+		return "缺少报价，暂不计分"
+	}
+	return fmt.Sprintf("最低 %s，中位 %s（%.2f×）", moneyCNY(m.PriceLowCNY), moneyCNY(m.PriceMedianCNY), m.PriceRatio)
+}
+
+// modelFAQ is shared by the prerendered page and the FAQPage JSON-LD.
+type faqEntry struct {
+	Q string
+	A string
+}
+
+func modelFAQ(m *app.ModelView) []faqEntry {
+	out := make([]faqEntry, 0, 4)
+	if m.Category == "" || m.Category == "text" {
+		out = append(out, faqEntry{
+			Q: fmt.Sprintf("%s 的官方价是多少？", m.Name),
+			A: fmt.Sprintf("官方标价 %s 输入 / %s 输出 每百万 Token（%s）。中转站实价通常是官方美元价乘以站点自有汇率与分组倍率，所以同一模型在不同站点会差出数倍。", moneyUSD(m.InputUSD), moneyUSD(m.OutputUSD), m.VendorName),
+		})
+	} else {
+		out = append(out, faqEntry{
+			Q: fmt.Sprintf("%s 怎么计费？", m.Name),
+			A: fmt.Sprintf("%s 属于%s，按%s计费；中转站会在此基础上叠加倍率，页面里的“最低价”已折算成人民币。", m.Name, categoryLabel(m.Category), unitLabel(m.Category)),
+		})
+	}
+	if m.PriceLowCNY > 0 {
+		out = append(out, faqEntry{
+			Q: fmt.Sprintf("%s 全网最低价是多少，哪家站点？", m.Name),
+			A: fmt.Sprintf("目前收录 %d 个报价，最低 %s（%s）；价格区间 %s – %s。最低价不代表最稳，需要同时看该站点的可用性与纯度。", m.OffersCount, moneyCNY(m.PriceLowCNY), m.BestStation, moneyCNY(m.PriceLowCNY), moneyCNY(m.PriceHighCNY)),
+		})
+	} else {
+		out = append(out, faqEntry{
+			Q: fmt.Sprintf("为什么 %s 没有中转站报价？", m.Name),
+			A: "目前没有收录到该模型的中转站报价，页面上只展示官方价；一旦有站点上架并被同步，这里会自动出现实价。",
+		})
+	}
+	out = append(out, faqEntry{
+		Q: fmt.Sprintf("怎么判断中转站的 %s 有没有被替换或降智？", m.Name),
+		A: "用本站的接口检测对该站点发两次相同请求，核对模型回显、usage、分词一致性、缓存透传与首字延迟；这些是可观测信号，检测不会直接给“降智”下结论。",
+	})
+	out = append(out, faqEntry{
+		Q: fmt.Sprintf("%s 支持多长上下文？", m.Name),
+		A: fmt.Sprintf("目录记录为 %s。实际可用长度取决于站点是否透传长上下文，建议用接口检测或长文档测试验证。", fmtContextWindow(m.ContextWindow)),
+	})
+	if m.Summary != "" {
+		out = append(out, faqEntry{
+			Q: fmt.Sprintf("官方怎么介绍 %s？", m.Name),
+			A: m.Summary + "（英文原文）",
+		})
+	}
+	return out
+}
+
+// zhModelIntro is the one-line Chinese description shown at the top of the
+// model page; the catalog summary is usually English.
+func zhModelIntro(m *app.ModelView) string {
+	price := "—"
+	if m.InputUSD > 0 {
+		price = moneyUSD(m.InputUSD) + " / " + moneyUSD(m.OutputUSD) + " 每百万 Token"
+	} else if m.Category != "" && m.Category != "text" {
+		price = "按" + unitLabel(m.Category) + "计费"
+	}
+	ctx := ""
+	if m.Category == "" || m.Category == "text" {
+		ctx = "，上下文 " + fmtContextWindow(m.ContextWindow)
+	}
+	return fmt.Sprintf("%s 的%s模型%s；官方价 %s，%d 个站点有报价。", m.VendorName, categoryLabel(m.Category), ctx, price, m.OffersCount)
 }
 
 func (s *Server) bodyChanges(d *app.Dataset) template.HTML {
@@ -932,6 +1111,45 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 			})
 		}
 		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": items})
+	case path == "/models":
+		addCrumb("模型目录", base+"/models")
+		items := make([]any, 0, 20)
+		for i, m := range d.Models {
+			if i >= 20 {
+				break
+			}
+			items = append(items, map[string]any{
+				"@type": "ListItem", "position": i + 1,
+				"name": m.Name, "url": base + "/models/" + m.ID,
+			})
+		}
+		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": items})
+	case path == "/stations":
+		addCrumb("站点目录", base+"/stations")
+		items := make([]any, 0, 20)
+		for _, st := range d.Stations {
+			if st.OfficialVendor || len(items) >= 20 {
+				continue
+			}
+			items = append(items, map[string]any{
+				"@type": "ListItem", "position": len(items) + 1,
+				"name": st.Name, "url": base + "/stations/" + st.Slug,
+			})
+		}
+		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": items})
+	case path == "/leaderboards":
+		addCrumb("排行榜", base+"/leaderboards")
+		items := make([]any, 0, 10)
+		for _, st := range d.Stations {
+			if st.OfficialVendor || len(items) >= 10 {
+				continue
+			}
+			items = append(items, map[string]any{
+				"@type": "ListItem", "position": len(items) + 1,
+				"name": st.Name, "url": base + "/stations/" + st.Slug,
+			})
+		}
+		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": items})
 	case strings.HasPrefix(path, "/stations/"):
 		slug := strings.TrimPrefix(path, "/stations/")
 		if st, ok := d.BySlug[slug]; ok {
@@ -945,10 +1163,39 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 	case strings.HasPrefix(path, "/models/"):
 		id := strings.TrimPrefix(path, "/models/")
 		if mm, ok := d.ModelByID[id]; ok {
+			addCrumb("模型", base+"/models")
 			addCrumb(mm.Name, base+"/models/"+mm.ID)
 			out = append(out, map[string]any{
 				"@context": "https://schema.org", "@type": "WebPage",
 				"name": mm.Name, "url": base + "/models/" + mm.ID, "description": mm.Summary,
+			})
+			if mm.PriceLowCNY > 0 {
+				out = append(out, map[string]any{
+					"@context":    "https://schema.org",
+					"@type":       "Product",
+					"name":        mm.Name,
+					"description": mm.Summary,
+					"brand":       map[string]any{"@type": "Brand", "name": mm.VendorName},
+					"category":    categoryLabel(mm.Category),
+					"offers": map[string]any{
+						"@type":         "AggregateOffer",
+						"priceCurrency": "CNY",
+						"lowPrice":      mm.PriceLowCNY,
+						"highPrice":     mm.PriceHighCNY,
+						"offerCount":    mm.OffersCount,
+						"availability":  "https://schema.org/InStock",
+					},
+				})
+			}
+			faq := make([]any, 0, 4)
+			for _, q := range modelFAQ(mm) {
+				faq = append(faq, map[string]any{
+					"@type": "Question", "name": q.Q,
+					"acceptedAnswer": map[string]any{"@type": "Answer", "text": q.A},
+				})
+			}
+			out = append(out, map[string]any{
+				"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq,
 			})
 		}
 	case path == "/faq":

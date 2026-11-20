@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.25**（接口检测取消数量上限并可随时停止、首页收敛为单一检测入口、120 个公开目录站点、favicon 启动预热）
+- 版本：**v0.2.26**（模型档案页评分与详细资料、全站 SEO/GEO 结构化数据、接口检测不限数量、120 个公开目录站点）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
@@ -45,7 +45,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 ### 站点与模型
 - 站点目录、详情、榜单、可达性历史、CSV 导出
 - 站点目录：143 个（23 个精选 + 120 个公开目录导入）；部署启动时 SyncDemoStations 只增量补齐新站点，不清空既有探针与后台改动
-- 模型页：报价列表、最低价高亮、移动端卡片
+- 模型档案页：供给评分（价格 / 覆盖 / 可用性 / 纯度 / 上下文）、规格与价格区间、纯度与可用性分布、同厂商模型、FAQ、报价表与价格变动记录
 - 模型列表范围：默认只看有站点报价的模型（150 个，不含 batch / free 变体），按报价站点数排序；「展开全部目录」看完整 491 个
 - 模型分类：文本 / 图片 / 视频
 - 厂商图标：内置 simple-icons 官方 SVG path；站点图标：内置 logo → favicon 代理兜底 → 自定义上传（迁移 022 回填空 icon_url）
@@ -84,6 +84,7 @@ STATION_API_KEY=... go run ./cmd/stationsync -base https://api.mhoo.cc -slug mho
 - 设计系统见 `DESIGN.md`：信号绿 `#2ee6a6`、炭黑、One Signal / Status Only / Tabular / No Gradient Text
 - 产品定位见 `PRODUCT.md`：独立探针 + 可复算评分，广告不参与排名
 - 数据边界：站点真实、价格部分真实、探针真实，评分与部分报价为演示
+- SEO/GEO：每页独立 title / description / canonical；JSON-LD 覆盖 Organization、WebSite、ItemList（列表页）、Product + AggregateOffer（模型页）、FAQPage（模型页 / 常见问题）、BreadcrumbList、TechArticle（指南）；另有 /llms.txt、/md/model、/md/station 给 AI 抓取
 - 分支保护：main 必须通过 CI；所有改动走 PR + auto-merge
 - 模型 ID 采用 `vendor--model` 形式（斜杠替换），避免路由问题
 
