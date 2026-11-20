@@ -119,7 +119,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
   status: () => request<StatusResponse>('/status'),
-  modelStatus: () => request<{ providers: ModelProviderStatus[]; checkedAt: string }>('/model-status'),
+  modelStatus: (lang?: string) => request<{ providers: ModelProviderStatus[]; checkedAt: string }>(`/model-status${lang ? `?lang=${lang}` : ''}`),
   freeKeys: (q = '', includeInvalid = false) => {
     const p = new URLSearchParams();
     if (q) p.set('q', q);
