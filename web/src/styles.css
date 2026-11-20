@@ -1816,7 +1816,6 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 /* Model page: lowest-price offer emphasis */
 .offer-best td { background: rgba(46, 230, 166, .045); }
-.offer-best td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
 .best-chip { font-size: 9.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }
 
 /* Model offers: mobile cards */
