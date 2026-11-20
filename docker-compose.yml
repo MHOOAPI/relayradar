@@ -33,9 +33,6 @@ services:
       FAVICON_PROXY_URL: ${FAVICON_PROXY_URL:-}
       PROBE_INGEST_TOKEN: ${PROBE_INGEST_TOKEN:-}
       REACHABILITY_ENABLED: "true"
-      HTTPS_PROXY: ${HTTPS_PROXY:-}
-      HTTP_PROXY: ${HTTP_PROXY:-}
-      NO_PROXY: ${NO_PROXY:-}
     depends_on:
       db:
         condition: service_healthy
