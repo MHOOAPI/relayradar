@@ -1870,3 +1870,11 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .term-row { gap: 8px 14px; font-size: 11px; }
   .term-row span { flex: 1 1 100%; }
 }
+
+/* Admin submission terms editor */
+.term-edit { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; padding: 10px 0; }
+.term-edit label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-2); }
+.term-edit label span { color: var(--text-3); }
+.term-edit input[type="text"], .term-edit input:not([type]) { background: #070b0f; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; color: var(--text); font-size: 12px; min-width: 180px; }
+.term-check { flex-direction: row !important; align-items: center; gap: 6px; }
+.term-actions { display: flex; gap: 8px; }
