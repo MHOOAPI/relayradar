@@ -19,6 +19,17 @@ const IMPACT_LABEL: Record<string, string> = {
   maintenance: '维护',
 };
 
+const INC_STATUS_LABEL: Record<string, string> = {
+  investigating: '调查中',
+  identified: '已定位',
+  monitoring: '监控中',
+  resolved: '已解决',
+  scheduled: '已计划',
+  in_progress: '处理中',
+  completed: '已完成',
+  postmortem: '复盘中',
+};
+
 const dayOf = (iso?: string) => (iso ? iso.slice(0, 10) : '');
 
 export function ModelStatusDetailPage() {
@@ -27,7 +38,7 @@ export function ModelStatusDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.modelStatus()
+    api.modelStatus('zh')
       .then((r) => {
         setProviders(r.providers);
         const p = r.providers.find((x) => x.key === key);
@@ -137,7 +148,7 @@ export function ModelStatusDetailPage() {
                   <div className="timeline-incident" key={`${inc.name}-${inc.created}`}>
                     <b>{inc.name}</b>
                     <div className="timeline-meta mono">
-                      <span>{inc.status}</span>
+                      <span>{INC_STATUS_LABEL[inc.status] ?? inc.status}</span>
                       {inc.impact && <span>· {IMPACT_LABEL[inc.impact] ?? inc.impact}</span>}
                       {inc.components && inc.components.length > 0 && <span>· {inc.components.join(' / ')}</span>}
                     </div>
@@ -146,7 +157,7 @@ export function ModelStatusDetailPage() {
                         {inc.updates.slice(0, 4).map((u, idx) => (
                           <li key={idx}>
                             <span className="mono">{new Date(u.createdAt).toLocaleTimeString('zh-CN', { hour12: false })}</span>
-                            <span className="mono dim">{u.status}</span>
+                            <span className="mono dim">{INC_STATUS_LABEL[u.status] ?? u.status}</span>
                             <p>{u.body}</p>
                           </li>
                         ))}

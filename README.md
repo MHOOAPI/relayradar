@@ -160,6 +160,7 @@ go run ./cmd/api
 | `REACHABILITY_DOWN_THRESHOLD` | `2` | 连续几次不可达触发 `station_down` |
 | `PROBE_INGEST_TOKEN` | 空 | prober 通过 `POST /api/v1/probes` 上报所需的令牌 |
 | `PROBES_CONFIG_PATH` | `probes.json` | 后台「真实探针」保存配置的文件路径 |
+| `TRANSLATE_ENABLED` | `true` | 中文页把官方英文事件标题/更新译为中文；失败自动回落英文 |
 | `HTTPS_PROXY` / `HTTP_PROXY` | 空 | 可达性探测与 favicon 抓取使用的代理；Go 不读取 Windows 系统代理 |
 | `SMTP_ADDR` / `SMTP_FROM` | — | 邮件发送 |
 | `ALERT_FAILURE_EMAIL` | — | webhook 连续失败提醒 |

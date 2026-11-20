@@ -38,6 +38,8 @@ type Config struct {
 	ProbeIngestToken string
 	// ProbeConfigPath is where the admin probe config is stored.
 	ProbeConfigPath string
+	// TranslateEnabled turns official incident text into Chinese at request time.
+	TranslateEnabled bool
 	// AdminEmails grants the admin role to these addresses on registration.
 	AdminEmails []string
 	// AllowLocalTargets relaxes the SSRF guard for local development only.
@@ -69,6 +71,7 @@ func Load() Config {
 		ReachabilityDownThreshold: envInt("REACHABILITY_DOWN_THRESHOLD", 2),
 		ProbeIngestToken:          env("PROBE_INGEST_TOKEN", ""),
 		ProbeConfigPath:           env("PROBES_CONFIG_PATH", "probes.json"),
+		TranslateEnabled:          env("TRANSLATE_ENABLED", "true") != "false",
 		AdminEmails:  splitCSV(env("ADMIN_EMAILS", "")),
 	}
 	c.AllowLocalTargets = envBool("ALLOW_LOCAL_TARGETS", false)

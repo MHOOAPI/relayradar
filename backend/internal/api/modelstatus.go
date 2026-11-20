@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -231,6 +232,9 @@ func (s *Server) handleModelStatus(w http.ResponseWriter, r *http.Request) {
 		at := s.modelStatusAt
 		s.modelStatusMu.Unlock()
 		s.attachProviderHistory(r.Context(), items)
+		if r.URL.Query().Get("lang") == "zh" && s.cfg.TranslateEnabled {
+			items = s.translateIncidentItems(r.Context(), items)
+		}
 		writeJSON(w, http.StatusOK, map[string]any{"providers": items, "checkedAt": at})
 		return
 	}
@@ -246,6 +250,9 @@ func (s *Server) handleModelStatus(w http.ResponseWriter, r *http.Request) {
 	s.modelStatusMu.Unlock()
 
 	s.attachProviderHistory(r.Context(), items)
+	if r.URL.Query().Get("lang") == "zh" && s.cfg.TranslateEnabled {
+		items = s.translateIncidentItems(r.Context(), items)
+	}
 	writeJSON(w, http.StatusOK, map[string]any{"providers": items, "checkedAt": time.Now().UTC()})
 }
 
@@ -301,7 +308,132 @@ func aggregateProviderHistory(rows []store.ProviderSnapshot, since time.Time) ma
 	return out
 }
 
-// StartProviderStatusRecorder snapshots upstream provider status every ten
+// translateIncidentItems returns a copy with incident titles and the first
+// few update bodies translated to Chinese. Failures keep the original English.
+func (s *Server) translateIncidentItems(ctx context.Context, items []modelStatusItem) []modelStatusItem {
+	out := make([]modelStatusItem, len(items))
+	copy(out, items)
+
+	var texts []string
+	var dst []*string
+	for i := range out {
+		if len(out[i].Incidents) == 0 {
+			continue
+		}
+		incs := make([]providerIncident, len(out[i].Incidents))
+		copy(incs, out[i].Incidents)
+		for j := range incs {
+			incs[j].Updates = append([]providerUpdate(nil), incs[j].Updates...)
+			texts = append(texts, incs[j].Name)
+			dst = append(dst, &incs[j].Name)
+			for k := 0; k < len(incs[j].Updates) && k < 4; k++ {
+				texts = append(texts, incs[j].Updates[k].Body)
+				dst = append(dst, &incs[j].Updates[k].Body)
+			}
+		}
+		out[i].Incidents = incs
+	}
+	if len(texts) == 0 {
+		return out
+	}
+	translated := s.translateTexts(ctx, texts)
+	for i, t := range translated {
+		if t != "" {
+			*dst[i] = t
+		}
+	}
+	return out
+}
+
+func (s *Server) translateTexts(ctx context.Context, texts []string) []string {
+	out := make([]string, len(texts))
+	var missing []int
+	s.transMu.Lock()
+	for i, t := range texts {
+		if cached, ok := s.transCache[t]; ok {
+			out[i] = cached
+		} else if strings.TrimSpace(t) != "" {
+			missing = append(missing, i)
+		}
+	}
+	s.transMu.Unlock()
+	if len(missing) == 0 {
+		return out
+	}
+
+	const chunk = 10
+	for start := 0; start < len(missing); start += chunk {
+		end := start + chunk
+		if end > len(missing) {
+			end = len(missing)
+		}
+		parts := make([]string, 0, end-start)
+		for _, idx := range missing[start:end] {
+			parts = append(parts, strings.ReplaceAll(texts[idx], "\n", " "))
+		}
+		joined, err := s.googleTranslate(ctx, strings.Join(parts, "\n"))
+		if err != nil {
+			continue
+		}
+		lines := strings.Split(joined, "\n")
+		if len(lines) != len(parts) {
+			continue
+		}
+		s.transMu.Lock()
+		for k, line := range lines {
+			idx := missing[start+k]
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			out[idx] = line
+			s.transCache[texts[idx]] = line
+		}
+		s.transMu.Unlock()
+	}
+	return out
+}
+
+func (s *Server) googleTranslate(ctx context.Context, text string) (string, error) {
+	u := "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=" + url.QueryEscape(text)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return "", err
+	}
+	client := &http.Client{Timeout: 8 * time.Second, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("translate status %d", resp.StatusCode)
+	}
+	var raw []any
+	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
+		return "", err
+	}
+	if len(raw) == 0 {
+		return "", fmt.Errorf("empty translation")
+	}
+	segments, ok := raw[0].([]any)
+	if !ok {
+		return "", fmt.Errorf("unexpected translation shape")
+	}
+	var b strings.Builder
+	for _, seg := range segments {
+		parts, ok := seg.([]any)
+		if !ok || len(parts) == 0 {
+			continue
+		}
+		if s, ok := parts[0].(string); ok {
+			b.WriteString(s)
+		}
+	}
+	return b.String(), nil
+}
+
+
 // minutes so providers without a Statuspage still get a history.
 func (s *Server) StartProviderStatusRecorder(ctx context.Context) {
 	record := func() {

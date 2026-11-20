@@ -42,6 +42,8 @@ type Server struct {
 	providerLast   map[string]string
 	reachMu        sync.Mutex
 	reachDown      map[string]int
+	transMu        sync.Mutex
+	transCache     map[string]string
 	alerts   *alertHub
 }
 
@@ -64,6 +66,7 @@ func New(svc *app.Service, cfg config.Config, log *slog.Logger) *Server {
 		startedAt: time.Now(),
 		providerLast: map[string]string{},
 		reachDown:    map[string]int{},
+		transCache:   map[string]string{},
 	}
 	s.alerts = newAlertHub(s)
 	return s
