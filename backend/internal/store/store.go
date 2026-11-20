@@ -307,6 +307,38 @@ func Open(ctx context.Context, dsn string) (*Store, error) {
 
 func (s *Store) Close() { s.pool.Close() }
 
+// SyncModels upserts the embedded model catalog so existing databases pick up
+// new models without a full reseed.
+func (s *Store) SyncModels(ctx context.Context) error {
+	models := CatalogModels()
+	if len(models) == 0 {
+		return nil
+	}
+	batch := &pgx.Batch{}
+	for _, m := range models {
+		batch.Queue(`
+			INSERT INTO models (id, vendor, vendor_name, name, service, context_window, input_usd, output_usd,
+			                    released_at, coding_score, reasoning_score, free_tier, free_note, summary, category)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+			ON CONFLICT (id) DO UPDATE SET
+				vendor = EXCLUDED.vendor, vendor_name = EXCLUDED.vendor_name, name = EXCLUDED.name,
+				service = EXCLUDED.service, context_window = EXCLUDED.context_window,
+				input_usd = EXCLUDED.input_usd, output_usd = EXCLUDED.output_usd,
+				released_at = EXCLUDED.released_at, summary = EXCLUDED.summary,
+				category = EXCLUDED.category`,
+			m.ID, m.Vendor, m.VendorName, m.Name, m.Service, m.ContextWindow, m.InputUSD, m.OutputUSD,
+			m.ReleasedAt, m.CodingScore, m.ReasoningScore, m.FreeTier, m.FreeNote, m.Summary, m.Category)
+	}
+	br := s.pool.SendBatch(ctx, batch)
+	defer br.Close()
+	for range models {
+		if _, err := br.Exec(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Store) Migrate(ctx context.Context) error {
 	entries, err := migrations.ReadDir("migrations")
 	if err != nil {
