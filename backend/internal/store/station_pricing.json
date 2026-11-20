@@ -1,0 +1,73 @@
+{
+  "slug": "mhoo",
+  "name": "mhoo",
+  "baseUrl": "https://api.mhoo.cc",
+  "syncedAt": "2026-11-20T09:03:43.1451725Z",
+  "groups": [
+    {
+      "name": "IMAGE出图",
+      "models": [
+        {
+          "name": "gpt-image-2.6-sunburst",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "nano-banana-2.1",
+          "priceUsd": 0.07,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.5-sunburst",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.6-exact",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.6-flare",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "nano-banana-2",
+          "priceUsd": 0.1,
+          "unit": "image"
+        },
+        {
+          "name": "nano-banana-pro",
+          "priceUsd": 0.12,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.5",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.5-flare",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.6",
+          "priceUsd": 0.03,
+          "unit": "image"
+        },
+        {
+          "name": "gpt-image-2.6-media",
+          "priceUsd": 0.03,
+          "unit": "image"
+        }
+      ]
+    }
+  ]
+}
