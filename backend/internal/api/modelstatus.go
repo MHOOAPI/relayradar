@@ -317,6 +317,12 @@ func (s *Server) translateIncidentItems(ctx context.Context, items []modelStatus
 	var texts []string
 	var dst []*string
 	for i := range out {
+		if d := strings.TrimSpace(out[i].Description); d != "" {
+			texts = append(texts, d)
+			dst = append(dst, &out[i].Description)
+		}
+	}
+	for i := range out {
 		if len(out[i].Incidents) == 0 {
 			continue
 		}
