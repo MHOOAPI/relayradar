@@ -90,9 +90,15 @@ func main() {
 	seen := map[string]bool{}
 	models := make([]catalogModel, 0, len(payload.Data))
 	for _, m := range payload.Data {
-		// Skip models without an input price: they would break price comparisons.
-		if m.Pricing.Prompt == "0" || m.Pricing.Prompt == "" {
+		// Skip models with missing, negative or absurd prices. OpenRouter uses
+		// "-1" for variable pricing, which would overflow numeric(10,4) in PG.
+		prompt, ok := parsePrice(m.Pricing.Prompt)
+		if !ok || prompt <= 0 || prompt > 0.01 {
 			continue
+		}
+		completion, ok := parsePrice(m.Pricing.Completion)
+		if !ok || completion < 0 || completion > 0.01 {
+			completion = 0
 		}
 		id := strings.NewReplacer("/", "--", ":", "-").Replace(m.ID)
 		if seen[id] {
@@ -135,8 +141,8 @@ func main() {
 			Name:           name,
 			Service:        service,
 			ContextWindow:  m.ContextLength,
-			InputUSD:       perMillion(m.Pricing.Prompt),
-			OutputUSD:      perMillion(m.Pricing.Completion),
+			InputUSD:       prompt * 1_000_000,
+			OutputUSD:      completion * 1_000_000,
 			ReleasedAt:     released,
 			CodingScore:    0,
 			ReasoningScore: 0,
@@ -171,4 +177,12 @@ func perMillion(s string) float64 {
 		return 0
 	}
 	return f * 1_000_000
+}
+
+func parsePrice(s string) (float64, bool) {
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, false
+	}
+	return f, true
 }
