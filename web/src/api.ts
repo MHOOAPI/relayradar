@@ -184,6 +184,8 @@ export const api = {
     body.append('file', file);
     return request<{ iconUrl: string }>(`/admin/stations/${encodeURIComponent(slug)}/icon`, { method: 'POST', body });
   },
+  adminResetIcon: (slug: string) =>
+    request<{ iconUrl: string }>(`/admin/stations/${encodeURIComponent(slug)}/icon`, { method: 'DELETE' }),
   adminSetSubmission: (id: number, status: string, terms?: { payments: string[]; invoice: boolean; refundPolicy: string }) =>
     request<{ ok: boolean }>(`/admin/submissions/${id}`, { method: 'PATCH', body: JSON.stringify({ status, ...(terms ?? {}) }) }),
   adminDeleteReview: (id: number) => request<{ ok: boolean }>(`/admin/reviews/${id}`, { method: 'DELETE' }),

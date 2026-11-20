@@ -180,6 +180,15 @@ export function AdminPage() {
     }
   };
 
+  const resetIcon = async (slug: string) => {
+    try {
+      await api.adminResetIcon(slug);
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
   const decideEdit = async (id: number, approve: boolean) => {
     const note = approve ? '' : (window.prompt('拒绝理由（会发给站长，可留空）') ?? '');
     try {
@@ -503,6 +512,7 @@ export function AdminPage() {
                         <input type="file" accept="image/png,image/jpeg,image/webp" hidden
                           onChange={(ev) => uploadIcon(e.stationSlug, ev.target.files?.[0])} />
                       </label>
+                      <button className="link-btn" onClick={() => resetIcon(e.stationSlug)}>恢复</button>
                       {e.status === 'pending' && (
                         <>
                           <button className="link-btn" onClick={() => decideEdit(e.id, true)}>通过</button>
