@@ -1,9 +1,11 @@
-package api
+﻿package api
 
 import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -77,13 +79,41 @@ func (s *Server) handlePrefill(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var ratios struct {
+		Data struct {
+			BillingExpr map[string]string `json:"billing_expr"`
+		} `json:"data"`
+	}
+	ratioOK := get(root+"/api/ratio_config", &ratios)
+	exprRe := regexp.MustCompile(`p \* ([0-9.]+) \+ c \* ([0-9.]+)`)
+	type textPrice struct {
+		Name     string  `json:"name"`
+		InputCNY float64 `json:"inputCny"`
+		OutputCNY float64 `json:"outputCny"`
+	}
+	var textPrices []textPrice
+	for name, expr := range ratios.Data.BillingExpr {
+		m := exprRe.FindStringSubmatch(expr)
+		if len(m) != 3 {
+			continue
+		}
+		in, _ := strconv.ParseFloat(m[1], 64)
+		out, _ := strconv.ParseFloat(m[2], 64)
+		if in > 0 {
+			textPrices = append(textPrices, textPrice{Name: name, InputCNY: in, OutputCNY: out})
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
-		"domain":     u.Hostname(),
-		"baseUrl":    root,
-		"models":     ids,
-		"modelsOk":   modelOK,
-		"pricing":    prices,
-		"pricingOk":  pricingOK,
+		"domain":      u.Hostname(),
+		"baseUrl":     root,
+		"models":      ids,
+		"modelsOk":    modelOK,
+		"pricing":     prices,
+		"pricingOk":   pricingOK,
+		"textPricing": textPrices,
+		"textPricingOk": ratioOK,
 		"inspectedAt": time.Now().UTC(),
 	})
 }
+
