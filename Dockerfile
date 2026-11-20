@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS api
+FROM golang:1.27-alpine AS api
 WORKDIR /src
 RUN apk add --no-cache git
 COPY backend/go.mod backend/go.sum ./
