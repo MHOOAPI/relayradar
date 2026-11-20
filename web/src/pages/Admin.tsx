@@ -170,22 +170,40 @@ export function AdminPage() {
     }
   };
 
+  const [iconMsg, setIconMsg] = useState<Record<string, string>>({});
+
+  const squareIcon = async (file: File): Promise<Blob | null> => {
+    const bitmap = await createImageBitmap(file);
+    const side = Math.min(bitmap.width, bitmap.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, 256, 256);
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'));
+  };
+
   const uploadIcon = async (slug: string, file: File | undefined) => {
     if (!file) return;
     try {
-      await api.adminUploadIcon(slug, file);
+      const square = await squareIcon(file);
+      if (!square) throw new Error('无法处理该图片');
+      await api.adminUploadIcon(slug, square);
+      setIconMsg((m) => ({ ...m, [slug]: '已更新' }));
       load();
     } catch (e) {
-      setError((e as Error).message);
+      setIconMsg((m) => ({ ...m, [slug]: (e as Error).message }));
     }
   };
 
   const resetIcon = async (slug: string) => {
     try {
       await api.adminResetIcon(slug);
+      setIconMsg((m) => ({ ...m, [slug]: '已恢复默认' }));
       load();
     } catch (e) {
-      setError((e as Error).message);
+      setIconMsg((m) => ({ ...m, [slug]: (e as Error).message }));
     }
   };
 
@@ -513,6 +531,7 @@ export function AdminPage() {
                           onChange={(ev) => uploadIcon(e.stationSlug, ev.target.files?.[0])} />
                       </label>
                       <button className="link-btn" onClick={() => resetIcon(e.stationSlug)}>恢复</button>
+                      {iconMsg[e.stationSlug] && <span className="fine" style={{ marginLeft: 6 }}>{iconMsg[e.stationSlug]}</span>}
                       {e.status === 'pending' && (
                         <>
                           <button className="link-btn" onClick={() => decideEdit(e.id, true)}>通过</button>

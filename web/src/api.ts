@@ -179,9 +179,9 @@ export const api = {
     request<{ ok: boolean }>('/auth/reset', { method: 'POST', body: JSON.stringify({ token, password }) }),
   adminSummary: () => request<AdminSummary>('/admin/summary'),
   adminSubmissions: () => request<{ items: Submission[] }>('/admin/submissions'),
-  adminUploadIcon: (slug: string, file: File) => {
+  adminUploadIcon: (slug: string, file: Blob) => {
     const body = new FormData();
-    body.append('file', file);
+    body.append('file', file, 'icon.png');
     return request<{ iconUrl: string }>(`/admin/stations/${encodeURIComponent(slug)}/icon`, { method: 'POST', body });
   },
   adminResetIcon: (slug: string) =>
