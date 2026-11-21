@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station } from '../types';
@@ -6,6 +6,7 @@ import { Spinner, UptimeBars } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
 import { SERVICE_LABEL, SERVICE_VENDOR } from '../lib/services';
+import { usePointerGlow } from '../lib/parallax';
 
 
 const healthOf = (s: Station) => {
@@ -25,6 +26,8 @@ const reachInfo = (r: Station['reachability']) => {
 export function StationsPage() {
   const [params] = useSearchParams();
   const [stations, setStations] = useState<Station[] | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  usePointerGlow(tableRef, !!stations);
   const [q, setQ] = useState(params.get('q') ?? '');
   const [sort, setSort] = useState<'rank' | 'uptime' | 'reviews' | 'reach'>('rank');
   const [onlyClaimed, setOnlyClaimed] = useState(false);
@@ -178,7 +181,7 @@ export function StationsPage() {
 
       {error && <div className="error-box">{error}</div>}
 
-      <section className="panel">
+      <section className="panel glow-surface" ref={tableRef}>
         <div className="table-wrap dir-table">
           <table className="index-table">
             <thead>

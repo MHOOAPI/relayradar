@@ -8,10 +8,12 @@ type Props = {
   min?: number;
   max?: number;
   unit?: string;
+  selected?: number | null;
+  onSelect?: (index: number) => void;
 };
 
 /** Dependency-free SVG line chart with a soft area fill and hover readout. */
-export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, min, max, unit = '' }: Props) {
+export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, min, max, unit = '', selected = null, onSelect }: Props) {
   const [hover, setHover] = useState<number | null>(null);
   const W = 720;
   const H = height;
@@ -72,7 +74,7 @@ export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, mi
         )}
         {values.map((v, i) => (
           <g key={i}>
-            <circle cx={x(i)} cy={y(v)} r={hover === i ? 4.2 : 2.4} fill={color} opacity={hover === null || hover === i ? 1 : 0.45} />
+            <circle cx={x(i)} cy={y(v)} r={hover === i || selected === i ? 4.2 : 2.4} fill={color} opacity={hover === null || hover === i || selected === i ? 1 : 0.45} />
             <rect
               x={x(i) - step / 2}
               y={0}
@@ -81,6 +83,8 @@ export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, mi
               fill="transparent"
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover(null)}
+              onClick={() => onSelect?.(i)}
+              style={{ cursor: onSelect ? 'pointer' : 'default' }}
             />
           </g>
         ))}

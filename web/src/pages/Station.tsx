@@ -36,6 +36,7 @@ export function StationPage() {
   const waveRef = useRef<HTMLDivElement>(null);
   const trendRef = useRef<HTMLDivElement>(null);
   const [flash, setFlash] = useState(false);
+  const [dayPick, setDayPick] = useState<number | null>(null);
   useScrollParallax(waveRef, 0.05, 900);
 
   const focusTrend = () => {
@@ -348,7 +349,30 @@ export function StationPage() {
                 </span>
                 <span className="mono dim">样本 {s.samples}</span>
               </div>
-              <TrendChart values={values} labels={labels} color={color} />
+              <TrendChart
+                values={values}
+                labels={labels}
+                color={color}
+                selected={dayPick}
+                onSelect={(i) => setDayPick((cur) => (cur === i ? null : i))}
+              />
+              {dayPick !== null && hist[dayPick] && (() => {
+                const p = hist[dayPick];
+                const prev = hist[dayPick - 1];
+                const d = prev ? p.score - prev.score : 0;
+                return (
+                  <div className="trend-day">
+                    <span className="mono">{p.date}</span>
+                    <span>综合分 <b className="mono">{p.score.toFixed(1)}</b></span>
+                    <span>可用性 <b className="mono">{p.availability.toFixed(1)}</b></span>
+                    <span>速度 <b className="mono">{p.speed.toFixed(1)}</b></span>
+                    <span>稳定性 <b className="mono">{p.consistency.toFixed(1)}</b></span>
+                    <span>可用率 <b className="mono">{p.uptime.toFixed(1)}%</b></span>
+                    <span className="dim">较前一日 {d >= 0 ? '+' : ''}{d.toFixed(1)}</span>
+                    <button type="button" className="link-btn" onClick={() => setDayPick(null)}>收起</button>
+                  </div>
+                );
+              })()}
             </div>
           </section>
         );
