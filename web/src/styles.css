@@ -2671,3 +2671,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   font-size: 10px; line-height: 1; padding: 3px 6px; border-radius: 999px;
   border: 1px solid var(--line-2); color: var(--text-2); background: var(--panel-2);
 }
+/* preset counts */
+.preset-count {
+  margin-left: 5px; font-size: 10px; color: inherit; opacity: .65;
+  font-variant-numeric: tabular-nums;
+}
