@@ -286,17 +286,17 @@ export function StationsPage() {
                     </td>
                     <td>
                       <div className="svc-icons">
-                        {s.services.slice(0, 5).map((sv) => {
+                        {s.services.slice(0, 4).map((sv) => {
                           const vendor = SERVICE_VENDOR[sv];
                           return vendor ? (
                             <span key={sv} className="svc-icon" title={SERVICE_LABEL[sv] ?? sv}>
-                              <VendorMark vendor={vendor} size={18} />
+                              <VendorMark vendor={vendor} size={22} />
                             </span>
                           ) : (
                             <span key={sv} className="svc">{SERVICE_LABEL[sv] ?? sv}</span>
                           );
                         })}
-                        {s.services.length > 5 && <span className="dim tiny">+{s.services.length - 5}</span>}
+                        {s.services.length > 4 && <span className="svc-more">+{s.services.length - 4}</span>}
                       </div>
                       <button
                         type="button"

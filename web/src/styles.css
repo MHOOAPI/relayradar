@@ -1418,7 +1418,7 @@ html, body { max-width: 100%; overflow-x: clip; }
 .tabs a.tab { text-decoration: none; }
 
 /* ---------- service vendor icons ---------- */
-.svc-icons { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.svc-icons { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; }
 .svc-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; }
 .svc-icon svg { display: block; }
 
@@ -2309,7 +2309,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .services.icons { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
 .services.compact { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
 .svc-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: none; }
-.svc-more { font-size: 10px; color: var(--text-3); margin-left: 1px; }
+.svc-more { font-size: 10px; color: var(--text-3); margin-left: 7px; }
 /* ---------- free tier page ---------- */
 .free-empty { padding: 26px; display: grid; gap: 8px; justify-items: start; }
 .free-empty b { font-size: 13px; }
@@ -2652,3 +2652,11 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 @media (max-width: 760px) {
   .preset-desc { flex-basis: 100%; margin-left: 0; }
 }
+/* overlapping vendor marks in the coverage column */
+.svc-icons .svc-icon {
+  width: auto; height: auto; margin-left: -9px;
+}
+.svc-icons .svc-icon:first-child { margin-left: 0; }
+.svc-icons .svc-icon:hover { transform: translateY(-1px); transition: transform 0.15s ease; z-index: 1; }
+/* circular stacked vendor badges */
+.svc-icons .vendor-mark { border-radius: 50%; border-color: #06080c; box-shadow: 0 0 0 2px #06080c; }
