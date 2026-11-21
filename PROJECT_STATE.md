@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.40**（站点页可用性波形、模型页价格纹理、首屏视差、关键数字轻辉光；含 v0.2.39 的全站氛围层）
+- 版本：**v0.2.41**（价格纹理按倍率明暗、可用性波形流动 + 视差、首页扫描线；含 v0.2.40 的详情页背板与 v0.2.39 的氛围层）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

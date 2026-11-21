@@ -2459,7 +2459,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 }
 /* ---------- detail-page data backdrops ---------- */
 .has-wave { position: relative; overflow: hidden; }
-.has-wave > :not(.wave-backdrop):not(.price-texture) { position: relative; z-index: 1; }
+.has-wave > :not(.wave-backdrop):not(.price-texture):not(.wave-layer) { position: relative; z-index: 1; }
 .wave-backdrop {
   position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 62%;
   pointer-events: none; opacity: 0.8;
@@ -2479,3 +2479,28 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 }
 /* keep Chinese words whole in detail heroes */
 .tagline { word-break: keep-all; }
+/* wave layer + flowing dash + hero scanline */
+.wave-layer { position: absolute; inset: 0; pointer-events: none; }
+.has-wave > .wave-layer { z-index: 0; }
+.wave-line { stroke-dasharray: 1.6 2.4; animation: wave-flow 14s linear infinite; }
+@keyframes wave-flow { to { stroke-dashoffset: -40; } }
+
+.hero-scan { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.hero-scan i {
+  position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(46, 230, 166, 0.45), transparent);
+  box-shadow: 0 0 22px rgba(46, 230, 166, 0.35);
+  animation: scan-move 7s linear infinite;
+  opacity: 0.85;
+}
+@keyframes scan-move {
+  from { transform: translateY(-10px); }
+  to { transform: translateY(620px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-line, .hero-scan i { animation: none; }
+  .hero-scan { display: none; }
+}
+@media (max-width: 900px) {
+  .hero-scan { display: none; }
+}

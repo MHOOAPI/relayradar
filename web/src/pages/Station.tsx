@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station, StatusHistoryDay, StationDetail } from '../types';
@@ -9,6 +9,7 @@ import { ArrowUpRight, CalendarIcon, CoinIcon, CopyIcon, ProbeIcon, PulseIcon, R
 import { TrendChart } from '../components/TrendChart';
 import type { Change } from '../types';
 import { WaveBackdrop } from '../components/Backdrop';
+import { useScrollParallax } from '../lib/parallax';
 import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
 import { SERVICE_LABEL, serviceLabel } from '../lib/services';
@@ -32,6 +33,8 @@ export function StationPage() {
   const [reach, setReach] = useState<StatusHistoryDay[] | null>(null);
   const [metric, setMetric] = useState<'score' | 'availability' | 'speed' | 'consistency'>('score');
   const [allStations, setAllStations] = useState<Station[]>([]);
+  const waveRef = useRef<HTMLDivElement>(null);
+  useScrollParallax(waveRef, 0.05, 900);
 
   const [author, setAuthor] = useState('');
   const [rating, setRating] = useState(5);
@@ -155,7 +158,9 @@ export function StationPage() {
       )}
 
       <section className="detail-head panel has-wave">
-        <WaveBackdrop data={s.uptime} />
+        <div className="wave-layer" ref={waveRef}>
+          <WaveBackdrop data={s.uptime} />
+        </div>
         <div className="detail-main">
           <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={54} />
           <div>
