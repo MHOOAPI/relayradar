@@ -7,7 +7,7 @@ import { StationMark } from '../components/marks';
 import { serviceLabel } from '../lib/services';
 import { KeyCheck } from '../components/KeyCheck';
 import { useWatchlist } from '../lib/watchlist';
-import { useScrollParallax } from '../lib/parallax';
+import { usePointerGlow, useScrollParallax } from '../lib/parallax';
 
 const SERVICES: Array<[string, string]> = [
   ['all', '全部'],
@@ -70,7 +70,9 @@ export function Home() {
   const radarInnerRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const heroCardRef = useRef<HTMLDivElement>(null);
+  const rankingRef = useRef<HTMLElement>(null);
   useScrollParallax(radarRef, 0.16, 700);
+  usePointerGlow(rankingRef, !!stations);
 
   // Pointer parallax inside the hero: the radar leans toward the cursor a few
   // pixels. Desktop pointers only, and never when reduced motion is requested.
@@ -350,7 +352,7 @@ export function Home() {
         </div>
       </div>
 
-      <section className="panel" id="ranking">
+      <section className="panel glow-surface" id="ranking" ref={rankingRef}>
         <div className="panel-head">
           <div>
             <h2>中转站实时榜单</h2>

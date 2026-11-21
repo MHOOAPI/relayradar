@@ -2524,3 +2524,23 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .hero-card { transition: none; }
   .trend-panel.flash { animation: none; }
 }
+/* trend day picker + directory card tilt */
+.trend-day {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  margin-top: 12px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2);
+  font-size: 12px; color: var(--text-2);
+}
+.trend-day b { color: var(--text); font-weight: 600; }
+.trend-day .link-btn { margin-left: auto; }
+.dir-card { will-change: transform; transform-style: preserve-3d; }
+
+/* pointer-follow glow on large surfaces */
+.glow-surface { position: relative; }
+.glow-surface::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), rgba(46, 230, 166, 0.07), transparent 65%);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.glow-surface:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .glow-surface::after { display: none; } }

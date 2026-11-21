@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.43**（价格纹理可点击进站点、波形点提示 + 趋势跳转、首屏卡片反向视差；含 v0.2.42 的悬停读数）
+- 版本：**v0.2.44**（价格纹理按纯度分层着色、趋势图点选当日明细、表格指针跟随微光；含 v0.2.43 的点击穿透）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

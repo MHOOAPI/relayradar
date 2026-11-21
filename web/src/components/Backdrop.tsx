@@ -62,7 +62,21 @@ export function WaveBackdrop({ data, onPick }: { data: number[]; onPick?: () => 
   );
 }
 
-export type PriceSample = { price: number; multiplier: number; station?: string; slug?: string };
+export type PriceSample = { price: number; multiplier: number; station?: string; slug?: string; tier?: string };
+
+const TIER_RGB: Record<string, string> = {
+  official: '46,230,166',
+  mixed: '106,168,255',
+  unknown: '86,164,150',
+  counterfeit: '214,120,96',
+};
+
+const TIER_LABEL: Record<string, string> = {
+  official: '官方直连',
+  mixed: '混合线路',
+  unknown: '未检测',
+  counterfeit: '疑似掺假',
+};
 
 export function PriceTexture({
   offers,
@@ -89,7 +103,8 @@ export function PriceTexture({
         h: 8 + (Math.log10(o.price + 1) / Math.log10(cheap * 4 + 1)) * 88,
         alpha: o.price === cheap ? 0.34 : alpha,
         slug: o.slug,
-        label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}`,
+        rgb: TIER_RGB[o.tier ?? 'unknown'] ?? TIER_RGB.unknown,
+        label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}${o.tier ? ` · ${TIER_LABEL[o.tier] ?? o.tier}` : ''}`,
       };
     });
   }, [offers]);
@@ -104,7 +119,7 @@ export function PriceTexture({
             y={100 - Math.min(100, b.h)}
             width={0.6}
             height={Math.min(100, b.h)}
-            fill={`rgba(46,230,166,${b.alpha.toFixed(2)})`}
+            fill={`rgba(${b.rgb},${b.alpha.toFixed(2)})`}
           />
           <rect
             className="price-hit"
