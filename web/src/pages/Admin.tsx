@@ -31,6 +31,8 @@ export function AdminPage() {
   const [probeSaved, setProbeSaved] = useState<string | null>(null);
   const [tab, setTab] = useState<'overview' | 'submissions' | 'alerts' | 'users' | 'reviews' | 'audit' | 'incidents' | 'claims' | 'probes'>('overview');
   const [error, setError] = useState<string | null>(null);
+  const [snapMsg, setSnapMsg] = useState('');
+  const [snapBusy, setSnapBusy] = useState(false);
 
   const load = () => {
     api.adminProbeConfig().then((r) => setProbeText(r.config)).catch(() => setProbeText(''));
@@ -267,6 +269,33 @@ export function AdminPage() {
             ))}
           </div>
           <p className="fine">数据时间 {new Date(summary.updatedAt).toLocaleString('zh-CN', { hour12: false })}</p>
+          <div className="panel admin-snapshot">
+            <div>
+              <h2>价格快照</h2>
+              <p className="sub">立即把当前分组价格写入 price_daily，用于补跑或刚导入数据后刷新。</p>
+            </div>
+            <div className="admin-snapshot-actions">
+              {snapMsg && <span className="mono dim">{snapMsg}</span>}
+              <button
+                className="btn btn-ghost btn-sm"
+                disabled={snapBusy}
+                onClick={async () => {
+                  setSnapBusy(true);
+                  setSnapMsg('');
+                  try {
+                    const r = await api.adminRunPriceSnapshot();
+                    setSnapMsg(`写入 ${r.rows} 行，耗时 ${r.durationMs}ms`);
+                  } catch (e) {
+                    setSnapMsg((e as Error).message);
+                  } finally {
+                    setSnapBusy(false);
+                  }
+                }}
+              >
+                {snapBusy ? '运行中…' : '立即运行快照'}
+              </button>
+            </div>
+          </div>
           {summary.failingSubscriptions > 0 && (
             <div className="error-box" style={{ marginTop: 12 }}>
               有 {summary.failingSubscriptions} 个告警订阅连续失败 ≥3 次，已发送失败提醒；去「告警订阅」查看并重放。

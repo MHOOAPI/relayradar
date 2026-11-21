@@ -150,6 +150,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/v1/probes", s.handleProbeIngest)
 	mux.HandleFunc("GET /api/v1/admin/probe-config", s.handleProbeConfig)
 	mux.HandleFunc("POST /api/v1/admin/probe-config", s.handleProbeConfig)
+	mux.HandleFunc("POST /api/v1/admin/price-snapshot", s.handleAdminPriceSnapshot)
 	mux.HandleFunc("POST /api/v1/subscriptions/{id}/ping", s.handleSubPing)
 	mux.HandleFunc("GET /api/v1/subscriptions/{id}/deliveries", s.handleSubDeliveries)
 	mux.HandleFunc("POST /api/v1/subscriptions/{id}/deliveries/{logId}/replay", s.handleSubReplay)
