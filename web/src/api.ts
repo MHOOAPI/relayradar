@@ -134,6 +134,7 @@ export const api = {
   adminClaimEdits: (all = false) => request<{ items: ClaimEdit[] }>(`/admin/claim-edits${all ? '?all=1' : ''}`),
   adminProbeConfig: () => request<{ config: string; exists: boolean }>('/admin/probe-config'),
   saveAdminProbeConfig: (config: string) => request<{ ok: boolean; targets: number }>('/admin/probe-config', { method: 'POST', body: JSON.stringify({ config }) }),
+  adminRunPriceSnapshot: () => request<{ rows: number; durationMs: number }>('/admin/price-snapshot', { method: 'POST' }),
   approveClaimEdit: (id: number, note = '') => request<{ ok: boolean }>(`/admin/claim-edits/${id}/approve`, { method: 'POST', body: JSON.stringify({ note }) }),
   rejectClaimEdit: (id: number, note = '') => request<{ ok: boolean }>(`/admin/claim-edits/${id}/reject`, { method: 'POST', body: JSON.stringify({ note }) }),
   verifyClaim: (token: string) =>

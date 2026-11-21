@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -96,6 +97,29 @@ func (s *Server) handleModelPriceHistory(w http.ResponseWriter, r *http.Request)
 		"modelId": id,
 		"days":    days,
 		"points":  out,
+	})
+}
+
+func (s *Server) handleAdminPriceSnapshot(w http.ResponseWriter, r *http.Request) {
+	admin := s.adminOnly(w, r)
+	if admin == nil {
+		return
+	}
+	start := time.Now()
+	n, err := s.svc.Repo().SnapshotPriceDaily(r.Context(), time.Now().UTC())
+	if err != nil {
+		s.fail(w, http.StatusInternalServerError, err)
+		return
+	}
+	s.snapMu.Lock()
+	s.snapLast = time.Now().UTC()
+	s.snapRows = n
+	s.snapErr = ""
+	s.snapMu.Unlock()
+	s.logAdminAction(r, admin, "price.snapshot", "price_daily", fmt.Sprintf("rows=%d", n))
+	writeJSON(w, http.StatusOK, map[string]any{
+		"rows":       n,
+		"durationMs": time.Since(start).Milliseconds(),
 	})
 }
 
