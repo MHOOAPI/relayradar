@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.46**（站点图标改为声明式抓取 + 图标镜像兜底、缺失时显示站名首字而非随机图形）
+- 版本：**v0.2.47**（路由级代码分割：入口 552→319KB、模型报价可排序/筛选、全局键盘焦点环）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
