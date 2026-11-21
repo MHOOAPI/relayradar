@@ -14,6 +14,12 @@ import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
 import { SERVICE_LABEL, serviceLabel } from '../lib/services';
 
+const daysOnline = (iso: string) => {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86400000));
+};
+
 const PURITY: Record<string, string> = {
   official: '官方直连',
   mixed: '混合线路',
@@ -204,6 +210,12 @@ export function StationPage() {
               <span>开票 {(s as unknown as { invoice?: boolean }).invoice ? '支持' : '不支持'}</span>
               <span>·</span>
               <span>退款 {(s as unknown as { refundPolicy?: string }).refundPolicy || '—'}</span>
+              {s.listedAt && (
+                <>
+                  <span>·</span>
+                  <span>运营 {daysOnline(s.listedAt)} 天</span>
+                </>
+              )}
             </div>
             <div className="detail-links mono">
               <Link to={`/go/${s.slug}`}>{s.domain} <External /></Link>

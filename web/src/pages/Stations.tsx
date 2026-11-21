@@ -10,6 +10,12 @@ import { usePointerGlow } from '../lib/parallax';
 import { Quadrant } from '../components/Quadrant';
 
 
+const daysOnline = (iso: string) => {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86400000));
+};
+
 const PURITY_LABEL: Record<string, string> = {
   official: '官方直连',
   mixed: '混合线路',
@@ -303,7 +309,7 @@ export function StationsPage() {
                         <div className="station-meta">
                           <Link className="station-name" to={`/stations/${s.slug}`} onClick={(e) => e.stopPropagation()}>{s.name}</Link>
                           {s.claimed && <span className="badge-ok" title="站长已认领">✓</span>}
-                          <span className="station-domain mono">{s.domain}</span>
+                          <span className="station-domain mono">{s.domain}{s.listedAt ? ` · 运营 ${daysOnline(s.listedAt)} 天` : ''}</span>
                         </div>
                       </div>
                     </td>
