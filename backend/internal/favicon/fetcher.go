@@ -18,6 +18,12 @@ import (
 	"relayradar/internal/audit"
 )
 
+// iconService mirrors a site's declared icon; used only when the station's own
+// host is unreachable or blocked (some CDNs drop non-browser TLS clients).
+const iconService = "https://icons.duckduckgo.com/ip3/%s.ico"
+
+const browserUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+
 var domainRe = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$`)
 
 type entry struct {
@@ -47,7 +53,7 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 		}
 	}
 
-	dialer := &net.Dialer{Timeout: 2500 * time.Millisecond}
+	dialer := &net.Dialer{Timeout: 4 * time.Second}
 	if proxy == nil {
 		dialer.Control = func(network, address string, c syscall.RawConn) error {
 			host, _, err := net.SplitHostPort(address)
@@ -65,14 +71,14 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 	f := &Fetcher{allowLocal: allowLocal, cache: map[string]entry{}}
 	transport := &http.Transport{
 		DialContext:         dialer.DialContext,
-		TLSHandshakeTimeout: 3 * time.Second,
+		TLSHandshakeTimeout: 5 * time.Second,
 		DisableKeepAlives:   true,
 	}
 	if proxy != nil {
 		transport.Proxy = http.ProxyURL(proxy)
 	}
 	f.client = &http.Client{
-		Timeout:   4 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= 3 {
@@ -116,14 +122,103 @@ func (f *Fetcher) Get(ctx context.Context, domain string) ([]byte, string, bool)
 }
 
 func (f *Fetcher) fetch(ctx context.Context, domain string) ([]byte, string, bool) {
-	// Only the station's own /favicon.ico is tried. The former Google s2
-	// fallback doubled the outbound requests and made a directory page with a
-	// hundred stations depend on a third party; a miss now just renders the
-	// generated placeholder instead.
+	// The station's own /favicon.ico is tried first. Many sites only declare
+	// their icon in the HTML head (or move it to a CDN path), so a miss falls
+	// back to parsing <link rel="icon"> from the homepage.
 	if strings.HasSuffix(domain, ".invalid") || strings.HasPrefix(domain, "localhost") {
 		return nil, "", false
 	}
-	return f.get(ctx, "https://"+domain+"/favicon.ico")
+	if data, ctype, ok := f.get(ctx, "https://"+domain+"/favicon.ico"); ok {
+		return data, ctype, true
+	}
+	if page, ok := f.getPage(ctx, "https://"+domain+"/"); ok {
+		if iconURL := parseIconHref(page, "https://"+domain+"/"); iconURL != "" {
+			if data, ctype, ok := f.get(ctx, iconURL); ok {
+				return data, ctype, true
+			}
+		}
+	}
+	// Last resort: a public icon mirror, so a station blocked to server-side
+	// clients still gets its real icon instead of a generated glyph.
+	return f.get(ctx, fmt.Sprintf(iconService, domain))
+}
+
+var (
+	linkTagRe  = regexp.MustCompile(`(?is)<link\b[^>]*>`)
+	relAttrRe  = regexp.MustCompile(`(?is)\brel\s*=\s*["']([^"']*)["']`)
+	hrefAttrRe = regexp.MustCompile(`(?is)\bhref\s*=\s*["']([^"']*)["']`)
+)
+
+// parseIconHref finds the best icon declared by the page: a touch icon first
+// (usually the largest), then any rel containing "icon".
+func parseIconHref(page []byte, pageURL string) string {
+	base, err := url.Parse(pageURL)
+	if err != nil {
+		return ""
+	}
+	var fallback string
+	for _, tag := range linkTagRe.FindAll(page, 200) {
+		rel := relAttrRe.FindSubmatch(tag)
+		if rel == nil {
+			continue
+		}
+		relValue := strings.ToLower(string(rel[1]))
+		if !strings.Contains(relValue, "icon") {
+			continue
+		}
+		href := hrefAttrRe.FindSubmatch(tag)
+		if href == nil {
+			continue
+		}
+		raw := strings.TrimSpace(string(href[1]))
+		if raw == "" || strings.HasPrefix(raw, "data:") {
+			continue
+		}
+		ref, err := url.Parse(raw)
+		if err != nil {
+			continue
+		}
+		abs := base.ResolveReference(ref)
+		if abs.Scheme != "https" && abs.Scheme != "http" {
+			continue
+		}
+		if strings.Contains(relValue, "apple-touch-icon") {
+			return abs.String()
+		}
+		if fallback == "" {
+			fallback = abs.String()
+		}
+	}
+	return fallback
+}
+
+// getPage fetches an HTML page for icon discovery. Unlike get it accepts
+// non-image responses and caps the body at 512 KiB.
+func (f *Fetcher) getPage(ctx context.Context, raw string) ([]byte, bool) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
+	if err != nil {
+		return nil, false
+	}
+	req.Header.Set("User-Agent", browserUA)
+	req.Header.Set("Accept", "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5")
+
+	resp, err := f.client.Do(req)
+	if err != nil {
+		return nil, false
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, false
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 512<<10))
+	if err != nil || len(body) < 32 {
+		return nil, false
+	}
+	ctype := strings.ToLower(resp.Header.Get("Content-Type"))
+	if ctype != "" && !strings.Contains(ctype, "html") && !strings.Contains(ctype, "xml") {
+		return nil, false
+	}
+	return body, true
 }
 
 func (f *Fetcher) get(ctx context.Context, raw string) ([]byte, string, bool) {
@@ -131,7 +226,7 @@ func (f *Fetcher) get(ctx context.Context, raw string) ([]byte, string, bool) {
 	if err != nil {
 		return nil, "", false
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; RelayRadarBot/1.0; +https://relayradar.example/bot)")
+	req.Header.Set("User-Agent", browserUA)
 	req.Header.Set("Accept", "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5")
 
 	resp, err := f.client.Do(req)
@@ -178,7 +273,7 @@ func sniff(b []byte) string {
 // directory page does not have to wait on third-party hosts. Cached entries are
 // skipped; failures are cached like normal misses.
 func (f *Fetcher) Warm(domains []string) {
-	sem := make(chan struct{}, 6)
+	sem := make(chan struct{}, 4)
 	var wg sync.WaitGroup
 	for _, d := range domains {
 		d = strings.ToLower(strings.TrimSpace(d))

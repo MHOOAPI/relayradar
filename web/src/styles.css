@@ -2561,3 +2561,5 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .td-bars { display: flex; align-items: flex-end; gap: 3px; height: 26px; flex: 1; max-width: 240px; }
 .td-bars i { flex: 1; min-width: 4px; background: rgba(46, 230, 166, 0.22); border-radius: 2px 2px 0 0; }
 .td-bars i.on { background: var(--accent); }
+/* placeholder initials for stations without a fetched favicon */
+.station-mark-initials { font-weight: 700; letter-spacing: 0.02em; line-height: 1; }

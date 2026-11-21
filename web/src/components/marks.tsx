@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { ReactElement } from 'react';
 import { VENDOR_PATHS } from './vendorPaths';
 
 const VENDOR_SLUG: Record<string, string> = {
@@ -52,14 +51,12 @@ function hash(s: string): number {
   return Math.abs(h);
 }
 
-const GLYPHS: Array<(fg: string) => ReactElement> = [
-  (fg) => <circle cx="12" cy="12" r="7" fill="none" stroke={fg} strokeWidth="2" />,
-  (fg) => <path d="M5 12h14M12 5v14" stroke={fg} strokeWidth="2" strokeLinecap="round" />,
-  (fg) => <rect x="5" y="5" width="14" height="14" rx="4.5" fill="none" stroke={fg} strokeWidth="2" />,
-  (fg) => <path d="M6 17 12 6l6 11" fill="none" stroke={fg} strokeWidth="2" strokeLinejoin="round" />,
-  (fg) => <path d="M5 15c3-8 11-8 14 0" fill="none" stroke={fg} strokeWidth="2" strokeLinecap="round" />,
-  (fg) => <path d="M12 4v16M6 8l6-4 6 4" fill="none" stroke={fg} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />,
-];
+function initialsOf(name: string) {
+  const cleaned = name.trim();
+  if (!cleaned) return '?';
+  const two = Array.from(cleaned).slice(0, 2).join('');
+  return two.toUpperCase();
+}
 
 export function StationMark({
   slug,
@@ -75,14 +72,14 @@ export function StationMark({
   const [failed, setFailed] = useState(false);
   const key = slug || name;
   // Stations without a hand-picked icon fall back to the favicon proxy, which
-  // serves the site's own icon; the generated glyph is the last resort.
+  // serves the site's own icon; when that misses, show the station's initials
+  // rather than a random glyph that could pass for a logo.
   const src = iconUrl || (slug ? `/api/v1/favicon/${slug}` : '');
   const h = hash(key);
   const hue = (h * 137) % 360;
   const fg = `hsl(${hue} 68% 63%)`;
   const bg = `hsl(${hue} 45% 11%)`;
   const border = `hsl(${hue} 45% 26%)`;
-  const glyph = GLYPHS[h % GLYPHS.length];
 
   useEffect(() => setFailed(false), [src]);
 
@@ -98,9 +95,9 @@ export function StationMark({
       title={name}
       aria-label={name}
     >
-      <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} aria-hidden="true">
-        {glyph(fg)}
-      </svg>
+      <b className="station-mark-initials" style={{ color: fg, fontSize: Math.round(size * 0.4) }} aria-hidden="true">
+        {initialsOf(name)}
+      </b>
       {src && !failed && (
         <img
           className="station-mark-img"
