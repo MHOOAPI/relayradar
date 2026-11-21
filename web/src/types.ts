@@ -430,3 +430,24 @@ export interface AccountData {
   subscriptions: AlertSubscription[];
   submissions: Submission[];
 }
+export interface SearchStation {
+  slug: string;
+  name: string;
+  domain: string;
+  iconUrl: string;
+  rank: number;
+  rankScore: number;
+  fromPriceCny: number;
+  purityTier: string;
+  officialVendor: boolean;
+}
+
+export interface SearchModel {
+  id: string;
+  name: string;
+  vendor: string;
+  vendorName: string;
+  category: string;
+  minInputCny: number;
+  offersCount: number;
+}
