@@ -110,6 +110,7 @@ type Memory struct {
 	nextClaimID   int64
 	outbound      []outboundClick
 	priceDaily    []PriceDaily
+	lastPrice     map[priceKey]float64
 	users         map[int64]User
 	userByEmail   map[string]int64
 	sessions      map[string]memSession
@@ -158,6 +159,7 @@ func NewMemory() *Memory {
 		subscriptions: map[string]Subscription{},
 		users:         map[int64]User{},
 		priceDaily:    []PriceDaily{},
+		lastPrice:     map[priceKey]float64{},
 		userByEmail:   map[string]int64{},
 		sessions:      map[string]memSession{},
 		authTokens:    map[string]memToken{},
@@ -1092,6 +1094,11 @@ func (m *Memory) UpdateStationIcon(ctx context.Context, slug, iconURL string) er
 	return fmt.Errorf("station %s not found", slug)
 }
 
+type priceKey struct {
+	GroupID int64
+	ModelID string
+}
+
 func sameDay(a, b time.Time) bool {
 	ay, am, ad := a.Date()
 	by, bm, bd := b.Date()
@@ -1110,6 +1117,33 @@ func (m *Memory) SnapshotPriceDaily(ctx context.Context, day time.Time) (int, er
 	stationOfGroup := make(map[int64]int64, len(m.snap.Groups))
 	for _, g := range m.snap.Groups {
 		stationOfGroup[g.ID] = g.StationID
+	}
+	// Feed the price_change feed: remember the first observed price per group
+	// model, then append a history point whenever it actually moves.
+	for _, gm := range m.snap.GroupModels {
+		if gm.InputCNY == nil || *gm.InputCNY <= 0 {
+			continue
+		}
+		key := priceKey{GroupID: gm.GroupID, ModelID: gm.ModelID}
+		cur := *gm.InputCNY
+		prev, seen := m.lastPrice[key]
+		if !seen {
+			m.lastPrice[key] = cur
+			continue
+		}
+		if prev == cur {
+			continue
+		}
+		out := 0.0
+		if gm.OutputCNY != nil {
+			out = *gm.OutputCNY
+		}
+		in := cur
+		m.snap.Prices = append(m.snap.Prices, PricePoint{
+			GroupID: gm.GroupID, ModelID: gm.ModelID,
+			InputCNY: &in, OutputCNY: &out, RecordedAt: day,
+		})
+		m.lastPrice[key] = cur
 	}
 	agg := make(map[string]*PriceDaily)
 	for _, gm := range m.snap.GroupModels {

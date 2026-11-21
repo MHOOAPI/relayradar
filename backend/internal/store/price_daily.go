@@ -43,6 +43,22 @@ func (s *Store) SnapshotPriceDaily(ctx context.Context, day time.Time) (int, err
 	if err != nil {
 		return 0, err
 	}
+	// Record the first price of every group/model once, then only append when
+	// the price actually changes. This feeds the existing price_change feed
+	// (and therefore price alerts) with real observations.
+	if _, err := s.pool.Exec(ctx, `
+		INSERT INTO price_history (group_id, model_id, input_cny, output_cny, recorded_at)
+		SELECT gm.group_id, gm.model_id, gm.input_cny, gm.output_cny, now()
+		FROM group_models gm
+		WHERE gm.input_cny IS NOT NULL AND gm.input_cny > 0
+		  AND (
+		    SELECT ph.input_cny FROM price_history ph
+		    WHERE ph.group_id = gm.group_id AND ph.model_id = gm.model_id
+		    ORDER BY ph.recorded_at DESC
+		    LIMIT 1
+		  ) IS DISTINCT FROM gm.input_cny`); err != nil {
+		return int(tag.RowsAffected()), err
+	}
 	return int(tag.RowsAffected()), nil
 }
 

@@ -177,6 +177,9 @@ export function AlertsPage() {
         {sub.lastError && <p className="form-error" style={{ padding: '10px 20px' }}>最近错误：{sub.lastError}</p>}
 
         <div className="alerts-form">
+          <p className="fine" style={{ margin: '0 0 4px' }}>
+            价格变动来自每日快照（同一站点同一模型的价格与上次不同即记录）；可用率与分数事件来自探针。
+          </p>
           <div className="sub-kinds">
             {Object.entries(KIND_LABEL).map(([k, label]) => (
               <label key={k} className="check-inline">

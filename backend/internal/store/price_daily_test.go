@@ -141,3 +141,35 @@ func TestMemoryPriceDrops(t *testing.T) {
 		t.Fatalf("drop for the modified model missing: %+v", drops)
 	}
 }
+
+func TestMemorySnapshotRecordsPriceHistory(t *testing.T) {
+	m := NewMemory()
+	ctx := context.Background()
+	idx := -1
+	for i, gm := range m.snap.GroupModels {
+		if gm.InputCNY != nil && *gm.InputCNY > 0 {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		t.Fatal("no priced group model")
+	}
+	if _, err := m.SnapshotPriceDaily(ctx, time.Now().UTC().AddDate(0, 0, -1)); err != nil {
+		t.Fatalf("first snapshot: %v", err)
+	}
+	before := len(m.snap.Prices)
+
+	lower := *m.snap.GroupModels[idx].InputCNY * 0.8
+	m.snap.GroupModels[idx].InputCNY = &lower
+	if _, err := m.SnapshotPriceDaily(ctx, time.Now().UTC()); err != nil {
+		t.Fatalf("second snapshot: %v", err)
+	}
+	if len(m.snap.Prices) != before+1 {
+		t.Fatalf("expected exactly one new history point, got %d -> %d", before, len(m.snap.Prices))
+	}
+	last := m.snap.Prices[len(m.snap.Prices)-1]
+	if last.ModelID != m.snap.GroupModels[idx].ModelID || last.InputCNY == nil || *last.InputCNY != lower {
+		t.Fatalf("history point does not record the new price: %+v", last)
+	}
+}
