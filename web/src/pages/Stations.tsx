@@ -46,8 +46,9 @@ const reachInfo = (r: Station['reachability']) => {
 };
 
 export function StationsPage() {
+  const [params] = useSearchParams();
   const [stations, setStations] = useState<Station[] | null>(null);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(params.get('q') ?? '');
   const [sort, setSort] = useState<'rank' | 'uptime' | 'reviews' | 'reach'>('rank');
   const [onlyClaimed, setOnlyClaimed] = useState(false);
   const [minModels, setMinModels] = useState(0);
@@ -58,7 +59,6 @@ export function StationsPage() {
   const [coverageStation, setCoverageStation] = useState<Station | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [params] = useSearchParams();
 
   useEffect(() => {
     document.title = '中转站目录：模型覆盖、支付、退款与评价 | RelayRadar';
@@ -68,6 +68,7 @@ export function StationsPage() {
   }, []);
 
   useEffect(() => {
+    setQ(params.get('q') ?? '');
     if (params.get('reachable') === '1') setOnlyReachable(true);
   }, [params]);
 

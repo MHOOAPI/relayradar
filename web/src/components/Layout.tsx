@@ -83,12 +83,12 @@ export function Layout() {
             <NavLink to="/stations">站点</NavLink>
             <NavLink to="/models">模型</NavLink>
             <NavLink to="/leaderboards">排行</NavLink>
-            <NavLink to="/changes">变更</NavLink>
             <NavLink to="/audit">检测</NavLink>
             <NavLink to="/free-api-keys">免费 API</NavLink>
             <div className="ref">
               <button type="button" className="ref-btn">更多 <span>▾</span></button>
               <div className="ref-menu">
+                <Link to="/changes"><b>变更雷达</b><small>价格、可用率与纯度异常</small></Link>
                 <Link to="/compare"><b>横向对比</b><small>按可用性、价格与纯度并排</small></Link>
                 <Link to="/free"><b>免费额度</b><small>官方免费层与赠送额度</small></Link>
                 <Link to="/submit"><b>提交与认领</b><small>站点提交、DNS 认领</small></Link>

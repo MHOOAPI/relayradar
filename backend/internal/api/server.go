@@ -242,6 +242,19 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
+// transparentPNG is a 1×1 transparent pixel used as the favicon miss response.
+var transparentPNG = []byte{
+	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+	0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+	0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+	0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4,
+	0x89, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41,
+	0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+	0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00,
+	0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
+	0x42, 0x60, 0x82,
+}
+
 // handleFavicon proxies and caches a station's icon so the browser never talks
 // to third-party hosts directly.
 func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +270,13 @@ func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
 	}
 	data, ctype, ok := s.favicons.Get(r.Context(), st.Domain)
 	if !ok {
-		writeError(w, http.StatusNotFound, "favicon unavailable")
+		// The UI draws its own glyph behind the image, so answer with a
+		// transparent pixel instead of a 404: the icon simply stays invisible
+		// and the directory does not fill the console with failed requests.
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(transparentPNG)
 		return
 	}
 	w.Header().Set("Content-Type", ctype)
