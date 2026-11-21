@@ -4,6 +4,7 @@ import { api } from '../api';
 import type { ModelProviderStatus, ModelSummary, Offer, PriceChange } from '../types';
 import { fmtCny, fmtDate, fmtUsd, Spinner, TierBadge } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
+import { PriceTexture } from '../components/Backdrop';
 
 const fmtCtx = (n: number) => {
   if (!n || n <= 0) return '—';
@@ -132,7 +133,8 @@ export function ModelPage() {
         </div>
       )}
 
-      <section className="panel detail-head model-hero">
+      <section className="panel detail-head model-hero has-wave">
+        <PriceTexture prices={offers.map((o) => o.inputCny)} />
         <div className="detail-main">
           <VendorMark vendor={model.vendor} size={54} />
           <div>

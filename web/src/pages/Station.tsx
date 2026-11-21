@@ -8,6 +8,7 @@ import { PayMark } from '../components/pay';
 import { ArrowUpRight, CalendarIcon, CoinIcon, CopyIcon, ProbeIcon, PulseIcon, ReceiptIcon, ShieldIcon, WalletIcon } from '../components/icons';
 import { TrendChart } from '../components/TrendChart';
 import type { Change } from '../types';
+import { WaveBackdrop } from '../components/Backdrop';
 import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
 import { SERVICE_LABEL, serviceLabel } from '../lib/services';
@@ -153,7 +154,8 @@ export function StationPage() {
         </div>
       )}
 
-      <section className="detail-head panel">
+      <section className="detail-head panel has-wave">
+        <WaveBackdrop data={s.uptime} />
         <div className="detail-main">
           <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={54} />
           <div>
