@@ -2304,3 +2304,12 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 @media (max-width: 760px) {
   .home .hero-formula { font-size: 13.5px; }
 }
+/* ---------- compact service column ---------- */
+.services.icons { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
+.services.compact { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
+.svc-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: none; }
+.svc-more { font-size: 10px; color: var(--text-3); margin-left: 1px; }
+/* ---------- free tier page ---------- */
+.free-empty { padding: 26px; display: grid; gap: 8px; justify-items: start; }
+.free-empty b { font-size: 13px; }
+.free-empty .sub { margin: 0; max-width: 70ch; }

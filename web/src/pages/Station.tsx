@@ -10,16 +10,7 @@ import { TrendChart } from '../components/TrendChart';
 import type { Change } from '../types';
 import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
-
-const SERVICE_LABEL: Record<string, string> = {
-  claude: 'Claude',
-  openai: 'OpenAI',
-  gemini: 'Gemini',
-  deepseek: 'DeepSeek',
-  xai: 'Grok',
-  moonshot: 'Kimi',
-  qwen: 'Qwen',
-};
+import { SERVICE_LABEL, serviceLabel } from '../lib/services';
 
 const PURITY: Record<string, string> = {
   official: '官方直连',
@@ -103,6 +94,15 @@ export function StationPage() {
   const neighbors = rankIdx < 0
     ? []
     : [...ranked.slice(Math.max(0, rankIdx - 2), rankIdx), ...ranked.slice(rankIdx + 1, rankIdx + 3)].slice(0, 4);
+  const samePrice = (() => {
+    if (!(s.fromPriceCny > 0)) return [];
+    const tol = Math.max(0.03, s.fromPriceCny * 0.4);
+    return allStations
+      .filter((st) => st.slug !== s.slug && st.fromPriceCny > 0 && Math.abs(st.fromPriceCny - s.fromPriceCny) <= tol)
+      .sort((a, b) => Math.abs(a.fromPriceCny - s.fromPriceCny) - Math.abs(b.fromPriceCny - s.fromPriceCny))
+      .slice(0, 4);
+  })();
+
   const faq = [
     {
       q: `${s.name} 的综合分是怎么算的？`,
@@ -486,6 +486,35 @@ export function StationPage() {
           ))}
         </div>
       </section>
+
+      {samePrice.length > 0 && (
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>同价位替代</h2>
+              <p className="sub">
+                最低输入价与本站相差 ±40% 以内，按价格接近程度排序；便宜与稳定通常不可兼得，右上角综合分一起看。
+              </p>
+            </div>
+            <Link className="link-btn mono" to="/compare">去对比 →</Link>
+          </div>
+          <div className="related-grid">
+            {samePrice.map((n) => (
+              <Link key={n.slug} className="related-card" to={`/stations/${n.slug}`}>
+                <div className="rc-head">
+                  <StationMark slug={n.slug} name={n.name} iconUrl={n.iconUrl} size={22} />
+                  <b>{n.name}</b>
+                  <span className="mono dim">#{n.rank}</span>
+                </div>
+                <div className="rc-meta mono dim">
+                  综合分 {n.rankScore.toFixed(1)} · {n.services.map(serviceLabel).join(' / ')}
+                </div>
+                <div className="rc-price mono">{fmtCny(n.fromPriceCny)}<span className="dim"> /M</span></div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {neighbors.length > 0 && (
         <section className="panel">

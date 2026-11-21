@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
-import { fmtCny, fmtUsd, Spinner } from '../components/ui';
+import { fmtCny, fmtUsd } from '../components/ui';
 import { VendorMark } from '../components/marks';
 
 const CONSOLE: Record<string, string> = {
@@ -38,51 +38,69 @@ export function FreePage() {
     <main className="wrap">
       <div className="page-head">
         <div>
-          <h1>免费额度目录</h1>
-          <p className="sub">官方免费层与赠送额度，按“能持续多久 / 要不要绑卡 / 限速多少”筛选，不收录来路不明的共享 Key。</p>
+          <h1>免费额度与试用</h1>
+          <p className="sub">
+            两条路：官方免费层与试用额度（自己注册、绑定结算账号），或社区共享 Key（随时可能失效）。
+            这里只收录官方入口，不放来路不明的 Key。
+          </p>
         </div>
+        <span className="mono dim">
+          {models ? `${models.length} 个目录内免费模型` : '读取中…'} · {PROGRAMS.length} 个官方计划
+        </span>
       </div>
 
       <div className="tabs">
-        <span className="tab on">免费模型</span>
-        <Link className="tab" to="/free-api-keys">免费 API Key</Link>
+        <span className="tab on">官方免费计划</span>
+        <Link className="tab" to="/free-api-keys">社区共享 Key</Link>
       </div>
 
       {error && <div className="error-box">{error}</div>}
 
-      <div className="free-grid">
-        {!models && !error && <div className="loading"><Spinner /> 加载中…</div>}
-        {models?.map((m) => (
-          <article key={m.id} className="free-card panel">
-            <div className="free-head">
-              <VendorMark vendor={m.vendor} size={34} />
-              <div>
-                <Link to={`/models/${encodeURIComponent(m.id)}`} className="free-name">{m.name}</Link>
-                <span className="mono dim tiny">{m.id}</span>
+      {models && models.length > 0 ? (
+        <div className="free-grid">
+          {models.map((m) => (
+            <article key={m.id} className="free-card panel">
+              <div className="free-head">
+                <VendorMark vendor={m.vendor} size={34} />
+                <div>
+                  <Link to={`/models/${encodeURIComponent(m.id)}`} className="free-name">{m.name}</Link>
+                  <span className="mono dim tiny">{m.id}</span>
+                </div>
+                <span className="free-tag">免费额度</span>
               </div>
-              <span className="free-tag">免费额度</span>
-            </div>
-            <p className="free-note">{m.freeNote}</p>
-            <dl className="free-kv">
-              <div><dt>官方输入</dt><dd className="mono">{fmtUsd(m.inputUsd)}</dd></div>
-              <div><dt>官方输出</dt><dd className="mono">{fmtUsd(m.outputUsd)}</dd></div>
-              <div><dt>中转最低</dt><dd className="mono accent">{fmtCny(m.minInputCny)}</dd></div>
-              <div><dt>报价站点</dt><dd className="mono">{m.offersCount}</dd></div>
-            </dl>
-            <div className="free-foot">
-              <span className="fine">额度与限速以官方控制台为准</span>
-              <span className="free-actions">
-                {CONSOLE[m.vendor] && (
-                  <a className="btn btn-ghost btn-sm" href={CONSOLE[m.vendor]} target="_blank" rel="noopener noreferrer nofollow">
-                    官方控制台 ↗
-                  </a>
-                )}
-                <Link className="btn btn-ghost btn-sm" to={`/models/${encodeURIComponent(m.id)}`}>看报价 →</Link>
-              </span>
-            </div>
-          </article>
-        ))}
-      </div>
+              <p className="free-note">{m.freeNote}</p>
+              <dl className="free-kv">
+                <div><dt>官方输入</dt><dd className="mono">{fmtUsd(m.inputUsd)}</dd></div>
+                <div><dt>官方输出</dt><dd className="mono">{fmtUsd(m.outputUsd)}</dd></div>
+                <div><dt>中转最低</dt><dd className="mono accent">{fmtCny(m.minInputCny)}</dd></div>
+                <div><dt>报价站点</dt><dd className="mono">{m.offersCount}</dd></div>
+              </dl>
+              <div className="free-foot">
+                <span className="fine">额度与限速以官方控制台为准</span>
+                <span className="free-actions">
+                  {CONSOLE[m.vendor] && (
+                    <a className="btn btn-ghost btn-sm" href={CONSOLE[m.vendor]} target="_blank" rel="noopener noreferrer nofollow">
+                      官方控制台 ↗
+                    </a>
+                  )}
+                  <Link className="btn btn-ghost btn-sm" to={`/models/${encodeURIComponent(m.id)}`}>看报价 →</Link>
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : models && (
+        <section className="panel free-empty">
+          <b>目录里还没有标记免费层的模型</b>
+          <p className="sub">
+            免费层通常按月调整，这里只保留官方入口；想先试用，可以看下面的官方计划，或领一个社区共享 Key。
+          </p>
+          <div className="free-actions">
+            <Link className="btn btn-primary btn-sm" to="/free-api-keys">看社区共享 Key</Link>
+            <Link className="btn btn-ghost btn-sm" to="/models">浏览全部模型</Link>
+          </div>
+        </section>
+      )}
 
       <section className="panel pad tips-panel">
         <h2>官方免费计划</h2>

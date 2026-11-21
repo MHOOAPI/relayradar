@@ -5,31 +5,8 @@ import type { Station } from '../types';
 import { Spinner, UptimeBars } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
+import { SERVICE_LABEL, SERVICE_VENDOR } from '../lib/services';
 
-const SERVICE_LABEL: Record<string, string> = {
-  claude: 'Claude',
-  openai: 'OpenAI',
-  gemini: 'Gemini',
-  deepseek: 'DeepSeek',
-  grok: 'Grok',
-  qwen: 'Qwen',
-  kimi: 'Kimi',
-  moonshot: 'Moonshot',
-};
-
-const SERVICE_VENDOR: Record<string, string> = {
-  claude: 'anthropic',
-  openai: 'openai',
-  gemini: 'google',
-  deepseek: 'deepseek',
-  grok: 'xai',
-  qwen: 'qwen',
-  kimi: 'kimi',
-  moonshot: 'moonshot',
-  google: 'google',
-  anthropic: 'anthropic',
-  xai: 'xai',
-};
 
 const healthOf = (s: Station) => {
   if (s.uptimePct >= 97) return { cls: 'ok', label: '正常' };
