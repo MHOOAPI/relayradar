@@ -29,6 +29,7 @@ export interface Station {
   ratingAvg: number;
   groupsCount: number;
   fromPriceCny: number;
+  cacheModels: number;
   minTopupCny: number;
   payments: string[];
   invoice: boolean;

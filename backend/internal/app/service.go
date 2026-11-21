@@ -38,44 +38,45 @@ type ReachabilityView struct {
 }
 
 type StationView struct {
-	Slug           string    `json:"slug"`
-	Name           string    `json:"name"`
-	Domain         string    `json:"domain"`
-	BaseURL        string    `json:"baseUrl"`
-	IconURL        string    `json:"iconUrl"`
-	Tagline        string    `json:"tagline"`
-	TaglineEN      string    `json:"taglineEn"`
-	OfficialVendor bool      `json:"officialVendor"`
-	Rank           int       `json:"rank"`
-	RankScore      float64   `json:"rankScore"`
-	ScoreMargin    float64   `json:"scoreMargin"`
-	Availability   float64   `json:"availability"`
-	Speed          float64   `json:"speed"`
-	Consistency    float64   `json:"consistency"`
-	Samples        int       `json:"samples"`
-	ScoredGroups   int       `json:"scoredGroups"`
-	UptimePct      float64   `json:"uptimePct"`
-	Purity         float64   `json:"purity"`
-	PurityTier     string    `json:"purityTier"`
-	PurityMeasured bool      `json:"purityMeasured"`
-	ModelsCount    int       `json:"modelsCount"`
-	ModelIDs       []string  `json:"modelIds"`
+	Slug           string            `json:"slug"`
+	Name           string            `json:"name"`
+	Domain         string            `json:"domain"`
+	BaseURL        string            `json:"baseUrl"`
+	IconURL        string            `json:"iconUrl"`
+	Tagline        string            `json:"tagline"`
+	TaglineEN      string            `json:"taglineEn"`
+	OfficialVendor bool              `json:"officialVendor"`
+	Rank           int               `json:"rank"`
+	RankScore      float64           `json:"rankScore"`
+	ScoreMargin    float64           `json:"scoreMargin"`
+	Availability   float64           `json:"availability"`
+	Speed          float64           `json:"speed"`
+	Consistency    float64           `json:"consistency"`
+	Samples        int               `json:"samples"`
+	ScoredGroups   int               `json:"scoredGroups"`
+	UptimePct      float64           `json:"uptimePct"`
+	Purity         float64           `json:"purity"`
+	PurityTier     string            `json:"purityTier"`
+	PurityMeasured bool              `json:"purityMeasured"`
+	ModelsCount    int               `json:"modelsCount"`
+	ModelIDs       []string          `json:"modelIds"`
 	Reachability   *ReachabilityView `json:"reachability,omitempty"`
-	ReviewsCount   int       `json:"reviewsCount"`
-	RatingAvg      float64   `json:"ratingAvg"`
-	GroupsCount    int       `json:"groupsCount"`
-	FromPriceCNY   float64   `json:"fromPriceCny"`
-	MinTopup       float64   `json:"minTopupCny"`
-	Payments       []string  `json:"payments"`
-	Invoice        bool      `json:"invoice"`
-	RefundPolicy   string    `json:"refundPolicy"`
-	Claimed        bool      `json:"claimed"`
-	Services       []string  `json:"services"`
-	Uptime         []int     `json:"uptime"`
-	Ranked         bool      `json:"ranked"`
-	NewDomain      bool      `json:"newDomain"`
-	ListedAt       time.Time `json:"listedAt"`
-	LastProbeAt    time.Time `json:"lastProbeAt"`
+	ReviewsCount   int               `json:"reviewsCount"`
+	RatingAvg      float64           `json:"ratingAvg"`
+	GroupsCount    int               `json:"groupsCount"`
+	FromPriceCNY   float64           `json:"fromPriceCny"`
+	CacheModels    int               `json:"cacheModels"`
+	MinTopup       float64           `json:"minTopupCny"`
+	Payments       []string          `json:"payments"`
+	Invoice        bool              `json:"invoice"`
+	RefundPolicy   string            `json:"refundPolicy"`
+	Claimed        bool              `json:"claimed"`
+	Services       []string          `json:"services"`
+	Uptime         []int             `json:"uptime"`
+	Ranked         bool              `json:"ranked"`
+	NewDomain      bool              `json:"newDomain"`
+	ListedAt       time.Time         `json:"listedAt"`
+	LastProbeAt    time.Time         `json:"lastProbeAt"`
 }
 
 type StationModel struct {
@@ -99,24 +100,24 @@ var officialVendors = map[string]bool{
 
 // stationTaglineEN is the English one-liner shown on /en pages.
 var stationTaglineEN = map[string]string{
-	"bailian":    "Alibaba Cloud enterprise line for Qwen and DeepSeek",
-	"302ai":      "Global model aggregator with an enterprise gateway",
-	"openrouter": "Multi-cloud routing and official resale",
-	"aihubmix":   "Official resale aggregator with a compliance entity",
-	"packyapi":   "Dedicated line for Claude Code",
+	"bailian":     "Alibaba Cloud enterprise line for Qwen and DeepSeek",
+	"302ai":       "Global model aggregator with an enterprise gateway",
+	"openrouter":  "Multi-cloud routing and official resale",
+	"aihubmix":    "Official resale aggregator with a compliance entity",
+	"packyapi":    "Dedicated line for Claude Code",
 	"siliconflow": "Domestic inference cluster, self-operated",
-	"qiniu":      "Enterprise backbone with high availability",
-	"ppio":       "Distributed GPU compute pool",
-	"ohmygpt":    "Multi-region direct lines for OpenAI and Claude",
-	"closeai":    "Azure / AWS enterprise resale",
-	"weelinking": "High-availability failover with a discount group",
-	"ofoxai":     "US-West CN2 accelerated native resale",
-	"dmxapi":     "Enterprise direct lines for three native protocols",
-	"apiyi":      "Low-price direct lines for Claude and GPT",
-	"yunwu":      "Discount and official groups kept separate",
-	"laozhang":   "Direct billing through overseas corporate cards",
-	"n1nai":      "Low-latency global routing",
-	"wolf-cheap": "Fictional negative example: fake signatures and a hidden 1.62x markup",
+	"qiniu":       "Enterprise backbone with high availability",
+	"ppio":        "Distributed GPU compute pool",
+	"ohmygpt":     "Multi-region direct lines for OpenAI and Claude",
+	"closeai":     "Azure / AWS enterprise resale",
+	"weelinking":  "High-availability failover with a discount group",
+	"ofoxai":      "US-West CN2 accelerated native resale",
+	"dmxapi":      "Enterprise direct lines for three native protocols",
+	"apiyi":       "Low-price direct lines for Claude and GPT",
+	"yunwu":       "Discount and official groups kept separate",
+	"laozhang":    "Direct billing through overseas corporate cards",
+	"n1nai":       "Low-latency global routing",
+	"wolf-cheap":  "Fictional negative example: fake signatures and a hidden 1.62x markup",
 }
 
 type StationDetail struct {
@@ -385,7 +386,7 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 			Slug: st.Slug, Name: st.Name, Domain: st.Domain, BaseURL: st.BaseURL, IconURL: icon, Tagline: st.Tagline, TaglineEN: stationTaglineEN[st.Slug], OfficialVendor: officialVendors[st.Slug],
 			Payments: st.Payments, Invoice: st.Invoice, RefundPolicy: st.RefundPolicy,
 			Claimed: st.Claimed, MinTopup: st.MinTopupCNY, ListedAt: st.ListedAt,
-			NewDomain: snap.TakenAt.Sub(st.ListedAt) < 60*24*time.Hour,
+			NewDomain:    snap.TakenAt.Sub(st.ListedAt) < 60*24*time.Hour,
 			FromPriceCNY: -1,
 		}
 		d.BySlug[st.Slug] = v
@@ -463,7 +464,7 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 			Consistency:  scoring.Round1(axis.Consistency),
 			Quality:      scoring.Round1(scoring.Total(axis)),
 			Samples:      total, Scored: scored,
-			Purity: purityScore,
+			Purity:     purityScore,
 			PurityTier: scoring.TierOf(purityScore, measured), ModelCount: mc, LastProbeAt: lastAt,
 		}
 		d.Groups[g.ID] = gv
@@ -749,6 +750,20 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 			return rows[i].Model.Vendor < rows[j].Model.Vendor
 		})
 		d.PerStationModels[st.Slug] = rows
+		if v, ok := d.BySlug[st.Slug]; ok {
+			cache := 0
+			for _, row := range rows {
+				if row.BestCacheCNY > 0 {
+					cache++
+				}
+			}
+			v.CacheModels = cache
+			for i := range d.Stations {
+				if d.Stations[i].Slug == st.Slug {
+					d.Stations[i].CacheModels = cache
+				}
+			}
+		}
 	}
 
 	d.History = buildHistory(snap)

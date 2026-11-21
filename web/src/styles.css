@@ -2666,3 +2666,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .coverage-count b { font-size: 14px; color: var(--text); font-weight: 600; }
 .coverage-count span { font-size: 10.5px; color: var(--text-3); }
 .coverage-btn { display: block; margin-top: 3px; text-align: left; }
+/* cache support tag in the coverage cell */
+.cache-tag {
+  font-size: 10px; line-height: 1; padding: 3px 6px; border-radius: 999px;
+  border: 1px solid var(--line-2); color: var(--text-2); background: var(--panel-2);
+}

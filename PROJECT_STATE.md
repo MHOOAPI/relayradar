@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.64**（模型覆盖列改为「叠放徽章 + 精确计数 + 缺口/纯度标签」）
+- 版本：**v0.2.65**（站点缓存覆盖：列表新增 cacheModels 与「缓存」标签，叠放徽章 + 计数成型）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

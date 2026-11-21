@@ -310,6 +310,9 @@ export function StationsPage() {
                           <b>{s.modelsCount}</b>
                           {totalModels > 0 && <span>/{totalModels}</span>}
                         </span>
+                        {s.cacheModels > 0 && (
+                          <span className="cache-tag" title={`${s.cacheModels} 个模型提供缓存价`}>缓存</span>
+                        )}
                       </div>
                       <button
                         type="button"
