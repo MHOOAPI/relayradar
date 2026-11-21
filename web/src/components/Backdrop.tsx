@@ -4,21 +4,17 @@ import { useMemo } from 'react';
 // pointer-events: none; the content above keeps its own stacking context.
 
 export function WaveBackdrop({ data }: { data: number[] }) {
-  const path = useMemo(() => {
+  const points = useMemo(() => {
     if (!data || data.length < 2) return null;
-    const pts = data.map((v, i) => {
+    return data.map((v, i) => {
       const x = (i / (data.length - 1)) * 100;
       const clamped = v < 0 ? 50 : Math.max(0, Math.min(100, v));
-      const y = 96 - (clamped / 100) * 62;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
+      return { x, y: 96 - (clamped / 100) * 62, v, i };
     });
-    return {
-      line: `M${pts.join(' L')}`,
-      area: `M0,100 L${pts.join(' L')} L100,100 Z`,
-    };
   }, [data]);
 
-  if (!path) return null;
+  if (!points) return null;
+  const pts = points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' L');
   return (
     <svg className="wave-backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <defs>
@@ -27,20 +23,33 @@ export function WaveBackdrop({ data }: { data: number[] }) {
           <stop offset="100%" stopColor="rgba(46,230,166,0)" />
         </linearGradient>
       </defs>
-      <path d={path.area} fill="url(#wave-fill)" />
+      <path d={`M0,100 L${pts} L100,100 Z`} fill="url(#wave-fill)" />
       <path
         className="wave-line"
-        d={path.line}
+        d={`M${pts}`}
         fill="none"
         stroke="rgba(46,230,166,0.32)"
         strokeWidth="0.35"
         vectorEffect="non-scaling-stroke"
       />
+      {points.map((p) => (
+        <circle
+          key={p.i}
+          className="wave-point"
+          cx={p.x}
+          cy={p.y}
+          r={2.4}
+          fill="transparent"
+          pointerEvents="all"
+        >
+          <title>{p.v < 0 ? `近 14 天第 ${p.i + 1} 天 · 无数据` : `近 14 天第 ${p.i + 1} 天 · ${p.v}%`}</title>
+        </circle>
+      ))}
     </svg>
   );
 }
 
-export type PriceSample = { price: number; multiplier: number };
+export type PriceSample = { price: number; multiplier: number; station?: string };
 
 export function PriceTexture({ offers }: { offers: PriceSample[] }) {
   const bars = useMemo(() => {
@@ -60,6 +69,7 @@ export function PriceTexture({ offers }: { offers: PriceSample[] }) {
         x: i,
         h: 8 + (Math.log10(o.price + 1) / Math.log10(cheap * 4 + 1)) * 88,
         alpha: o.price === cheap ? 0.34 : alpha,
+        label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}`,
       };
     });
   }, [offers]);
@@ -68,14 +78,18 @@ export function PriceTexture({ offers }: { offers: PriceSample[] }) {
   return (
     <svg className="price-texture" viewBox={`0 0 ${bars.length} 100`} preserveAspectRatio="none" aria-hidden="true">
       {bars.map((b) => (
-        <rect
-          key={b.x}
-          x={b.x + 0.2}
-          y={100 - Math.min(100, b.h)}
-          width={0.6}
-          height={Math.min(100, b.h)}
-          fill={`rgba(46,230,166,${b.alpha.toFixed(2)})`}
-        />
+        <g key={b.x}>
+          <rect
+            x={b.x + 0.2}
+            y={100 - Math.min(100, b.h)}
+            width={0.6}
+            height={Math.min(100, b.h)}
+            fill={`rgba(46,230,166,${b.alpha.toFixed(2)})`}
+          />
+          <rect className="price-hit" x={b.x} y={0} width={1} height={100} fill="transparent" pointerEvents="all">
+            <title>{b.label}</title>
+          </rect>
+        </g>
       ))}
     </svg>
   );

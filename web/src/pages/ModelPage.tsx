@@ -134,7 +134,7 @@ export function ModelPage() {
       )}
 
       <section className="panel detail-head model-hero has-wave">
-        <PriceTexture offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier }))} />
+        <PriceTexture offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier, station: o.stationName }))} />
         <div className="detail-main">
           <VendorMark vendor={model.vendor} size={54} />
           <div>
