@@ -21,6 +21,8 @@ import type {
   Review,
   Station,
   StationDetail,
+  SearchModel,
+  SearchStation,
   StationReachabilityHistory,
   Submission,
   User,
@@ -71,6 +73,11 @@ export const api = {
   meta: () => request<Meta>('/meta'),
   stations: (limit = 200) =>
     request<{ items: Station[]; total: number }>(`/stations?limit=${limit}`),
+  search: (q: string, limit = 8, signal?: AbortSignal) =>
+    request<{ query: string; stations: SearchStation[]; models: SearchModel[] }>(
+      `/search?q=${encodeURIComponent(q)}&limit=${limit}`,
+      { signal },
+    ),
   station: (slug: string) => request<StationDetail>(`/stations/${encodeURIComponent(slug)}`),
   stationReachability: (slug: string) => request<StationReachabilityHistory>(`/stations/${encodeURIComponent(slug)}/reachability`),
   models: () => request<{ items: ModelSummary[]; total: number }>('/models'),

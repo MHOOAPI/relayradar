@@ -23,31 +23,31 @@ import (
 )
 
 type Server struct {
-	svc      *app.Service
-	prober   *audit.Prober
-	favicons *favicon.Fetcher
-	cfg      config.Config
-	log      *slog.Logger
-	rl       *limiter
-	authRL   *burstLimiter
-	freeKeyRL *burstLimiter
-	claimRL   *burstLimiter
-	verifyRL  *burstLimiter
-	metrics  *httpMetrics
-	captchaMu sync.Mutex
-	captcha   map[string]captchaItem
-	captchaKey []byte
-	startedAt time.Time
-	modelStatusMu sync.Mutex
-	modelStatus  []modelStatusItem
-	modelStatusAt time.Time
+	svc            *app.Service
+	prober         *audit.Prober
+	favicons       *favicon.Fetcher
+	cfg            config.Config
+	log            *slog.Logger
+	rl             *limiter
+	authRL         *burstLimiter
+	freeKeyRL      *burstLimiter
+	claimRL        *burstLimiter
+	verifyRL       *burstLimiter
+	metrics        *httpMetrics
+	captchaMu      sync.Mutex
+	captcha        map[string]captchaItem
+	captchaKey     []byte
+	startedAt      time.Time
+	modelStatusMu  sync.Mutex
+	modelStatus    []modelStatusItem
+	modelStatusAt  time.Time
 	providerPrevMu sync.Mutex
 	providerLast   map[string]string
 	reachMu        sync.Mutex
 	reachDown      map[string]int
 	transMu        sync.Mutex
 	transCache     map[string]string
-	alerts   *alertHub
+	alerts         *alertHub
 }
 
 func New(svc *app.Service, cfg config.Config, log *slog.Logger) *Server {
@@ -57,16 +57,16 @@ func New(svc *app.Service, cfg config.Config, log *slog.Logger) *Server {
 			AllowLocal: cfg.AllowLocalTargets,
 			Timeout:    30 * time.Second,
 		}),
-		favicons: favicon.NewWithProxy(cfg.AllowLocalTargets, cfg.FaviconProxyURL),
-		cfg:      cfg,
-		log:      log,
-		rl:       newLimiter(4 * time.Second),
-		authRL:   newBurstLimiter(10, time.Minute),
-		freeKeyRL: newBurstLimiter(3, 10*time.Minute),
-		claimRL:   newBurstLimiter(20, 10*time.Minute),
-		verifyRL:  newBurstLimiter(10, 10*time.Minute),
-		metrics:  newHTTPMetrics(),
-		startedAt: time.Now(),
+		favicons:     favicon.NewWithProxy(cfg.AllowLocalTargets, cfg.FaviconProxyURL),
+		cfg:          cfg,
+		log:          log,
+		rl:           newLimiter(4 * time.Second),
+		authRL:       newBurstLimiter(10, time.Minute),
+		freeKeyRL:    newBurstLimiter(3, 10*time.Minute),
+		claimRL:      newBurstLimiter(20, 10*time.Minute),
+		verifyRL:     newBurstLimiter(10, 10*time.Minute),
+		metrics:      newHTTPMetrics(),
+		startedAt:    time.Now(),
 		providerLast: map[string]string{},
 		reachDown:    map[string]int{},
 		transCache:   map[string]string{},
@@ -98,6 +98,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("PATCH /api/v1/admin/incidents/{id}", s.handleAdminIncidentUpdate)
 	mux.HandleFunc("DELETE /api/v1/admin/incidents/{id}", s.handleAdminIncidentDelete)
 	mux.HandleFunc("GET /api/v1/meta", s.handleMeta)
+	mux.HandleFunc("GET /api/v1/search", s.handleSearch)
 	mux.HandleFunc("GET /api/v1/stations", s.handleStations)
 	mux.HandleFunc("GET /api/v1/stations/{slug}", s.handleStation)
 	mux.HandleFunc("GET /api/v1/reachability.csv", s.handleAllReachabilityCSV)
@@ -302,7 +303,7 @@ func (s *Server) handleMeta(w http.ResponseWriter, r *http.Request) {
 			groups += st.GroupsCount
 		}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	writeJSONCached(w, r, etagOf("meta", lastProbe.String(), strconv.Itoa(stations), strconv.Itoa(groups)), map[string]any{
 		"stations":           stations,
 		"groups":             groups,
 		"models":             counts["models"],
@@ -325,10 +326,11 @@ func (s *Server) handleStations(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	items := app.Filter(d.Stations, q.Get("q"), q.Get("service"), q.Get("tier"), q.Get("sort"))
 	total := len(items)
-	if limit := intParam(q.Get("limit"), 200); limit > 0 && len(items) > limit {
+	limit := intParam(q.Get("limit"), 200)
+	if limit > 0 && len(items) > limit {
 		items = items[:limit]
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	writeJSONCached(w, r, etagOf("stations", d.TakenAt.String(), q.Get("q"), q.Get("service"), q.Get("tier"), q.Get("sort"), strconv.Itoa(limit), strconv.Itoa(total)), map[string]any{
 		"items":         items,
 		"total":         total,
 		"dataUpdatedAt": d.TakenAt,
@@ -467,7 +469,8 @@ func (s *Server) handleStationHistory(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *Server) handleReviews(w http.ResponseWriter, r *http.Request) {	ctx := r.Context()
+func (s *Server) handleReviews(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	slug := r.PathValue("slug")
 	id, err := s.svc.Repo().StationIDBySlug(ctx, slug)
 	if err != nil {
