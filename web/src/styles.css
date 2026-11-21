@@ -2504,3 +2504,10 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 @media (max-width: 900px) {
   .hero-scan { display: none; }
 }
+/* radar pointer parallax layer + interactive backdrop hits */
+.radar-inner { position: absolute; inset: 0; transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
+.wave-point, .price-hit { pointer-events: all; cursor: help; }
+.wave-point:hover { fill: rgba(46, 230, 166, 0.85); }
+@media (prefers-reduced-motion: reduce) {
+  .radar-inner { transition: none; }
+}

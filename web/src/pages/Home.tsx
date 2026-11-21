@@ -67,7 +67,43 @@ export function Home() {
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
   const radarRef = useRef<HTMLDivElement>(null);
+  const radarInnerRef = useRef<HTMLSpanElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   useScrollParallax(radarRef, 0.16, 700);
+
+  // Pointer parallax inside the hero: the radar leans toward the cursor a few
+  // pixels. Desktop pointers only, and never when reduced motion is requested.
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    let raf = 0;
+    let tx = 0;
+    let ty = 0;
+    const onMove = (e: MouseEvent) => {
+      const rect = hero.getBoundingClientRect();
+      tx = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
+      ty = ((e.clientY - rect.top) / rect.height - 0.5) * 10;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const el = radarInnerRef.current;
+        if (el) el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
+      });
+    };
+    const onLeave = () => {
+      const el = radarInnerRef.current;
+      if (el) el.style.transform = 'translate3d(0, 0, 0)';
+    };
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+    return () => {
+      hero.removeEventListener('mousemove', onMove);
+      hero.removeEventListener('mouseleave', onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
   const { ids: watched } = useWatchlist();
 
   useEffect(() => {
@@ -165,16 +201,18 @@ export function Home() {
 
   return (
     <main className="wrap home">
-      <section className="hero">
+      <section className="hero" ref={heroRef}>
         <span className="hero-scan" aria-hidden="true"><i /></span>
         <div className="hero-radar" aria-hidden="true" ref={radarRef}>
-          <span className="hr-ring r1" />
-          <span className="hr-ring r2" />
-          <span className="hr-ring r3" />
-          <span className="hr-sweep" />
-          <span className="hr-blip b1" />
-          <span className="hr-blip b2" />
-          <span className="hr-blip b3" />
+          <span className="radar-inner" ref={radarInnerRef}>
+            <span className="hr-ring r1" />
+            <span className="hr-ring r2" />
+            <span className="hr-ring r3" />
+            <span className="hr-sweep" />
+            <span className="hr-blip b1" />
+            <span className="hr-blip b2" />
+            <span className="hr-blip b3" />
+          </span>
         </div>
         <div className="hero-copy">
           <h1>
