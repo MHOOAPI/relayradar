@@ -28,14 +28,14 @@ type componentHistory struct {
 }
 
 type statusResponse struct {
-	Status     string            `json:"status"`
-	CheckedAt  time.Time         `json:"checkedAt"`
-	StartedAt  time.Time         `json:"startedAt"`
-	UptimeSecs int64             `json:"uptimeSeconds"`
-	Version    string            `json:"version"`
-	Components []statusComponent `json:"components"`
+	Status     string             `json:"status"`
+	CheckedAt  time.Time          `json:"checkedAt"`
+	StartedAt  time.Time          `json:"startedAt"`
+	UptimeSecs int64              `json:"uptimeSeconds"`
+	Version    string             `json:"version"`
+	Components []statusComponent  `json:"components"`
 	History    []componentHistory `json:"history"`
-	Incidents  []store.Incident  `json:"incidents"`
+	Incidents  []store.Incident   `json:"incidents"`
 }
 
 func worstStatus(list []statusComponent) string {
@@ -102,6 +102,25 @@ func (s *Server) collectStatus(ctx context.Context) statusResponse {
 		emailStatus.Detail = "SMTP 未配置，邮件订阅不可用"
 	}
 	comps = append(comps, auditStatus, emailStatus)
+
+	s.snapMu.Lock()
+	snapLast, snapRows, snapErr := s.snapLast, s.snapRows, s.snapErr
+	s.snapMu.Unlock()
+	snapStatus := statusComponent{Key: "price_snapshot", Name: "价格快照", Status: "unknown", Detail: "尚未运行"}
+	switch {
+	case snapErr != "":
+		snapStatus.Status = "degraded"
+		snapStatus.Detail = "最近一次快照失败：" + snapErr
+	case !snapLast.IsZero():
+		age := now.Sub(snapLast)
+		snapStatus.Status = "operational"
+		snapStatus.Detail = fmt.Sprintf("最近 %s 前写入 %d 行", age.Round(time.Minute), snapRows)
+		if age > 26*time.Hour {
+			snapStatus.Status = "degraded"
+			snapStatus.Detail = fmt.Sprintf("已 %s 没有新快照", age.Round(time.Hour))
+		}
+	}
+	comps = append(comps, snapStatus)
 
 	return statusResponse{
 		Status:     worstStatus(comps),

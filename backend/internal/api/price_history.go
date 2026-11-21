@@ -37,6 +37,15 @@ func (s *Server) snapshotPrices(ctx context.Context) {
 	cctx, cancel := context.WithTimeout(ctx, 90*time.Second)
 	defer cancel()
 	n, err := s.svc.Repo().SnapshotPriceDaily(cctx, time.Now().UTC())
+	s.snapMu.Lock()
+	if err != nil {
+		s.snapErr = err.Error()
+	} else {
+		s.snapLast = time.Now().UTC()
+		s.snapRows = n
+		s.snapErr = ""
+	}
+	s.snapMu.Unlock()
 	if err != nil {
 		s.log.Warn("price snapshot failed", "err", err)
 		return
