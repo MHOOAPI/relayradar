@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.60**（站点目录新增「象限图」视图：综合分 × 最低价散点、纯度着色、悬停摘要）
+- 版本：**v0.2.61**（象限图轴标题归位：纵轴标题移到右上角，避免竖排挤压刻度）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

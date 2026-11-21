@@ -80,7 +80,7 @@ export function Quadrant({ stations }: { stations: Station[] }) {
           <text x={PAD_L + 10} y={H - PAD_B - 18} fill="#5f6b7d" fontSize="10">低分低价</text>
           <text x={W - PAD_R - 10} y={H - PAD_B - 18} fill="#5f6b7d" fontSize="10" textAnchor="end">低分高价</text>
           <text x={(PAD_L + W - PAD_R) / 2} y={H - 12} fill="#5f6b7d" fontSize="10" textAnchor="middle" letterSpacing="1">最低输入价（对数）→</text>
-          <text x={14} y={PAD_T + 60} fill="#5f6b7d" fontSize="10" transform={`rotate(-90 14 ${PAD_T + 60})`} textAnchor="middle">综合分 ↑</text>
+          <text x={W - PAD_R} y={PAD_T - 8} fill="#5f6b7d" fontSize="10" textAnchor="end">综合分 ↑</text>
 
           <text x={PAD_L} y={H - 12} fill="#7a8599" fontSize="10" fontFamily="var(--mono)">{fmtCny(Math.min(...pts.map((s) => s.fromPriceCny)))}</text>
           <text x={W - PAD_R} y={H - 12} fill="#7a8599" fontSize="10" textAnchor="end" fontFamily="var(--mono)">{fmtCny(Math.max(...pts.map((s) => s.fromPriceCny)))}/M</text>
