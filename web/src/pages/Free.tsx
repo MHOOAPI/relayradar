@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelSummary } from '../types';
@@ -15,18 +15,63 @@ const CONSOLE: Record<string, string> = {
   xai: 'https://console.x.ai',
 };
 
-const PROGRAMS = [
-  { name: 'Google AI Studio', vendor: 'Google', note: 'Gemini 免费层，按 RPM/RPD 限速；需 Google 账号。', url: 'https://aistudio.google.com' },
-  { name: 'OpenRouter Free', vendor: 'OpenRouter', note: '带 :free 后缀的模型，有速率限制；适合做兼容性测试。', url: 'https://openrouter.ai/models?max_price=0' },
-  { name: 'Groq Console', vendor: 'Groq', note: '开发者免费层，按模型限速；延迟低，适合原型。', url: 'https://console.groq.com' },
-  { name: 'DeepSeek 开放平台', vendor: 'DeepSeek', note: '新账号赠送额度，按官方活动变化。', url: 'https://platform.deepseek.com' },
-  { name: '阿里云百炼', vendor: '阿里通义', note: 'Qwen 系列每日免费额度，需实名与开通。', url: 'https://bailian.console.aliyun.com' },
-  { name: 'Moonshot 开放平台', vendor: 'Moonshot', note: '新账号试用额度，Kimi 系列。', url: 'https://platform.moonshot.cn' },
+type PlanKind = 'free' | 'trial';
+
+const PROGRAMS: Array<{
+  name: string;
+  vendor: string;
+  kind: PlanKind;
+  limit: string;
+  account: string;
+  region: string;
+  noCard: boolean;
+  note: string;
+  url: string;
+}> = [
+  {
+    name: 'Google AI Studio', vendor: 'Google', kind: 'free',
+    limit: '按 RPM / RPD 限速', account: 'Google 账号', region: '全球（部分地区受限）', noCard: true,
+    note: 'Gemini 免费层，额度和限速随模型调整。', url: 'https://aistudio.google.com',
+  },
+  {
+    name: 'OpenRouter Free', vendor: 'OpenRouter', kind: 'free',
+    limit: ':free 模型限速', account: '注册账号', region: '全球', noCard: true,
+    note: '带 :free 后缀的模型，适合做兼容性测试。', url: 'https://openrouter.ai/models?max_price=0',
+  },
+  {
+    name: 'Groq Console', vendor: 'Groq', kind: 'free',
+    limit: '按模型限速', account: '注册账号', region: '全球', noCard: true,
+    note: '开发者免费层，延迟低，适合原型。', url: 'https://console.groq.com',
+  },
+  {
+    name: 'DeepSeek 开放平台', vendor: 'DeepSeek', kind: 'trial',
+    limit: '新账号赠送额度', account: '手机号 / 实名', region: '中国大陆', noCard: false,
+    note: '赠送额度按官方活动变化。', url: 'https://platform.deepseek.com',
+  },
+  {
+    name: '阿里云百炼', vendor: '阿里通义', kind: 'free',
+    limit: 'Qwen 每日免费额度', account: '实名并开通', region: '中国大陆', noCard: false,
+    note: 'Qwen 系列每日额度，超出按量计费。', url: 'https://bailian.console.aliyun.com',
+  },
+  {
+    name: 'Moonshot 开放平台', vendor: 'Moonshot', kind: 'trial',
+    limit: '新账号试用额度', account: '手机号', region: '中国大陆', noCard: false,
+    note: 'Kimi 系列试用额度。', url: 'https://platform.moonshot.cn',
+  },
+];
+
+const PLAN_FILTERS: Array<[string, string]> = [
+  ['all', '全部'],
+  ['free', '免费层'],
+  ['trial', '试用额度'],
+  ['nocard', '无需绑卡'],
+  ['cn', '中国大陆'],
 ];
 
 export function FreePage() {
   const [models, setModels] = useState<ModelSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [planFilter, setPlanFilter] = useState('all');
 
   useEffect(() => {
     api.models()
@@ -34,13 +79,21 @@ export function FreePage() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
+  const plans = useMemo(() => PROGRAMS.filter((p) => {
+    if (planFilter === 'free') return p.kind === 'free';
+    if (planFilter === 'trial') return p.kind === 'trial';
+    if (planFilter === 'nocard') return p.noCard;
+    if (planFilter === 'cn') return p.region.startsWith('中国大陆');
+    return true;
+  }), [planFilter]);
+
   return (
     <main className="wrap">
       <div className="page-head">
         <div>
           <h1>免费额度与试用</h1>
           <p className="sub">
-            两条路：官方免费层与试用额度（自己注册、绑定结算账号），或社区共享 Key（随时可能失效）。
+            两条路：官方免费层与试用额度（自己注册、按官方要求实名或绑卡），或社区共享 Key（随时可能失效）。
             这里只收录官方入口，不放来路不明的 Key。
           </p>
         </div>
@@ -102,18 +155,68 @@ export function FreePage() {
         </section>
       )}
 
-      <section className="panel pad tips-panel">
-        <h2>官方免费计划</h2>
-        <p className="fine" style={{ marginBottom: 10 }}>只收录官方入口，不提供共享 Key；额度与限速以官方页面为准。</p>
-        <div className="free-programs">
-          {PROGRAMS.map((p) => (
-            <div className="free-program" key={p.name}>
-              <b>{p.name}</b>
-              <span className="mono dim tiny">{p.vendor}</span>
-              <p>{p.note}</p>
-              <a className="link-btn" href={p.url} target="_blank" rel="noopener noreferrer nofollow">官方入口 ↗</a>
-            </div>
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>官方免费计划</h2>
+            <p className="sub">只收录官方入口；额度、限速、实名与绑卡要求以官方页面为准。</p>
+          </div>
+          <span className="mono dim">{plans.length} / {PROGRAMS.length}</span>
+        </div>
+        <div className="plan-filters">
+          {PLAN_FILTERS.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              className={`chip ${planFilter === key ? 'on' : ''}`}
+              onClick={() => setPlanFilter(key)}
+            >
+              {label}
+            </button>
           ))}
+        </div>
+        <div className="table-wrap">
+          <table className="index-table plan-table">
+            <thead>
+              <tr>
+                <th>计划</th>
+                <th className="hide-sm">厂商</th>
+                <th>类型</th>
+                <th className="hide-sm">额度 / 限速</th>
+                <th>账号要求</th>
+                <th className="hide-sm">地区</th>
+                <th className="num">入口</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((p) => (
+                <tr key={p.name}>
+                  <td>
+                    <b>{p.name}</b>
+                    <div className="plan-note dim tiny">{p.note}</div>
+                  </td>
+                  <td className="hide-sm dim">{p.vendor}</td>
+                  <td>
+                    <span className={`chip ${p.kind === 'free' ? 'ok' : 'warn'}`}>
+                      {p.kind === 'free' ? '免费层' : '试用额度'}
+                    </span>
+                  </td>
+                  <td className="hide-sm mono dim">{p.limit}</td>
+                  <td>
+                    <span className="mono dim">{p.account}</span>
+                    {p.noCard && <span className="chip tiny-plan-chip">无需绑卡</span>}
+                  </td>
+                  <td className="hide-sm dim">{p.region}</td>
+                  <td className="num">
+                    <a className="link-btn mono" href={p.url} target="_blank" rel="noopener noreferrer nofollow">官方入口 ↗</a>
+                  </td>
+                </tr>
+              ))}
+              {plans.length === 0 && (
+                <tr><td colSpan={7} className="loading">没有符合筛选的官方计划。</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
 

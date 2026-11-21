@@ -18,7 +18,7 @@ const SERVICES: Array<[string, string]> = [
 ];
 
 const TIERS: Array<[string, string]> = [
-  ['all', '不限纯度'],
+  ['all', '全部'],
   ['official', '官方直连'],
   ['mixed', '混合线路'],
   ['counterfeit', '疑似掺假'],
@@ -69,7 +69,7 @@ export function Home() {
     api.models().then((r) => setModels(r.items ?? [])).catch(() => setModels([]));
     const timer = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return;
-      api.stations().then((r) => setStations(r.items)).catch(() => {});
+      api.stations(1000).then((r) => setStations(r.items)).catch(() => {});
       api.meta().then(setMeta).catch(() => {});
     }, 60000);
     return () => window.clearInterval(timer);
@@ -95,7 +95,7 @@ export function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([api.stations(), api.meta()])
+    Promise.all([api.stations(1000), api.meta()])
       .then(([s, m]) => {
         setStations(s.items);
         setMeta(m);
@@ -258,12 +258,14 @@ export function Home() {
             </button>
           ))}
           <span className="chip-sep" />
-          {TIERS.map(([k, label]) => (
-            <button key={k} className={`chip ${tier === k ? 'on' : ''}`} onClick={() => setTier(k)}>
-              {label}
-              <span className="chip-count">{tierCounts[k] ?? 0}</span>
-            </button>
-          ))}
+          <label className="chip-select">
+            <span className="dim">纯度</span>
+            <select value={tier} onChange={(e) => setTier(e.target.value)} aria-label="按纯度筛选">
+              {TIERS.map(([k, label]) => (
+                <option key={k} value={k}>{label}（{tierCounts[k] ?? 0}）</option>
+              ))}
+            </select>
+          </label>
           <span className="chip-sep" />
           <button className={`chip ${onlyWatch ? 'on' : ''}`} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
@@ -293,7 +295,8 @@ export function Home() {
           <div>
             <h2>中转站实时榜单</h2>
             <p className="sub">
-              共 {stations?.length ?? 0} 家 · 展示 {rows.length} 家 · 点击任意行查看分组与完整支持模型
+              共 {stations?.length ?? 0} 家 · 当前 {rows.length} 家
+              {rows.length > shown.length ? `（显示前 ${shown.length}）` : ''} · 点击任意行查看分组与完整支持模型
             </p>
           </div>
           <div className="panel-head-right">
