@@ -200,6 +200,12 @@ export function AlertsPage() {
               </label>
             ))}
           </div>
+          {sub.models && sub.models.length > 0 && (
+            <div className="sub-stations">
+              <span className="dim">仅这些模型：</span>
+              {sub.models.map((id) => <span key={id} className="chip">{id}</span>)}
+            </div>
+          )}
           {kinds.includes('price_change') && (
             <div className="sub-thresholds">
               <label>

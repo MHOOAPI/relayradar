@@ -17,6 +17,7 @@ type Change struct {
 	Severity    string `json:"severity"` // info | warn | critical
 	StationSlug string `json:"stationSlug"`
 	StationName string `json:"stationName"`
+	ModelID     string `json:"modelId,omitempty"`
 	Title       string `json:"title"`
 	Detail      string `json:"detail"`
 	// Numeric payload for price_change events, used by threshold filters.
@@ -178,6 +179,7 @@ func buildChanges(snap *store.Snapshot, history map[string][]HistoryPoint, en bo
 			ID:   fmt.Sprintf("price-%s-%s-%d", st.Slug, k.ModelID, lastP.RecordedAt.Unix()),
 			Kind: "price_change", Severity: sev,
 			StationSlug: st.Slug, StationName: st.Name, At: lastP.RecordedAt,
+			ModelID:  k.ModelID,
 			DeltaPct: delta * 100, PriceCNY: *lastP.InputCNY,
 			Title:  fmt.Sprintf(tr("%s 价格%s", "%s price %s"), groupName, dir),
 			Detail: fmt.Sprintf(tr("%s：输入 ¥%.2f → ¥%.2f（%+.1f%%）", "%s: input ¥%.2f → ¥%.2f (%+.1f%%)"), m.Name, *prevP.InputCNY, *lastP.InputCNY, delta*100),

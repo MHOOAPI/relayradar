@@ -47,6 +47,10 @@ export function ChangesPage() {
     const st = new URLSearchParams(window.location.search).get('station');
     return st ? [st] : [];
   });
+  const [subModels, setSubModels] = useState<string[]>(() => {
+    const m = new URLSearchParams(window.location.search).get('model');
+    return m ? [m] : [];
+  });
   const [subMinDelta, setSubMinDelta] = useState('0');
   const [subMaxPrice, setSubMaxPrice] = useState('0');
   const [creating, setCreating] = useState(false);
@@ -66,6 +70,7 @@ export function ChangesPage() {
         email: channel === 'email' ? email.trim() : '',
         kinds: subKinds,
         stations: Array.from(new Set([...(subWatch ? ids : []), ...subStations])),
+        models: Array.from(new Set(subModels)),
         providers: subProviders,
         minDeltaPct: subKinds.includes('price_change') ? Number(subMinDelta) || 0 : 0,
         maxPriceCny: subKinds.includes('price_change') ? Number(subMaxPrice) || 0 : 0,
@@ -245,6 +250,22 @@ export function ChangesPage() {
                     title="移除"
                   >
                     {slug} ×
+                  </button>
+                ))}
+              </div>
+            )}
+            {subModels.length > 0 && (
+              <div className="sub-stations">
+                <span className="dim">已选择模型：</span>
+                {subModels.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className="chip on"
+                    onClick={() => setSubModels((prev) => prev.filter((x) => x !== id))}
+                    title="移除"
+                  >
+                    {id} ×
                   </button>
                 ))}
               </div>

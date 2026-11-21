@@ -152,7 +152,7 @@ export const api = {
   guides: () => request<{ items: GuideSummary[] }>('/guides'),  guide: (slug: string) => request<GuideDetail>(`/guides/${encodeURIComponent(slug)}`),
   guidesEn: () => request<{ items: GuideEN[] }>('/guides/en'),
   guideEn: (slug: string) => request<GuideEN>(`/guides/en/${encodeURIComponent(slug)}`),
-  subscribe: (body: { channel: 'webhook' | 'email'; url: string; email: string; kinds: string[]; stations: string[]; providers: string[]; minDeltaPct?: number; maxPriceCny?: number }) =>
+  subscribe: (body: { channel: 'webhook' | 'email'; url: string; email: string; kinds: string[]; stations: string[]; models?: string[]; providers: string[]; minDeltaPct?: number; maxPriceCny?: number }) =>
     request<{ id: string; channel: string; url: string; email: string; secret: string; kinds: string[]; stations: string[]; providers: string[] }>('/subscriptions', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -185,7 +185,7 @@ export const api = {
     ),
   getSub: (id: string, token: string) =>
     request<AlertSubscription>(`/subscriptions/${encodeURIComponent(id)}?token=${encodeURIComponent(token)}`),
-  updateSub: (id: string, token: string, patch: { kinds?: string[]; enabled?: boolean; minDeltaPct?: number; maxPriceCny?: number }) =>
+  updateSub: (id: string, token: string, patch: { kinds?: string[]; enabled?: boolean; models?: string[]; minDeltaPct?: number; maxPriceCny?: number }) =>
     request<AlertSubscription>(`/subscriptions/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       headers: { 'X-RelayRadar-Token': token },

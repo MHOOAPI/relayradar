@@ -172,6 +172,7 @@ export interface AlertSubscription {
   email: string;
   kinds: string[];
   stations: string[];
+  models?: string[];
   providers: string[];
   minDeltaPct?: number;
   maxPriceCny?: number;
