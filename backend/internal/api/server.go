@@ -34,6 +34,10 @@ type Server struct {
 	claimRL        *burstLimiter
 	verifyRL       *burstLimiter
 	metrics        *httpMetrics
+	snapMu         sync.Mutex
+	snapLast       time.Time
+	snapRows       int
+	snapErr        string
 	captchaMu      sync.Mutex
 	captcha        map[string]captchaItem
 	captchaKey     []byte

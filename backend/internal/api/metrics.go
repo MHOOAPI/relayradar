@@ -174,4 +174,27 @@ func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(s.metrics.render()))
+
+	s.snapMu.Lock()
+	last, rows, snapErr := s.snapLast, s.snapRows, s.snapErr
+	s.snapMu.Unlock()
+	var b strings.Builder
+	b.WriteString("# HELP relayradar_price_snapshot_last_success_timestamp_seconds Unix time of the last successful daily price snapshot.\n")
+	b.WriteString("# TYPE relayradar_price_snapshot_last_success_timestamp_seconds gauge\n")
+	stamp := int64(0)
+	if !last.IsZero() {
+		stamp = last.Unix()
+	}
+	fmt.Fprintf(&b, "relayradar_price_snapshot_last_success_timestamp_seconds %d\n", stamp)
+	b.WriteString("# HELP relayradar_price_snapshot_rows Rows written by the last price snapshot.\n")
+	b.WriteString("# TYPE relayradar_price_snapshot_rows gauge\n")
+	fmt.Fprintf(&b, "relayradar_price_snapshot_rows %d\n", rows)
+	b.WriteString("# HELP relayradar_price_snapshot_ok 1 when the last snapshot attempt succeeded.\n")
+	b.WriteString("# TYPE relayradar_price_snapshot_ok gauge\n")
+	ok := 1
+	if snapErr != "" {
+		ok = 0
+	}
+	fmt.Fprintf(&b, "relayradar_price_snapshot_ok %d\n", ok)
+	_, _ = w.Write([]byte(b.String()))
 }
