@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 // Decorative, data-derived backdrops for detail pages. Always aria-hidden and
 // pointer-events: none; the content above keeps its own stacking context.
 
-export function WaveBackdrop({ data }: { data: number[] }) {
+export function WaveBackdrop({ data, onPick }: { data: number[]; onPick?: () => void }) {
   const points = useMemo(() => {
     if (!data || data.length < 2) return null;
     return data.map((v, i) => {
@@ -41,17 +41,36 @@ export function WaveBackdrop({ data }: { data: number[] }) {
           r={2.4}
           fill="transparent"
           pointerEvents="all"
+          onClick={onPick}
+          role={onPick ? 'button' : undefined}
+          tabIndex={onPick ? 0 : undefined}
+          onKeyDown={(e) => {
+            if (!onPick) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onPick();
+            }
+          }}
         >
-          <title>{p.v < 0 ? `近 14 天第 ${p.i + 1} 天 · 无数据` : `近 14 天第 ${p.i + 1} 天 · ${p.v}%`}</title>
+          <title>
+            {p.v < 0 ? `近 14 天第 ${p.i + 1} 天 · 无数据` : `近 14 天第 ${p.i + 1} 天 · ${p.v}%`}
+            {onPick ? ' · 点击看 30 天趋势' : ''}
+          </title>
         </circle>
       ))}
     </svg>
   );
 }
 
-export type PriceSample = { price: number; multiplier: number; station?: string };
+export type PriceSample = { price: number; multiplier: number; station?: string; slug?: string };
 
-export function PriceTexture({ offers }: { offers: PriceSample[] }) {
+export function PriceTexture({
+  offers,
+  onPick,
+}: {
+  offers: PriceSample[];
+  onPick?: (slug: string) => void;
+}) {
   const bars = useMemo(() => {
     const list = offers.filter((o) => o.price > 0).sort((a, b) => a.price - b.price);
     if (list.length === 0) return [];
@@ -69,6 +88,7 @@ export function PriceTexture({ offers }: { offers: PriceSample[] }) {
         x: i,
         h: 8 + (Math.log10(o.price + 1) / Math.log10(cheap * 4 + 1)) * 88,
         alpha: o.price === cheap ? 0.34 : alpha,
+        slug: o.slug,
         label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}`,
       };
     });
@@ -86,8 +106,26 @@ export function PriceTexture({ offers }: { offers: PriceSample[] }) {
             height={Math.min(100, b.h)}
             fill={`rgba(46,230,166,${b.alpha.toFixed(2)})`}
           />
-          <rect className="price-hit" x={b.x} y={0} width={1} height={100} fill="transparent" pointerEvents="all">
-            <title>{b.label}</title>
+          <rect
+            className="price-hit"
+            x={b.x}
+            y={0}
+            width={1}
+            height={100}
+            fill="transparent"
+            pointerEvents="all"
+            onClick={() => b.slug && onPick?.(b.slug)}
+            role={b.slug && onPick ? 'button' : undefined}
+            tabIndex={b.slug && onPick ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (!b.slug || !onPick) return;
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onPick(b.slug);
+              }
+            }}
+          >
+            <title>{b.label}{b.slug && onPick ? ' · 点击查看该站点' : ''}</title>
           </rect>
         </g>
       ))}
