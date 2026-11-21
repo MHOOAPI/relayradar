@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import type { Meta } from '../types';
-import { fmtDateTime, Logo } from './ui';
+import { fmtDateTime, Logo, Spinner } from './ui';
 import { CommandPalette } from './CommandPalette';
 import { useAuth } from '../lib/auth';
 
@@ -193,10 +193,11 @@ export function Layout() {
         );
       })()}
 
-      <div className="route-fade" key={pathname}>
-        <Outlet />
-      </div>
-
+      <Suspense fallback={<div className="wrap loading-page"><Spinner /> 正在加载…</div>}>
+        <div className="route-fade" key={pathname}>
+          <Outlet />
+        </div>
+      </Suspense>
 
       <footer className="footer">
         <div className="wrap footer-grid">
