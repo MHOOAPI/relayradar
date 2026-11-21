@@ -43,6 +43,10 @@ export function ChangesPage() {
   const [subKinds, setSubKinds] = useState<string[]>(SUB_KINDS);
   const [subProviders, setSubProviders] = useState<string[]>([]);
   const [subWatch, setSubWatch] = useState(false);
+  const [subStations, setSubStations] = useState<string[]>(() => {
+    const st = new URLSearchParams(window.location.search).get('station');
+    return st ? [st] : [];
+  });
   const [subMinDelta, setSubMinDelta] = useState('0');
   const [subMaxPrice, setSubMaxPrice] = useState('0');
   const [creating, setCreating] = useState(false);
@@ -61,7 +65,7 @@ export function ChangesPage() {
         url: channel === 'webhook' ? hookUrl.trim() : '',
         email: channel === 'email' ? email.trim() : '',
         kinds: subKinds,
-        stations: subWatch ? ids : [],
+        stations: Array.from(new Set([...(subWatch ? ids : []), ...subStations])),
         providers: subProviders,
         minDeltaPct: subKinds.includes('price_change') ? Number(subMinDelta) || 0 : 0,
         maxPriceCny: subKinds.includes('price_change') ? Number(subMaxPrice) || 0 : 0,
@@ -228,6 +232,22 @@ export function ChangesPage() {
                 <input type="checkbox" checked={subWatch} onChange={(e) => setSubWatch(e.target.checked)} />
                 只推送关注列表（{ids.length} 家）
               </label>
+            )}
+            {subStations.length > 0 && (
+              <div className="sub-stations">
+                <span className="dim">已选择站点：</span>
+                {subStations.map((slug) => (
+                  <button
+                    key={slug}
+                    type="button"
+                    className="chip on"
+                    onClick={() => setSubStations((prev) => prev.filter((x) => x !== slug))}
+                    title="移除"
+                  >
+                    {slug} ×
+                  </button>
+                ))}
+              </div>
             )}
             <div className="subscribe-actions">
               <button className="btn btn-primary btn-sm" disabled={creating || subKinds.length === 0}>

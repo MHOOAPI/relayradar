@@ -316,18 +316,23 @@ export function StationPage() {
             <h2>本站价格走势</h2>
             <p className="sub">每天记录一次该站该模型的最低输入价；系统从部署当天开始积累。</p>
           </div>
-          <label className="chip-select">
-            <span className="dim">模型</span>
-            <select
-              value={priceModel}
-              onChange={(e) => { setPriceModel(e.target.value); setPriceHistory([]); }}
-              aria-label="选择模型"
-            >
-              {models.slice(0, 60).map((m) => (
-                <option key={m.model.id} value={m.model.id}>{m.model.name}</option>
-              ))}
-            </select>
-          </label>
+          <div className="panel-head-right">
+            <label className="chip-select">
+              <span className="dim">模型</span>
+              <select
+                value={priceModel}
+                onChange={(e) => { setPriceModel(e.target.value); setPriceHistory([]); }}
+                aria-label="选择模型"
+              >
+                {models.slice(0, 60).map((m) => (
+                  <option key={m.model.id} value={m.model.id}>{m.model.name}</option>
+                ))}
+              </select>
+            </label>
+            <Link className="btn btn-ghost btn-xs" to={`/changes?subscribe=1&station=${encodeURIComponent(s.slug)}`}>
+              订阅该站降价提醒
+            </Link>
+          </div>
         </div>
         {priceHistory.length >= 2 ? (
           <div className="price-trend-chart">
