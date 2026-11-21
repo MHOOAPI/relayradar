@@ -62,7 +62,7 @@ export function WaveBackdrop({ data, onPick }: { data: number[]; onPick?: () => 
   );
 }
 
-export type PriceSample = { price: number; multiplier: number; station?: string; slug?: string; tier?: string };
+export type PriceSample = { price: number; multiplier: number; station?: string; slug?: string; tier?: string; rank?: number };
 
 const TIER_RGB: Record<string, string> = {
   official: '46,230,166',
@@ -97,14 +97,15 @@ export function PriceTexture({
     const cheap = picked[0]?.price ?? 0;
     return picked.map((o, i) => {
       const norm = maxMult > minMult ? (o.multiplier - minMult) / (maxMult - minMult) : 0.5;
-      const alpha = 0.06 + (1 - norm) * 0.16;
+      const rankBonus = o.rank && o.rank > 0 ? Math.max(0, 1 - Math.min(o.rank, 300) / 300) * 0.08 : 0;
+      const alpha = 0.06 + (1 - norm) * 0.16 + rankBonus;
       return {
         x: i,
         h: 8 + (Math.log10(o.price + 1) / Math.log10(cheap * 4 + 1)) * 88,
         alpha: o.price === cheap ? 0.34 : alpha,
         slug: o.slug,
         rgb: TIER_RGB[o.tier ?? 'unknown'] ?? TIER_RGB.unknown,
-        label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}${o.tier ? ` · ${TIER_LABEL[o.tier] ?? o.tier}` : ''}`,
+        label: `¥${o.price.toFixed(2)}/M · ${o.multiplier.toFixed(2)}×${o.station ? ` · ${o.station}` : ''}${o.tier ? ` · ${TIER_LABEL[o.tier] ?? o.tier}` : ''}${o.rank ? ` · #${o.rank}` : ''}`,
       };
     });
   }, [offers]);

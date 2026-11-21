@@ -136,7 +136,7 @@ export function ModelPage() {
 
       <section className="panel detail-head model-hero has-wave">
         <PriceTexture
-          offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier, station: o.stationName, slug: o.stationSlug, tier: o.purityTier }))}
+          offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier, station: o.stationName, slug: o.stationSlug, tier: o.purityTier, rank: o.stationRank }))}
           onPick={(slug) => navigate(`/stations/${slug}`)}
         />
         <div className="detail-main">

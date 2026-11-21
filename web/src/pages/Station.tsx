@@ -358,18 +358,64 @@ export function StationPage() {
               />
               {dayPick !== null && hist[dayPick] && (() => {
                 const p = hist[dayPick];
-                const prev = hist[dayPick - 1];
-                const d = prev ? p.score - prev.score : 0;
+                const window = hist.slice(Math.max(0, dayPick - 7), dayPick);
+                const avg = window.length
+                  ? {
+                      score: window.reduce((a, h) => a + h.score, 0) / window.length,
+                      availability: window.reduce((a, h) => a + h.availability, 0) / window.length,
+                      speed: window.reduce((a, h) => a + h.speed, 0) / window.length,
+                      consistency: window.reduce((a, h) => a + h.consistency, 0) / window.length,
+                      uptime: window.reduce((a, h) => a + h.uptime, 0) / window.length,
+                    }
+                  : null;
+                const metrics: Array<[string, number, number | undefined, string]> = [
+                  ['综合分', p.score, avg?.score, ''],
+                  ['可用性', p.availability, avg?.availability, ''],
+                  ['速度', p.speed, avg?.speed, ''],
+                  ['稳定性', p.consistency, avg?.consistency, ''],
+                  ['可用率', p.uptime, avg?.uptime, '%'],
+                ];
+                const spark = hist.slice(Math.max(0, dayPick - 6), dayPick + 1);
+                const sparkScores = spark.map((h) => h.score);
+                const sparkLo = Math.min(...sparkScores);
+                const sparkHi = Math.max(...sparkScores);
                 return (
                   <div className="trend-day">
-                    <span className="mono">{p.date}</span>
-                    <span>综合分 <b className="mono">{p.score.toFixed(1)}</b></span>
-                    <span>可用性 <b className="mono">{p.availability.toFixed(1)}</b></span>
-                    <span>速度 <b className="mono">{p.speed.toFixed(1)}</b></span>
-                    <span>稳定性 <b className="mono">{p.consistency.toFixed(1)}</b></span>
-                    <span>可用率 <b className="mono">{p.uptime.toFixed(1)}%</b></span>
-                    <span className="dim">较前一日 {d >= 0 ? '+' : ''}{d.toFixed(1)}</span>
-                    <button type="button" className="link-btn" onClick={() => setDayPick(null)}>收起</button>
+                    <div className="td-head">
+                      <span className="mono">{p.date}</span>
+                      <span className="dim">
+                        {avg ? `较前 ${window.length} 日均值` : '没有更早的数据可比'}
+                      </span>
+                      <button type="button" className="link-btn" onClick={() => setDayPick(null)}>收起</button>
+                    </div>
+                    <div className="td-grid">
+                      {metrics.map(([label, value, base, unit]) => {
+                        const delta = base !== undefined ? value - base : null;
+                        return (
+                          <div className="td-metric" key={label}>
+                            <span className="dim">{label}</span>
+                            <b className="mono">{value.toFixed(1)}{unit}</b>
+                            {delta !== null ? (
+                              <i className={`td-delta ${delta >= 0 ? 'up' : 'down'}`}>
+                                {delta >= 0 ? '+' : ''}{delta.toFixed(1)}
+                              </i>
+                            ) : <i className="td-delta dim">—</i>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="td-spark">
+                      <span className="dim tiny">近 {spark.length} 天综合分</span>
+                      <div className="td-bars" aria-hidden="true">
+                        {spark.map((h, i) => (
+                          <i
+                            key={h.date}
+                            className={i === spark.length - 1 ? 'on' : ''}
+                            style={{ height: `${20 + (sparkHi > sparkLo ? ((h.score - sparkLo) / (sparkHi - sparkLo)) * 80 : 50)}%` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
