@@ -34,7 +34,16 @@ export function StationPage() {
   const [metric, setMetric] = useState<'score' | 'availability' | 'speed' | 'consistency'>('score');
   const [allStations, setAllStations] = useState<Station[]>([]);
   const waveRef = useRef<HTMLDivElement>(null);
+  const trendRef = useRef<HTMLDivElement>(null);
+  const [flash, setFlash] = useState(false);
   useScrollParallax(waveRef, 0.05, 900);
+
+  const focusTrend = () => {
+    const smooth = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    trendRef.current?.scrollIntoView({ behavior: smooth, block: 'start' });
+    setFlash(true);
+    window.setTimeout(() => setFlash(false), 1400);
+  };
 
   const [author, setAuthor] = useState('');
   const [rating, setRating] = useState(5);
@@ -186,6 +195,7 @@ export function StationPage() {
                 <CopyIcon />
                 复制 Base URL
               </button>
+              <button type="button" className="link-btn" onClick={focusTrend}>近 14 天趋势 →</button>
             </div>
           </div>
         </div>
@@ -318,7 +328,7 @@ export function StationPage() {
           ['consistency', '稳定性'],
         ];
         return (
-          <section className="panel trend-panel">
+          <section className={`panel trend-panel${flash ? ' flash' : ''}`} ref={trendRef} id="trend">
             <div className="panel-head">
               <div>
                 <h2>近 30 天趋势</h2>

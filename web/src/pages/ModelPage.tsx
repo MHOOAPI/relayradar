@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelProviderStatus, ModelSummary, Offer, PriceChange } from '../types';
 import { fmtCny, fmtDate, fmtUsd, Spinner, TierBadge } from '../components/ui';
@@ -33,6 +33,7 @@ function ScoreBar({ label, value, note }: { label: string; value: number; note: 
 
 export function ModelPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [model, setModel] = useState<ModelSummary | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [priceChanges, setPriceChanges] = useState<PriceChange[]>([]);
@@ -134,7 +135,10 @@ export function ModelPage() {
       )}
 
       <section className="panel detail-head model-hero has-wave">
-        <PriceTexture offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier, station: o.stationName }))} />
+        <PriceTexture
+          offers={offers.map((o) => ({ price: o.inputCny, multiplier: o.multiplier, station: o.stationName, slug: o.stationSlug }))}
+          onPick={(slug) => navigate(`/stations/${slug}`)}
+        />
         <div className="detail-main">
           <VendorMark vendor={model.vendor} size={54} />
           <div>

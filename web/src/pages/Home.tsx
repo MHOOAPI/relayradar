@@ -69,6 +69,7 @@ export function Home() {
   const radarRef = useRef<HTMLDivElement>(null);
   const radarInnerRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const heroCardRef = useRef<HTMLDivElement>(null);
   useScrollParallax(radarRef, 0.16, 700);
 
   // Pointer parallax inside the hero: the radar leans toward the cursor a few
@@ -90,11 +91,15 @@ export function Home() {
         raf = 0;
         const el = radarInnerRef.current;
         if (el) el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
+        const card = heroCardRef.current;
+        if (card) card.style.transform = `translate3d(${(-tx * 0.35).toFixed(1)}px, ${(-ty * 0.35).toFixed(1)}px, 0)`;
       });
     };
     const onLeave = () => {
       const el = radarInnerRef.current;
       if (el) el.style.transform = 'translate3d(0, 0, 0)';
+      const card = heroCardRef.current;
+      if (card) card.style.transform = 'translate3d(0, 0, 0)';
     };
     hero.addEventListener('mousemove', onMove);
     hero.addEventListener('mouseleave', onLeave);
@@ -247,7 +252,7 @@ export function Home() {
           <a className="hero-scroll mono" href="#ranking">向下看完整榜单 <span aria-hidden="true">↓</span></a>
         </div>
 
-        <div className="hero-card">
+        <div className="hero-card" ref={heroCardRef}>
           <div className="hero-card-head">
             <span className="mono label">评分构成</span>
             <span className="mono tag-live">v2.0</span>
