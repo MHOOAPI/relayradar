@@ -266,7 +266,6 @@ export function StationPage() {
             </div>
             <div className="pp-scale mono dim">
               <span>¥{priceMin.toFixed(2)}</span>
-              <span>中位 ¥{priceMedian.toFixed(2)}</span>
               <span>¥{priceMax.toFixed(2)}</span>
             </div>
             <p className="pp-note">
