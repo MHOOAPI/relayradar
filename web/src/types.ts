@@ -173,6 +173,8 @@ export interface AlertSubscription {
   kinds: string[];
   stations: string[];
   providers: string[];
+  minDeltaPct?: number;
+  maxPriceCny?: number;
   enabled: boolean;
   attempts: number;
   lastError: string;

@@ -25,6 +25,8 @@ export function AlertsPage() {
   const [sub, setSub] = useState<AlertSubscription | null>(null);
   const [kinds, setKinds] = useState<string[]>([]);
   const [enabled, setEnabled] = useState(true);
+  const [minDelta, setMinDelta] = useState('0');
+  const [maxPrice, setMaxPrice] = useState('0');
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
@@ -46,6 +48,8 @@ export function AlertsPage() {
         setSub(s);
         setKinds(s.kinds);
         setEnabled(s.enabled);
+        setMinDelta(String(s.minDeltaPct ?? 0));
+        setMaxPrice(String(s.maxPriceCny ?? 0));
       })
       .catch((e: Error) => setError(e.message));
     loadDeliveries();
@@ -55,7 +59,11 @@ export function AlertsPage() {
     setBusy(true);
     setMsg('');
     try {
-      const s = await api.updateSub(id, token, { kinds, enabled });
+      const s = await api.updateSub(id, token, {
+        kinds, enabled,
+        minDeltaPct: Number(minDelta) || 0,
+        maxPriceCny: Number(maxPrice) || 0,
+      });
       setSub(s);
       setMsg('已保存');
     } catch (e) {
@@ -192,6 +200,27 @@ export function AlertsPage() {
               </label>
             ))}
           </div>
+          {kinds.includes('price_change') && (
+            <div className="sub-thresholds">
+              <label>
+                <span>跌幅至少</span>
+                <input
+                  type="number" min={0} max={100} step={0.5}
+                  value={minDelta} onChange={(e) => setMinDelta(e.target.value)}
+                />
+                <span className="dim">%</span>
+              </label>
+              <label>
+                <span>新价格不高于</span>
+                <input
+                  type="number" min={0} step={0.01}
+                  value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)}
+                />
+                <span className="dim">元 / 1M</span>
+              </label>
+              <span className="fine">0 表示不限制；两项可以只填一个。</span>
+            </div>
+          )}
           <label className="check-inline">
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
             启用投递（取消勾选即暂停，保留订阅）

@@ -495,6 +495,9 @@ func (m *Memory) UpdateSubscription(ctx context.Context, sub Subscription) error
 	}
 	cur.Kinds = sub.Kinds
 	cur.Stations = sub.Stations
+	cur.Providers = sub.Providers
+	cur.MinDeltaPct = sub.MinDeltaPct
+	cur.MaxPriceCNY = sub.MaxPriceCNY
 	cur.Enabled = sub.Enabled
 	m.subscriptions[sub.ID] = cur
 	return nil

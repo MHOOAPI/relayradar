@@ -12,14 +12,17 @@ import (
 
 // Change is one item in the public change feed.
 type Change struct {
-	ID          string    `json:"id"`
-	Kind        string    `json:"kind"`     // new_station | purity_alert | availability_drop | price_change | score_drop
-	Severity    string    `json:"severity"` // info | warn | critical
-	StationSlug string    `json:"stationSlug"`
-	StationName string    `json:"stationName"`
-	Title       string    `json:"title"`
-	Detail      string    `json:"detail"`
-	At          time.Time `json:"at"`
+	ID          string `json:"id"`
+	Kind        string `json:"kind"`     // new_station | purity_alert | availability_drop | price_change | score_drop
+	Severity    string `json:"severity"` // info | warn | critical
+	StationSlug string `json:"stationSlug"`
+	StationName string `json:"stationName"`
+	Title       string `json:"title"`
+	Detail      string `json:"detail"`
+	// Numeric payload for price_change events, used by threshold filters.
+	DeltaPct float64   `json:"deltaPct,omitempty"`
+	PriceCNY float64   `json:"priceCny,omitempty"`
+	At       time.Time `json:"at"`
 }
 
 // buildChanges derives the feed from data we already measure: new listings,
@@ -172,9 +175,10 @@ func buildChanges(snap *store.Snapshot, history map[string][]HistoryPoint, en bo
 			groupName = strings.ReplaceAll(groupName, "默认组", "default")
 		}
 		out = append(out, Change{
-			ID: fmt.Sprintf("price-%s-%s-%d", st.Slug, k.ModelID, lastP.RecordedAt.Unix()),
+			ID:   fmt.Sprintf("price-%s-%s-%d", st.Slug, k.ModelID, lastP.RecordedAt.Unix()),
 			Kind: "price_change", Severity: sev,
 			StationSlug: st.Slug, StationName: st.Name, At: lastP.RecordedAt,
+			DeltaPct: delta * 100, PriceCNY: *lastP.InputCNY,
 			Title:  fmt.Sprintf(tr("%s 价格%s", "%s price %s"), groupName, dir),
 			Detail: fmt.Sprintf(tr("%s：输入 ¥%.2f → ¥%.2f（%+.1f%%）", "%s: input ¥%.2f → ¥%.2f (%+.1f%%)"), m.Name, *prevP.InputCNY, *lastP.InputCNY, delta*100),
 		})

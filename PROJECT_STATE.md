@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.52**（快照写入 price_history：价格变动事件与价格提醒接通）
+- 版本：**v0.2.53**（价格提醒阈值：跌幅下限与新价格上限，含 API/表单/投递过滤）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
