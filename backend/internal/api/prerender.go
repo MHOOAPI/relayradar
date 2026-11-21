@@ -1094,16 +1094,23 @@ func (s *Server) bodyFree(d *app.Dataset) template.HTML {
 			fmt.Sprintf("¥%.2f", m.MinInputCNY),
 		})
 	}
-	return template.HTML(`<article><h1>免费额度目录</h1><p>官方免费层与赠送额度，附限速与绑卡要求；只收录官方入口。</p>` +
-		string(tableHTML([]string{"模型", "免费额度", "官方价/1M", "中转最低"}, rows)) +
-		`<h2>官方免费计划</h2><ul>
+	var b strings.Builder
+	b.WriteString(`<article><h1>免费额度与试用</h1><p>官方免费层与试用额度，只收录官方入口；额度、限速与绑卡要求以官方页面为准。没有免费层时，也可以领社区共享 Key，但随时可能失效。</p>`)
+	if len(rows) > 0 {
+		fmt.Fprintf(&b, `<h2>目录内带免费层的模型（%d）</h2>`, len(rows))
+		b.WriteString(string(tableHTML([]string{"模型", "免费额度", "官方价/1M", "中转最低"}, rows)))
+	} else {
+		b.WriteString(`<p>当前目录还没有标记免费层的模型；免费层通常按月调整，下面保留官方入口。</p>`)
+	}
+	b.WriteString(`<h2>官方免费计划</h2><ul>
 <li><a href="https://aistudio.google.com" rel="nofollow noopener">Google AI Studio</a> — Gemini 免费层，按 RPM/RPD 限速</li>
 <li><a href="https://openrouter.ai/models?max_price=0" rel="nofollow noopener">OpenRouter Free</a> — 带 :free 后缀的模型，有限速</li>
 <li><a href="https://console.groq.com" rel="nofollow noopener">Groq Console</a> — 开发者免费层</li>
 <li><a href="https://platform.deepseek.com" rel="nofollow noopener">DeepSeek 开放平台</a> — 新账号赠送额度</li>
 <li><a href="https://bailian.console.aliyun.com" rel="nofollow noopener">阿里云百炼</a> — Qwen 每日免费额度</li>
 <li><a href="https://platform.moonshot.cn" rel="nofollow noopener">Moonshot 开放平台</a> — 新账号试用额度</li>
-</ul><p>额度与限速以官方页面为准；不提供共享 Key。</p></article>`)
+</ul><p>额度与限速以官方页面为准；也可以查看 <a href="/free-api-keys">社区共享 Key</a>（随时可能失效）。</p></article>`)
+	return template.HTML(b.String())
 }
 
 func countGroups(d *app.Dataset) int {

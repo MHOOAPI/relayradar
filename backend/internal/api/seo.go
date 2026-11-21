@@ -529,8 +529,8 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 		}, true
 	case "/free":
 		return pageMeta{
-			Title:     "免费额度目录 · 官方免费层与赠送额度 | RelayRadar",
-			Desc:      "主流模型的官方免费层、赠送额度、限速与绑卡要求，附使用建议。",
+			Title:     "免费额度与试用：官方免费层 + 社区共享 Key | RelayRadar",
+			Desc:      "主流厂商的官方免费层与试用额度（Gemini、Groq、DeepSeek、Qwen、Kimi 等），附使用建议；另有社区共享 Key 入口。",
 			Canonical: base + path,
 		}, true
 	case "/methodology":

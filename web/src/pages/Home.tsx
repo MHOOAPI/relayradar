@@ -4,6 +4,7 @@ import { api } from '../api';
 import type { Change, Meta, ModelSummary, Station } from '../types';
 import { Arrow, fmtCny, fmtNum, TierBadge, UptimeBars, WatchStar } from '../components/ui';
 import { StationMark } from '../components/marks';
+import { serviceLabel } from '../lib/services';
 import { KeyCheck } from '../components/KeyCheck';
 import { useWatchlist } from '../lib/watchlist';
 
@@ -31,14 +32,6 @@ const SORTS: Array<[string, string]> = [
   ['models', '模型数'],
 ];
 
-const SERVICE_LABEL: Record<string, string> = {  claude: 'Claude',
-  openai: 'OpenAI',
-  gemini: 'Gemini',
-  deepseek: 'DeepSeek',
-  xai: 'Grok',
-  moonshot: 'Kimi',
-  qwen: 'Qwen',
-};
 
 const CHANGE_LABEL: Record<string, string> = {
   price_change: '价格',
@@ -365,10 +358,13 @@ export function Home() {
                     </div>
                   </td>
                   <td className="hide-md">
-                    <div className="services">
-                      {s.services.map((sv) => (
-                        <span key={sv} className="svc">{SERVICE_LABEL[sv] ?? sv}</span>
+                    <div className="services compact" title={s.services.map(serviceLabel).join(' / ')}>
+                      {s.services.slice(0, 2).map((sv) => (
+                        <span key={sv} className="svc">{serviceLabel(sv)}</span>
                       ))}
+                      {s.services.length > 2 && (
+                        <span className="svc-more mono">+{s.services.length - 2}</span>
+                      )}
                     </div>
                   </td>
                   <td
