@@ -7,6 +7,7 @@ import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
 import { SERVICE_LABEL, SERVICE_VENDOR } from '../lib/services';
 import { usePointerGlow } from '../lib/parallax';
+import { Quadrant } from '../components/Quadrant';
 
 
 const healthOf = (s: Station) => {
@@ -24,7 +25,7 @@ const reachInfo = (r: Station['reachability']) => {
 };
 
 export function StationsPage() {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [stations, setStations] = useState<Station[] | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   usePointerGlow(tableRef, !!stations);
@@ -33,6 +34,12 @@ export function StationsPage() {
   const [onlyClaimed, setOnlyClaimed] = useState(false);
   const [minModels, setMinModels] = useState(0);
   const [onlyReachable, setOnlyReachable] = useState(false);
+  const view = params.get('view') === 'quadrant' ? 'quadrant' : 'list';
+  const setView = (next: 'list' | 'quadrant') => {
+    const p = new URLSearchParams(params);
+    if (next === 'quadrant') p.set('view', 'quadrant'); else p.delete('view');
+    setParams(p, { replace: true });
+  };
   const [totalModels, setTotalModels] = useState(0);
   const [modelList, setModelList] = useState<Array<{ id: string; name: string }>>([]);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -176,12 +183,29 @@ export function StationsPage() {
             <option value="reviews">按评价数</option>
             <option value="reach">按可达延迟</option>
           </select>
+          <div className="view-toggle" role="group" aria-label="视图切换">
+            <button type="button" className={view === 'list' ? 'on' : ''} aria-pressed={view === 'list'} onClick={() => setView('list')}>列表</button>
+            <button type="button" className={view === 'quadrant' ? 'on' : ''} aria-pressed={view === 'quadrant'} onClick={() => setView('quadrant')}>象限图</button>
+          </div>
         </div>
       </div>
 
       {error && <div className="error-box">{error}</div>}
 
-      <section className="panel glow-surface" ref={tableRef}>
+      {view === 'quadrant' && (
+        <section className="panel quadrant-panel">
+          <div className="panel-head">
+            <div>
+              <h2>综合分 × 最低价 象限图</h2>
+              <p className="sub">横轴为各站最低输入价（对数刻度，越左越便宜），纵轴为综合分；左上角是高分低价区。点任意站点进入档案。</p>
+            </div>
+            <span className="mono dim">{rows.length} 家</span>
+          </div>
+          <Quadrant stations={rows} />
+        </section>
+      )}
+
+      <section className="panel glow-surface" ref={tableRef} style={view === 'quadrant' ? { display: 'none' } : undefined}>
         <div className="table-wrap dir-table">
           <table className="index-table">
             <thead>
@@ -311,7 +335,7 @@ export function StationsPage() {
         </div>
       </section>
 
-      {rows.length > shown.length && (
+      {view === 'list' && rows.length > shown.length && (
         <div className="list-more">
           <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 120)}>
             显示更多站点
