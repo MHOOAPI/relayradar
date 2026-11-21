@@ -1157,7 +1157,7 @@ select:hover { border-color: #303a49; }
 .station-mark { position: relative; }
 .station-mark-img {
   position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px);
-  object-fit: contain; border-radius: 6px; background: #0b0e13;
+  object-fit: contain; border-radius: 6px; background: transparent;
 }
 
 .ref-sep { height: 1px; background: var(--line); margin: 6px 8px; }
