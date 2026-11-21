@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.44**（价格纹理按纯度分层着色、趋势图点选当日明细、表格指针跟随微光；含 v0.2.43 的点击穿透）
+- 版本：**v0.2.45**（当日明细加前 7 日均值与迷你柱、纹理亮度融入站点排名、面板微光随可见度衰减）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
