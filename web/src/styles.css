@@ -2596,3 +2596,6 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   border: 1px solid var(--line-2); background: var(--panel-2); color: var(--text);
   font-family: var(--mono); font-size: 12px;
 }
+/* station-scoped subscription chips */
+.sub-stations { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 0; }
+.sub-stations .chip { font-family: var(--mono); font-size: 11px; }
