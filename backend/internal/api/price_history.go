@@ -4,7 +4,10 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+
+	"relayradar/internal/store"
 )
 
 // StartPriceSnapshots records one price snapshot per day so the model pages can
@@ -41,6 +44,22 @@ func (s *Server) snapshotPrices(ctx context.Context) {
 	s.log.Info("price snapshot written", "rows", n)
 }
 
+type pricePoint struct {
+	Day          string  `json:"day"`
+	MinInputCNY  float64 `json:"minInputCny"`
+	MinOutputCNY float64 `json:"minOutputCny"`
+	Stations     int     `json:"stations"`
+	Offers       int     `json:"offers"`
+}
+
+func pricePointsJSON(points []store.PriceDailyPoint) []pricePoint {
+	out := make([]pricePoint, 0, len(points))
+	for _, p := range points {
+		out = append(out, pricePoint{p.Day.Format("2006-01-02"), p.MinInputCNY, p.MinOutputCNY, p.Stations, p.Offers})
+	}
+	return out
+}
+
 func (s *Server) handleModelPriceHistory(w http.ResponseWriter, r *http.Request) {
 	setPublicCache(w)
 	id := r.PathValue("id")
@@ -62,21 +81,52 @@ func (s *Server) handleModelPriceHistory(w http.ResponseWriter, r *http.Request)
 		s.fail(w, http.StatusInternalServerError, err)
 		return
 	}
-	type point struct {
-		Day          string  `json:"day"`
-		MinInputCNY  float64 `json:"minInputCny"`
-		MinOutputCNY float64 `json:"minOutputCny"`
-		Stations     int     `json:"stations"`
-		Offers       int     `json:"offers"`
-	}
-	out := make([]point, 0, len(points))
-	for _, p := range points {
-		out = append(out, point{p.Day.Format("2006-01-02"), p.MinInputCNY, p.MinOutputCNY, p.Stations, p.Offers})
-	}
+	out := pricePointsJSON(points)
 	etag := etagOf("price-history", id, strconv.Itoa(days), strconv.Itoa(len(out)))
 	writeJSONCached(w, r, etag, map[string]any{
 		"modelId": id,
 		"days":    days,
 		"points":  out,
+	})
+}
+
+func (s *Server) handleStationPriceHistory(w http.ResponseWriter, r *http.Request) {
+	setPublicCache(w)
+	slug := r.PathValue("slug")
+	q := r.URL.Query()
+	modelID := strings.TrimSpace(q.Get("model"))
+	days := intParam(q.Get("days"), 90)
+	if days < 1 || days > 365 {
+		days = 90
+	}
+	d, err := s.svc.Dataset(r.Context())
+	if err != nil {
+		s.fail(w, http.StatusInternalServerError, err)
+		return
+	}
+	if _, ok := d.BySlug[slug]; !ok {
+		writeError(w, http.StatusNotFound, "station not found")
+		return
+	}
+	if modelID == "" {
+		writeError(w, http.StatusBadRequest, "model is required")
+		return
+	}
+	if _, ok := d.ModelByID[modelID]; !ok {
+		writeError(w, http.StatusNotFound, "model not found")
+		return
+	}
+	points, err := s.svc.Repo().StationPriceHistory(r.Context(), slug, modelID, days)
+	if err != nil {
+		s.fail(w, http.StatusInternalServerError, err)
+		return
+	}
+	out := pricePointsJSON(points)
+	etag := etagOf("station-price-history", slug, modelID, strconv.Itoa(days), strconv.Itoa(len(out)))
+	writeJSONCached(w, r, etag, map[string]any{
+		"stationSlug": slug,
+		"modelId":     modelID,
+		"days":        days,
+		"points":      out,
 	})
 }

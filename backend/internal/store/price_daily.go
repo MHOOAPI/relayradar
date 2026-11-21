@@ -72,3 +72,28 @@ func (s *Store) PriceDailyHistory(ctx context.Context, modelID string, days int)
 	}
 	return out, rows.Err()
 }
+
+// StationPriceHistory returns one station's daily price for a single model.
+func (s *Store) StationPriceHistory(ctx context.Context, slug, modelID string, days int) ([]PriceDailyPoint, error) {
+	if days <= 0 {
+		days = 90
+	}
+	rows, err := s.pool.Query(ctx, `
+		SELECT day, min_input_cny, min_output_cny, 1, offers
+		FROM price_daily
+		WHERE station_slug = $1 AND model_id = $2 AND day > CURRENT_DATE - $3::int
+		ORDER BY day`, slug, modelID, days)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]PriceDailyPoint, 0, days)
+	for rows.Next() {
+		var p PriceDailyPoint
+		if err := rows.Scan(&p.Day, &p.MinInputCNY, &p.MinOutputCNY, &p.Stations, &p.Offers); err != nil {
+			return nil, err
+		}
+		out = append(out, p)
+	}
+	return out, rows.Err()
+}

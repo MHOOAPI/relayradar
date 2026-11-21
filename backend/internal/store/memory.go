@@ -57,6 +57,7 @@ type Repo interface {
 	ListAllReviews(ctx context.Context) ([]AdminReview, error)
 	SnapshotPriceDaily(ctx context.Context, day time.Time) (int, error)
 	PriceDailyHistory(ctx context.Context, modelID string, days int) ([]PriceDailyPoint, error)
+	StationPriceHistory(ctx context.Context, slug, modelID string, days int) ([]PriceDailyPoint, error)
 	UpdateUserRole(ctx context.Context, id int64, role string) error
 	SetUserVerified(ctx context.Context, id int64) error
 	CreateAuthToken(ctx context.Context, tokenHash string, userID int64, kind string, expires time.Time) error
@@ -1180,6 +1181,25 @@ func (m *Memory) PriceDailyHistory(ctx context.Context, modelID string, days int
 	out := make([]PriceDailyPoint, 0, len(byDay))
 	for _, p := range byDay {
 		out = append(out, *p)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Day.Before(out[j].Day) })
+	return out, nil
+}
+
+// StationPriceHistory returns one station's daily price for a single model.
+func (m *Memory) StationPriceHistory(ctx context.Context, slug, modelID string, days int) ([]PriceDailyPoint, error) {
+	if days <= 0 {
+		days = 90
+	}
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	cutoff := time.Now().UTC().AddDate(0, 0, -days)
+	out := make([]PriceDailyPoint, 0, days)
+	for _, p := range m.priceDaily {
+		if p.StationSlug != slug || p.ModelID != modelID || p.Day.Before(cutoff) {
+			continue
+		}
+		out = append(out, PriceDailyPoint{Day: p.Day, MinInputCNY: p.MinInputCNY, MinOutputCNY: p.MinOutputCNY, Stations: 1, Offers: p.Offers})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Day.Before(out[j].Day) })
 	return out, nil

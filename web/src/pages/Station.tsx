@@ -7,7 +7,7 @@ import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
 import { ArrowUpRight, CalendarIcon, CoinIcon, CopyIcon, ProbeIcon, PulseIcon, ReceiptIcon, ShieldIcon, WalletIcon } from '../components/icons';
 import { TrendChart } from '../components/TrendChart';
-import type { Change } from '../types';
+import type { Change, PriceDailyPoint } from '../types';
 import { WaveBackdrop } from '../components/Backdrop';
 import { useScrollParallax } from '../lib/parallax';
 import { useToast } from '../lib/toast';
@@ -37,7 +37,23 @@ export function StationPage() {
   const trendRef = useRef<HTMLDivElement>(null);
   const [flash, setFlash] = useState(false);
   const [dayPick, setDayPick] = useState<number | null>(null);
+  const [priceModel, setPriceModel] = useState('');
+  const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
   useScrollParallax(waveRef, 0.05, 900);
+
+  useEffect(() => {
+    if (!slug) return;
+    if (!priceModel) {
+      const first = data?.models.find((m) => m.bestInputCny > 0)?.model.id ?? data?.models[0]?.model.id;
+      if (first) setPriceModel(first);
+      return;
+    }
+    let alive = true;
+    api.stationPriceHistory(slug, priceModel)
+      .then((r) => { if (alive) setPriceHistory(r.points ?? []); })
+      .catch(() => { if (alive) setPriceHistory([]); });
+    return () => { alive = false; };
+  }, [slug, priceModel, data]);
 
   const focusTrend = () => {
     const smooth = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
@@ -293,6 +309,52 @@ export function StationPage() {
           </div>
         </section>
       )}
+
+      <section className="panel station-price-trend">
+        <div className="panel-head">
+          <div>
+            <h2>本站价格走势</h2>
+            <p className="sub">每天记录一次该站该模型的最低输入价；系统从部署当天开始积累。</p>
+          </div>
+          <label className="chip-select">
+            <span className="dim">模型</span>
+            <select
+              value={priceModel}
+              onChange={(e) => { setPriceModel(e.target.value); setPriceHistory([]); }}
+              aria-label="选择模型"
+            >
+              {models.slice(0, 60).map((m) => (
+                <option key={m.model.id} value={m.model.id}>{m.model.name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {priceHistory.length >= 2 ? (
+          <div className="price-trend-chart">
+            <TrendChart
+              values={priceHistory.map((p) => p.minInputCny)}
+              labels={priceHistory.map((p) => p.day.slice(5))}
+              color="#2ee6a6"
+              unit=" 元"
+              decimals={2}
+              height={160}
+            />
+          </div>
+        ) : (
+          <div className="price-trend-empty">
+            <b>
+              {priceHistory.length === 1
+                ? `今天该模型最低 ${fmtCny(priceHistory[0].minInputCny)}`
+                : '该模型还没有价格快照'}
+            </b>
+            <p className="sub">
+              {priceHistory.length === 1
+                ? '已记录今天的数据，累计 2 天后这里显示走势曲线。'
+                : '快照任务每天运行一次；换一个模型或明天再来看。'}
+            </p>
+          </div>
+        )}
+      </section>
 
       {reach && reach.some((d) => d.status !== 'unknown') && (() => {
         const known = reach.filter((d) => d.status !== 'unknown');
