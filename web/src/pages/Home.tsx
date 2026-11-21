@@ -7,6 +7,7 @@ import { StationMark } from '../components/marks';
 import { serviceLabel } from '../lib/services';
 import { KeyCheck } from '../components/KeyCheck';
 import { useWatchlist } from '../lib/watchlist';
+import { useScrollParallax } from '../lib/parallax';
 
 const SERVICES: Array<[string, string]> = [
   ['all', '全部'],
@@ -66,25 +67,7 @@ export function Home() {
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
   const radarRef = useRef<HTMLDivElement>(null);
-  // Hero parallax: the radar drifts slower than the page. Cheap rAF-throttled
-  // scroll handler, skipped entirely when the user asks for reduced motion.
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = Math.min(window.scrollY, 700);
-        if (radarRef.current) radarRef.current.style.transform = `translate3d(0, ${(y * 0.16).toFixed(1)}px, 0)`;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
+  useScrollParallax(radarRef, 0.16, 700);
   const { ids: watched } = useWatchlist();
 
   useEffect(() => {
@@ -183,6 +166,7 @@ export function Home() {
   return (
     <main className="wrap home">
       <section className="hero">
+        <span className="hero-scan" aria-hidden="true"><i /></span>
         <div className="hero-radar" aria-hidden="true" ref={radarRef}>
           <span className="hr-ring r1" />
           <span className="hr-ring r2" />

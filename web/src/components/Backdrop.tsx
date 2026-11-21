@@ -28,25 +28,41 @@ export function WaveBackdrop({ data }: { data: number[] }) {
         </linearGradient>
       </defs>
       <path d={path.area} fill="url(#wave-fill)" />
-      <path d={path.line} fill="none" stroke="rgba(46,230,166,0.32)" strokeWidth="0.35" vectorEffect="non-scaling-stroke" />
+      <path
+        className="wave-line"
+        d={path.line}
+        fill="none"
+        stroke="rgba(46,230,166,0.32)"
+        strokeWidth="0.35"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
 
-export function PriceTexture({ prices }: { prices: number[] }) {
+export type PriceSample = { price: number; multiplier: number };
+
+export function PriceTexture({ offers }: { offers: PriceSample[] }) {
   const bars = useMemo(() => {
-    const values = prices.filter((p) => p > 0).sort((a, b) => a - b);
-    if (values.length === 0) return [];
-    const max = values[values.length - 1];
-    const step = Math.max(1, Math.floor(values.length / 72));
-    const picked: number[] = [];
-    for (let i = 0; i < values.length; i += step) picked.push(values[i]);
-    return picked.map((v, i) => ({
-      x: i,
-      h: 8 + (Math.log10(v + 1) / Math.log10(max + 1)) * 88,
-      strong: i % 7 === 0,
-    }));
-  }, [prices]);
+    const list = offers.filter((o) => o.price > 0).sort((a, b) => a.price - b.price);
+    if (list.length === 0) return [];
+    const step = Math.max(1, Math.floor(list.length / 72));
+    const picked: PriceSample[] = [];
+    for (let i = 0; i < list.length; i += step) picked.push(list[i]);
+    const mults = picked.map((o) => o.multiplier).filter((m) => m > 0);
+    const minMult = mults.length ? Math.min(...mults) : 1;
+    const maxMult = mults.length ? Math.max(...mults) : 1;
+    const cheap = picked[0]?.price ?? 0;
+    return picked.map((o, i) => {
+      const norm = maxMult > minMult ? (o.multiplier - minMult) / (maxMult - minMult) : 0.5;
+      const alpha = 0.06 + (1 - norm) * 0.16;
+      return {
+        x: i,
+        h: 8 + (Math.log10(o.price + 1) / Math.log10(cheap * 4 + 1)) * 88,
+        alpha: o.price === cheap ? 0.34 : alpha,
+      };
+    });
+  }, [offers]);
 
   if (bars.length === 0) return null;
   return (
@@ -55,10 +71,10 @@ export function PriceTexture({ prices }: { prices: number[] }) {
         <rect
           key={b.x}
           x={b.x + 0.2}
-          y={100 - b.h}
+          y={100 - Math.min(100, b.h)}
           width={0.6}
-          height={b.h}
-          fill={b.strong ? 'rgba(46,230,166,0.20)' : 'rgba(46,230,166,0.08)'}
+          height={Math.min(100, b.h)}
+          fill={`rgba(46,230,166,${b.alpha.toFixed(2)})`}
         />
       ))}
     </svg>
