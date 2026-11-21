@@ -31,6 +31,9 @@ func alertMatches(sub store.Subscription, c app.Change) bool {
 	if c.Kind != "price_change" {
 		return true
 	}
+	if len(sub.Models) > 0 && (c.ModelID == "" || !contains(sub.Models, c.ModelID)) {
+		return false
+	}
 	if sub.MinDeltaPct > 0 && math.Abs(c.DeltaPct) < sub.MinDeltaPct {
 		return false
 	}
@@ -117,7 +120,7 @@ func validateThresholds(minDeltaPct, maxPriceCNY float64) error {
 	return nil
 }
 
-func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds, stations, providers []string, minDeltaPct, maxPriceCNY float64) (*store.Subscription, error) {
+func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds, stations, models, providers []string, minDeltaPct, maxPriceCNY float64) (*store.Subscription, error) {
 	channel = strings.ToLower(strings.TrimSpace(channel))
 	if channel == "" {
 		channel = "webhook"
@@ -174,7 +177,7 @@ func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds
 	now := time.Now().UTC()
 	sub := &store.Subscription{
 		ID: "sub-" + randToken(4), Channel: channel, URL: rawURL, Email: email,
-		Secret: randToken(16), Kinds: clean, Stations: stations, Providers: cleanProviders,
+		Secret: randToken(16), Kinds: clean, Stations: stations, Models: models, Providers: cleanProviders,
 		MinDeltaPct: minDeltaPct, MaxPriceCNY: maxPriceCNY,
 		Enabled: true, CreatedAt: now, LastSentAt: now,
 	}
@@ -495,6 +498,7 @@ func (s *Server) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 		Email       string   `json:"email"`
 		Kinds       []string `json:"kinds"`
 		Stations    []string `json:"stations"`
+		Models      []string `json:"models"`
 		Providers   []string `json:"providers"`
 		MinDeltaPct float64  `json:"minDeltaPct"`
 		MaxPriceCNY float64  `json:"maxPriceCny"`
@@ -516,14 +520,27 @@ func (s *Server) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	sub, err := s.alerts.add(r.Context(), body.Channel, body.URL, body.Email, body.Kinds, body.Stations, body.Providers, body.MinDeltaPct, body.MaxPriceCNY)
+	if len(body.Models) > 0 {
+		d, err := s.svc.Dataset(r.Context())
+		if err != nil {
+			s.fail(w, http.StatusInternalServerError, err)
+			return
+		}
+		for _, id := range body.Models {
+			if _, ok := d.ModelByID[id]; !ok {
+				writeError(w, http.StatusBadRequest, "unknown model "+id)
+				return
+			}
+		}
+	}
+	sub, err := s.alerts.add(r.Context(), body.Channel, body.URL, body.Email, body.Kinds, body.Stations, body.Models, body.Providers, body.MinDeltaPct, body.MaxPriceCNY)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"id": sub.ID, "channel": sub.Channel, "url": sub.URL, "email": sub.Email,
-		"secret": sub.Secret, "kinds": sub.Kinds, "stations": sub.Stations, "providers": sub.Providers,
+		"secret": sub.Secret, "kinds": sub.Kinds, "stations": sub.Stations, "models": sub.Models, "providers": sub.Providers,
 		"minDeltaPct": sub.MinDeltaPct, "maxPriceCny": sub.MaxPriceCNY,
 	})
 }
@@ -628,6 +645,7 @@ func (s *Server) handleSubUpdate(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Kinds       []string `json:"kinds"`
 		Stations    []string `json:"stations"`
+		Models      []string `json:"models"`
 		Providers   []string `json:"providers"`
 		Enabled     *bool    `json:"enabled"`
 		MinDeltaPct *float64 `json:"minDeltaPct"`
@@ -658,6 +676,20 @@ func (s *Server) handleSubUpdate(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		sub.Stations = body.Stations
+	}
+	if body.Models != nil {
+		d, err := s.svc.Dataset(r.Context())
+		if err != nil {
+			s.fail(w, http.StatusInternalServerError, err)
+			return
+		}
+		for _, id := range body.Models {
+			if _, ok := d.ModelByID[id]; !ok {
+				writeError(w, http.StatusBadRequest, "unknown model "+id)
+				return
+			}
+		}
+		sub.Models = body.Models
 	}
 	if body.Enabled != nil {
 		sub.Enabled = *body.Enabled
@@ -718,7 +750,7 @@ func (h *alertHub) get(ctx context.Context, id, token string) *store.Subscriptio
 func publicSub(sub store.Subscription) map[string]any {
 	return map[string]any{
 		"id": sub.ID, "channel": sub.Channel, "url": sub.URL, "email": sub.Email,
-		"kinds": sub.Kinds, "stations": sub.Stations, "providers": sub.Providers,
+		"kinds": sub.Kinds, "stations": sub.Stations, "models": sub.Models, "providers": sub.Providers,
 		"minDeltaPct": sub.MinDeltaPct, "maxPriceCny": sub.MaxPriceCNY,
 		"enabled": sub.Enabled, "attempts": sub.Attempts, "lastError": sub.LastError,
 		"nextAttemptAt": sub.NextAttemptAt, "createdAt": sub.CreatedAt, "lastSentAt": sub.LastSentAt,

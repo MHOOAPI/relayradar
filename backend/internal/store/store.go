@@ -258,6 +258,7 @@ type Subscription struct {
 	Secret        string     `json:"-"`
 	Kinds         []string   `json:"kinds"`
 	Stations      []string   `json:"stations"`
+	Models        []string   `json:"models"`
 	Providers     []string   `json:"providers"`
 	MinDeltaPct   float64    `json:"minDeltaPct"`
 	MaxPriceCNY   float64    `json:"maxPriceCny"`
@@ -657,16 +658,16 @@ func (s *Store) ClaimEditsByToken(ctx context.Context, token string, limit int) 
 
 func (s *Store) CreateSubscription(ctx context.Context, sub Subscription) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO subscriptions (id, channel, url, email, secret, kinds, stations, providers, enabled, min_delta_pct, max_price_cny, created_at, last_sent_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-		sub.ID, sub.Channel, sub.URL, sub.Email, sub.Secret, sub.Kinds, sub.Stations, sub.Providers,
+		INSERT INTO subscriptions (id, channel, url, email, secret, kinds, stations, models, providers, enabled, min_delta_pct, max_price_cny, created_at, last_sent_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+		sub.ID, sub.Channel, sub.URL, sub.Email, sub.Secret, sub.Kinds, sub.Stations, sub.Models, sub.Providers,
 		sub.Enabled, sub.MinDeltaPct, sub.MaxPriceCNY, sub.CreatedAt, sub.LastSentAt)
 	return err
 }
 
 func (s *Store) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, channel, url, email, secret, kinds, stations, providers, enabled, attempts, last_error,
+		SELECT id, channel, url, email, secret, kinds, stations, models, providers, enabled, attempts, last_error,
 		       min_delta_pct, max_price_cny, next_attempt_at, created_at, last_sent_at
 		FROM subscriptions ORDER BY created_at`)
 	if err != nil {
@@ -678,7 +679,7 @@ func (s *Store) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 	for rows.Next() {
 		var sub Subscription
 		if err := rows.Scan(&sub.ID, &sub.Channel, &sub.URL, &sub.Email, &sub.Secret,
-			&sub.Kinds, &sub.Stations, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
+			&sub.Kinds, &sub.Stations, &sub.Models, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
 			&sub.MinDeltaPct, &sub.MaxPriceCNY, &sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt); err != nil {
 			return nil, err
 		}
@@ -690,11 +691,11 @@ func (s *Store) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 func (s *Store) GetSubscription(ctx context.Context, id string) (Subscription, error) {
 	var sub Subscription
 	err := s.pool.QueryRow(ctx, `
-		SELECT id, channel, url, email, secret, kinds, stations, providers, enabled, attempts, last_error,
+		SELECT id, channel, url, email, secret, kinds, stations, models, providers, enabled, attempts, last_error,
 		       min_delta_pct, max_price_cny, next_attempt_at, created_at, last_sent_at
 		FROM subscriptions WHERE id = $1`, id).
 		Scan(&sub.ID, &sub.Channel, &sub.URL, &sub.Email, &sub.Secret,
-			&sub.Kinds, &sub.Stations, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
+			&sub.Kinds, &sub.Stations, &sub.Models, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
 			&sub.MinDeltaPct, &sub.MaxPriceCNY, &sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt)
 	return sub, err
 }
@@ -703,9 +704,9 @@ func (s *Store) UpdateSubscription(ctx context.Context, sub Subscription) error 
 	_, err := s.pool.Exec(ctx, `
 		UPDATE subscriptions
 		SET kinds = $2, stations = $3, providers = $4, enabled = $5,
-		    min_delta_pct = $6, max_price_cny = $7
+		    min_delta_pct = $6, max_price_cny = $7, models = $8
 		WHERE id = $1`,
-		sub.ID, sub.Kinds, sub.Stations, sub.Providers, sub.Enabled, sub.MinDeltaPct, sub.MaxPriceCNY)
+		sub.ID, sub.Kinds, sub.Stations, sub.Providers, sub.Enabled, sub.MinDeltaPct, sub.MaxPriceCNY, sub.Models)
 	return err
 }
 

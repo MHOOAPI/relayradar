@@ -9,7 +9,7 @@ import (
 )
 
 func TestAlertMatchesThresholds(t *testing.T) {
-	price := app.Change{Kind: "price_change", DeltaPct: -12, PriceCNY: 0.42, At: time.Now()}
+	price := app.Change{Kind: "price_change", DeltaPct: -12, PriceCNY: 0.42, ModelID: "openai--gpt-6.2-sol", At: time.Now()}
 	other := app.Change{Kind: "availability_drop", At: time.Now()}
 
 	cases := []struct {
@@ -25,6 +25,9 @@ func TestAlertMatchesThresholds(t *testing.T) {
 		{"price below ceiling passes", store.Subscription{MaxPriceCNY: 0.5}, price, true},
 		{"missing price filtered when ceiling set", store.Subscription{MaxPriceCNY: 1}, app.Change{Kind: "price_change"}, false},
 		{"other kinds ignore thresholds", store.Subscription{MinDeltaPct: 50, MaxPriceCNY: 0.01}, other, true},
+		{"model filter matches", store.Subscription{Models: []string{"openai--gpt-6.2-sol"}}, price, true},
+		{"model filter mismatch", store.Subscription{Models: []string{"anthropic--claude"}}, price, false},
+		{"model filter drops events without model", store.Subscription{Models: []string{"openai--gpt-6.2-sol"}}, app.Change{Kind: "price_change"}, false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

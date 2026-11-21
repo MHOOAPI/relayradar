@@ -256,11 +256,16 @@ export function ModelPage() {
             <h2>全网最低价走势</h2>
             <p className="sub">每天记录一次各站最低输入价；系统从部署当天开始积累，曲线随天数增长。</p>
           </div>
-          <span className="mono dim">
-            {priceHistory.length > 0
-              ? `${priceHistory.length} 天 · 最新 ${fmtCny(priceHistory[priceHistory.length - 1].minInputCny)}`
-              : '尚未记录'}
-          </span>
+          <div className="panel-head-right">
+            <span className="mono dim">
+              {priceHistory.length > 0
+                ? `${priceHistory.length} 天 · 最新 ${fmtCny(priceHistory[priceHistory.length - 1].minInputCny)}`
+                : '尚未记录'}
+            </span>
+            <Link className="btn btn-ghost btn-xs" to={`/changes?subscribe=1&model=${encodeURIComponent(model.id)}`}>
+              订阅该模型降价
+            </Link>
+          </div>
         </div>
         {priceHistory.length >= 2 ? (
           <div className="price-trend-chart">
