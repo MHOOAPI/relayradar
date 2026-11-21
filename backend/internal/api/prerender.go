@@ -1050,8 +1050,35 @@ func (s *Server) bodyChanges(d *app.Dataset) template.HTML {
 			c.At.Format(time.RFC3339), c.At.Format("2006-01-02"),
 			escHTML(c.StationSlug), escHTML(c.StationName), escHTML(c.Title), escHTML(c.Detail))
 	}
-	b.WriteString(`</ul><p><a href="/changes.xml">RSS 订阅</a></p></article>`)
+	b.WriteString(`</ul><p><a href="/changes.xml">RSS 订阅</a></p>`)
+	b.WriteString(`<h2>常见问题</h2>`)
+	for _, q := range changesFAQ() {
+		fmt.Fprintf(&b, `<h3>%s</h3><p>%s</p>`, escHTML(q.Q), escHTML(q.A))
+	}
+	b.WriteString(`<p><a href="/changes">查看交互版</a> · <a href="/methodology">评分方法</a></p></article>`)
 	return template.HTML(b.String())
+}
+
+// changesFAQ is shared by the prerendered page and the FAQPage JSON-LD.
+func changesFAQ() []faqEntry {
+	return []faqEntry{
+		{
+			Q: "变更雷达多久更新一次？",
+			A: "探针按固定节奏持续上报可用性与延迟，价格来自站点公开倍率快照；超过阈值的波动会记成一条变更，按发生时间倒序展示。",
+		},
+		{
+			Q: "变更的严重程度怎么分？",
+			A: "按影响面与幅度分为「注意」和「警告」两级：价格大幅调整、可用率骤降、纯度抽检异常会进警告；小幅波动或新站上架通常只提示注意。",
+		},
+		{
+			Q: "为什么关注的站点没有变更？",
+			A: "没有超过阈值的波动就不会产生记录，这是正常状态；也可以用「只看关注」过滤，或去站点档案看逐日趋势。",
+		},
+		{
+			Q: "怎么订阅这些变更？",
+			A: "展开告警订阅，选 Webhook（JSON + HMAC-SHA256 签名）或邮件；订阅后新变更会推送到你的地址，管理链接含密钥，请勿公开。",
+		},
+	}
 }
 
 func (s *Server) bodyFree(d *app.Dataset) template.HTML {
@@ -1321,6 +1348,16 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 				"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq,
 			})
 		}
+	case path == "/changes":
+		items := []any{}
+		for _, q := range changesFAQ() {
+			items = append(items, map[string]any{
+				"@type": "Question", "name": q.Q,
+				"acceptedAnswer": map[string]any{"@type": "Answer", "text": q.A},
+			})
+		}
+		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": items})
+		addCrumb("变更雷达", base+"/changes")
 	case path == "/faq":
 		items := []any{}
 		for _, q := range faqItems {

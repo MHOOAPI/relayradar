@@ -48,7 +48,7 @@ export function ComparePage() {
   const { ids: watched } = useWatchlist();
 
   useEffect(() => {
-    api.stations().then((r) => setStations(r.items)).catch(() => setStations([]));
+    api.stations(1000).then((r) => setStations(r.items)).catch(() => setStations([]));
   }, []);
 
   const ids = useMemo(() => (params.get('ids') || '').split(',').filter(Boolean), [params]);
@@ -80,6 +80,10 @@ export function ComparePage() {
       return wa - wb || a.rank - b.rank;
     });
   }, [stations, q, watched]);
+
+  const [visible, setVisible] = useState(48);
+  useEffect(() => setVisible(48), [q]);
+  const optionsShown = options.slice(0, visible);
 
   const bestIndex = (row: Row): number => {
     if (!row.score || selected.length < 2) return -1;
@@ -142,7 +146,7 @@ export function ComparePage() {
         )}
         <div className="picker">
           {!stations && <div className="loading"><Spinner /> 加载中…</div>}
-          {options.map((s) => (
+          {optionsShown.map((s) => (
             <button
               key={s.slug}
               className={`pick ${ids.includes(s.slug) ? 'on' : ''}`}
@@ -156,6 +160,12 @@ export function ComparePage() {
             </button>
           ))}
         </div>
+        {options.length > optionsShown.length && (
+          <div className="list-more">
+            <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 96)}>显示更多站点</button>
+            <span className="mono">已显示 {optionsShown.length} / {options.length}</span>
+          </div>
+        )}
       </section>
 
       {selected.length < 2 ? (

@@ -201,24 +201,19 @@ export function Home() {
 
         <div className="hero-card">
           <div className="hero-card-head">
-            <span className="mono label">RANK SCORE</span>
+            <span className="mono label">评分构成</span>
             <span className="mono tag-live">v2.0</span>
           </div>
-          <code className="formula">
-            score = 0.62·A + 0.26·S + 0.12·C
-            <br />
-            A = Wilson95(k,n) · S = f(p50) · C = g(p95,p50)
-          </code>
-          <ul className="legend">
-            <li><b>A</b> 可用性 95% 置信下界，小样本不吹满分</li>
-            <li><b>S</b> 速度：800ms 满分，5000ms 归零</li>
-            <li><b>C</b> 稳定性：p95 相对 p50 的抖动</li>
-          </ul>
+          <p className="hero-formula">综合分 = 62% 可用性 + 26% 速度 + 12% 稳定性</p>
+          <p className="hero-formula-note">
+            可用性取 95% 置信下界，小样本不吹满分；纯度与价格单列，不参与排名。
+          </p>
           <div className="hero-stats">
             <div><b>{meta ? fmtNum(meta.stations) : '—'}</b><span>站点</span></div>
             <div><b>{meta ? fmtNum(meta.groups) : '—'}</b><span>分组</span></div>
             <div><b>{meta ? fmtNum(meta.probes) : '—'}</b><span>探针</span></div>
           </div>
+          <Link className="hero-formula-link" to="/methodology">看完整公式与已知局限 →</Link>
         </div>
       </section>
 
