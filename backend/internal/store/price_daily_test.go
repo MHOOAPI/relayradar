@@ -95,3 +95,49 @@ func TestMemoryStationPriceHistory(t *testing.T) {
 		t.Fatalf("unexpected station history: %+v", pts)
 	}
 }
+
+func TestMemoryPriceDrops(t *testing.T) {
+	m := NewMemory()
+	ctx := context.Background()
+	day1 := time.Now().UTC().AddDate(0, 0, -1)
+	day2 := time.Now().UTC()
+
+	// Make yesterday's price 25% higher for one model, then restore it today.
+	idx := -1
+	for i, gm := range m.snap.GroupModels {
+		if gm.InputCNY != nil && *gm.InputCNY > 0 {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		t.Fatal("no priced group model")
+	}
+	orig := *m.snap.GroupModels[idx].InputCNY
+	higher := orig * 1.25
+	m.snap.GroupModels[idx].InputCNY = &higher
+	if _, err := m.SnapshotPriceDaily(ctx, day1); err != nil {
+		t.Fatalf("day1 snapshot: %v", err)
+	}
+	m.snap.GroupModels[idx].InputCNY = &orig
+	if _, err := m.SnapshotPriceDaily(ctx, day2); err != nil {
+		t.Fatalf("day2 snapshot: %v", err)
+	}
+
+	drops, err := m.PriceDrops(ctx, 30)
+	if err != nil {
+		t.Fatalf("drops: %v", err)
+	}
+	if len(drops) == 0 {
+		t.Fatal("expected at least one drop")
+	}
+	found := false
+	for _, d := range drops {
+		if d.ModelID == m.snap.GroupModels[idx].ModelID && d.NewPriceCNY < d.OldPriceCNY {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("drop for the modified model missing: %+v", drops)
+	}
+}

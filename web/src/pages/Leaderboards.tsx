@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import type { ModelSummary, Station } from '../types';
-import { fmtCny, Spinner, TierBadge, UptimeBars } from '../components/ui';
+import type { ModelSummary, PriceDrop, Station } from '../types';
+import { fmtCny, fmtDate, Spinner, TierBadge, UptimeBars } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 
 type Tab = 'coding' | 'reasoning' | 'value' | 'speed' | 'consistency';
@@ -22,6 +22,7 @@ export function LeaderboardsPage() {
   const [tab, setTab] = useState<Tab>('coding');
   const [models, setModels] = useState<ModelSummary[] | null>(null);
   const [stations, setStations] = useState<Station[] | null>(null);
+  const [drops, setDrops] = useState<PriceDrop[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -32,6 +33,10 @@ export function LeaderboardsPage() {
         setStations(s.items);
       })
       .catch((e: Error) => setError(e.message));
+  }, []);
+
+  useEffect(() => {
+    api.priceDrops(30, 20).then((r) => setDrops(r.items)).catch(() => setDrops([]));
   }, []);
 
   const modelRows = useMemo(() => {
@@ -290,6 +295,41 @@ export function LeaderboardsPage() {
           )}
         </section>
       )}
+
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>近 30 天降价榜</h2>
+            <p className="sub">只统计实际观测到的价格下调：旧价 → 新价，按降幅排序。</p>
+          </div>
+          <span className="mono dim">{drops?.length ?? 0} 次</span>
+        </div>
+        {drops && drops.length === 0 ? (
+          <p className="loading">近 30 天没有观测到降价。</p>
+        ) : (
+          <div className="table-wrap">
+            <table className="index-table">
+              <thead>
+                <tr><th>模型</th><th>站点</th><th className="num">价格</th><th className="num">降幅</th><th className="num hide-sm">时间</th></tr>
+              </thead>
+              <tbody>
+                {(drops ?? []).map((d) => (
+                  <tr key={`${d.modelId}-${d.stationSlug}-${d.at}`}>
+                    <td>
+                      <Link className="station-name" to={`/models/${encodeURIComponent(d.modelId)}`}>{d.modelName}</Link>
+                      <div className="dim tiny">{d.vendorName}</div>
+                    </td>
+                    <td><Link to={`/stations/${d.stationSlug}`}>{d.stationName}</Link></td>
+                    <td className="num mono">{fmtCny(d.oldInputCny)} → {fmtCny(d.newInputCny)}</td>
+                    <td className="num mono delta-down">{d.deltaPct.toFixed(1)}%</td>
+                    <td className="num mono dim hide-sm">{fmtDate(d.at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
