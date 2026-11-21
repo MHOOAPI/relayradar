@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.37**（首页筛选单行化并修正只覆盖 200 家、站点建档价格位置、免费计划可筛选表格）
+- 版本：**v0.2.38**（价格位置刻度去掉重复中位标签；首页筛选单行化、站点价格位置、免费计划表）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
