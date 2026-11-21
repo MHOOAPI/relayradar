@@ -81,6 +81,10 @@ export const api = {
     ),
   station: (slug: string) => request<StationDetail>(`/stations/${encodeURIComponent(slug)}`),
   stationReachability: (slug: string) => request<StationReachabilityHistory>(`/stations/${encodeURIComponent(slug)}/reachability`),
+  stationPriceHistory: (slug: string, modelId: string, days = 90) =>
+    request<{ stationSlug: string; modelId: string; days: number; points: PriceDailyPoint[] }>(
+      `/stations/${encodeURIComponent(slug)}/price-history?model=${encodeURIComponent(modelId)}&days=${days}`,
+    ),
   models: () => request<{ items: ModelSummary[]; total: number }>('/models'),
   modelPriceHistory: (id: string, days = 90) =>
     request<{ modelId: string; days: number; points: PriceDailyPoint[] }>(

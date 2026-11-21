@@ -56,3 +56,42 @@ func TestMemoryPriceDailySnapshotIsIdempotent(t *testing.T) {
 		t.Fatalf("snapshot is not idempotent: first=%+v second=%+v", first[0], second[0])
 	}
 }
+
+func TestMemoryStationPriceHistory(t *testing.T) {
+	m := NewMemory()
+	ctx := context.Background()
+	day := time.Now().UTC()
+	if _, err := m.SnapshotPriceDaily(ctx, day); err != nil {
+		t.Fatalf("snapshot: %v", err)
+	}
+	snap, err := m.Snapshot(ctx)
+	if err != nil {
+		t.Fatalf("snapshot read: %v", err)
+	}
+	stationSlug := map[int64]string{}
+	for _, st := range snap.Stations {
+		stationSlug[st.ID] = st.Slug
+	}
+	groupStation := map[int64]int64{}
+	for _, g := range snap.Groups {
+		groupStation[g.ID] = g.StationID
+	}
+	var slug, modelID string
+	for _, gm := range snap.GroupModels {
+		if gm.InputCNY != nil && *gm.InputCNY > 0 {
+			slug = stationSlug[groupStation[gm.GroupID]]
+			modelID = gm.ModelID
+			break
+		}
+	}
+	if slug == "" || modelID == "" {
+		t.Fatal("no priced group model found")
+	}
+	pts, err := m.StationPriceHistory(ctx, slug, modelID, 90)
+	if err != nil {
+		t.Fatalf("station history: %v", err)
+	}
+	if len(pts) != 1 || pts[0].MinInputCNY <= 0 || pts[0].Stations != 1 {
+		t.Fatalf("unexpected station history: %+v", pts)
+	}
+}
