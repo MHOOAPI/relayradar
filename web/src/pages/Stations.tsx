@@ -10,6 +10,13 @@ import { usePointerGlow } from '../lib/parallax';
 import { Quadrant } from '../components/Quadrant';
 
 
+const PURITY_LABEL: Record<string, string> = {
+  official: '官方直连',
+  mixed: '混合线路',
+  unknown: '未检测',
+  counterfeit: '疑似掺假',
+};
+
 type PresetKey = 'all' | 'invoice' | 'cheap' | 'cn' | 'official' | 'fast';
 
 const PRESETS: Array<{ key: PresetKey; label: string; desc: string; test: (s: Station) => boolean; sort: 'rank' | 'price' | 'reach' }> = [
@@ -285,18 +292,24 @@ export function StationsPage() {
                       </div>
                     </td>
                     <td>
-                      <div className="svc-icons">
-                        {s.services.slice(0, 4).map((sv) => {
-                          const vendor = SERVICE_VENDOR[sv];
-                          return vendor ? (
-                            <span key={sv} className="svc-icon" title={SERVICE_LABEL[sv] ?? sv}>
-                              <VendorMark vendor={vendor} size={22} />
-                            </span>
-                          ) : (
-                            <span key={sv} className="svc">{SERVICE_LABEL[sv] ?? sv}</span>
-                          );
-                        })}
-                        {s.services.length > 4 && <span className="svc-more">+{s.services.length - 4}</span>}
+                      <div className="coverage-stack">
+                        <div className="svc-icons">
+                          {s.services.slice(0, 4).map((sv) => {
+                            const vendor = SERVICE_VENDOR[sv];
+                            return vendor ? (
+                              <span key={sv} className="svc-icon" title={SERVICE_LABEL[sv] ?? sv}>
+                                <VendorMark vendor={vendor} size={22} />
+                              </span>
+                            ) : (
+                              <span key={sv} className="svc">{SERVICE_LABEL[sv] ?? sv}</span>
+                            );
+                          })}
+                          {s.services.length > 4 && <span className="svc-more">+{s.services.length - 4}</span>}
+                        </div>
+                        <span className="coverage-count mono">
+                          <b>{s.modelsCount}</b>
+                          {totalModels > 0 && <span>/{totalModels}</span>}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -304,8 +317,8 @@ export function StationsPage() {
                         onClick={(e) => { e.stopPropagation(); setCoverageStation(s); }}
                         title="查看覆盖详情"
                       >
-                        {s.modelsCount}{totalModels > 0 ? `/${totalModels}` : ''} 个模型
-                        {missingOf(s).length > 0 && <span className="dim"> · 缺{missingOf(s).length}</span>}
+                        {missingOf(s).length > 0 ? `缺 ${missingOf(s).length} 个` : '覆盖完整'}
+                        <span className="dim"> · {PURITY_LABEL[s.purityTier] ?? '未检测'}</span>
                       </button>
                     </td>
                     <td>

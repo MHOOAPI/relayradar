@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.63**（模型覆盖图标改为叠放徽章：最多 4 个、圆形、+N 计数）
+- 版本：**v0.2.64**（模型覆盖列改为「叠放徽章 + 精确计数 + 缺口/纯度标签」）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

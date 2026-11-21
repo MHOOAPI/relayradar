@@ -2660,3 +2660,9 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .svc-icons .svc-icon:hover { transform: translateY(-1px); transition: transform 0.15s ease; z-index: 1; }
 /* circular stacked vendor badges */
 .svc-icons .vendor-mark { border-radius: 50%; border-color: #06080c; box-shadow: 0 0 0 2px #06080c; }
+/* coverage cell: stacked badges + exact count */
+.coverage-stack { display: flex; align-items: center; gap: 9px; }
+.coverage-count { display: inline-flex; align-items: baseline; gap: 1px; }
+.coverage-count b { font-size: 14px; color: var(--text); font-weight: 600; }
+.coverage-count span { font-size: 10.5px; color: var(--text-3); }
+.coverage-btn { display: block; margin-top: 3px; text-align: left; }
