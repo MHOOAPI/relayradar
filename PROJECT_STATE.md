@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.33**（变更雷达收进更多、404 搜索、favicon 占位、全站排版收敛与长列表分页）
+- 版本：**v0.2.34**（首页评分卡改为可读文案、变更雷达加 FAQ/结构化数据并分页、对比选择器分页覆盖全量站点）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

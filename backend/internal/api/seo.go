@@ -512,7 +512,7 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 	case "/changes":
 		return pageMeta{
 			Title:     "变更雷达 · 价格与可用性异动 | RelayRadar",
-			Desc:      "从探针与价格历史自动检测：可用率骤降、纯度抽检异常、价格调整与新站上架。",
+			Desc:      "从探针与价格历史自动检测可用率骤降、纯度抽检异常、价格调整与新站上架，按严重程度分级，支持 Webhook 与邮件订阅。",
 			Canonical: base + path,
 		}, true
 	case "/leaderboards":

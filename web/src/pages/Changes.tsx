@@ -107,6 +107,10 @@ export function ChangesPage() {
     });
   }, [items, kind, onlyWatch, ids]);
 
+  const [visible, setVisible] = useState(40);
+  useEffect(() => setVisible(40), [kind, onlyWatch, station]);
+  const shown = rows.slice(0, visible);
+
   return (
     <main className="wrap">
       <div className="page-head">
@@ -239,7 +243,7 @@ export function ChangesPage() {
           </div>
         )}
         <ul className="changes-list big">
-          {rows.map((c) => (
+          {shown.map((c) => (
             <li key={c.id} className={`change change-${c.severity}`}>
               <span className="change-dot" />
               <div className="change-body">
@@ -255,6 +259,47 @@ export function ChangesPage() {
             </li>
           ))}
         </ul>
+        {rows.length > shown.length && (
+          <div className="list-more">
+            <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 80)}>显示更多变更</button>
+            <span className="mono">已显示 {shown.length} / {rows.length}</span>
+          </div>
+        )}
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>常见问题</h2>
+            <p className="sub">变更从哪里来、严重程度怎么分、怎么订阅。</p>
+          </div>
+          <Link className="link-btn mono" to="/methodology">评分方法 →</Link>
+        </div>
+        <div className="faq-list">
+          {[
+            {
+              q: '变更雷达多久更新一次？',
+              a: '探针按固定节奏持续上报可用性与延迟，价格来自站点公开倍率快照；超过阈值的波动会记成一条变更，按发生时间倒序展示。',
+            },
+            {
+              q: '严重程度怎么分？',
+              a: '按影响面与幅度分为「注意」和「警告」两级：价格大幅调整、可用率骤降、纯度抽检异常会进警告；小幅波动或新站上架通常只提示注意。',
+            },
+            {
+              q: '为什么我关注的站点没有变更？',
+              a: '没有超过阈值的波动就不会产生记录，这是正常状态；也可以用「只看关注」过滤，或去站点档案看逐日趋势。',
+            },
+            {
+              q: '怎么订阅这些变更？',
+              a: '展开上方「告警订阅」，选 Webhook（JSON + HMAC-SHA256 签名）或邮件；订阅后新变更会推送到你的地址，管理链接含密钥，请勿公开。',
+            },
+          ].map((f) => (
+            <details key={f.q} className="faq-item">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
     </main>
   );
