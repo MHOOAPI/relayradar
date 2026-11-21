@@ -47,6 +47,9 @@ export function Layout() {
 
   return (
     <div className="app">
+      <div className="atmosphere" aria-hidden="true">
+        <span className="atm-grain" />
+      </div>
       <div className="topbar">
         <div className="wrap topbar-inner">
           <div className="topbar-left">
@@ -190,7 +193,9 @@ export function Layout() {
         );
       })()}
 
-      <Outlet />
+      <div className="route-fade" key={pathname}>
+        <Outlet />
+      </div>
 
 
       <footer className="footer">

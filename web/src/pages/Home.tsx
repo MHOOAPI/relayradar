@@ -44,6 +44,9 @@ const CHANGE_LABEL: Record<string, string> = {
 export function Home() {
   const [stations, setStations] = useState<Station[] | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
+  const heroStations = useCountUp(meta?.stations);
+  const heroGroups = useCountUp(meta?.groups);
+  const heroProbes = useCountUp(meta?.probes);
   const [error, setError] = useState<string | null>(null);
   const [changes, setChanges] = useState<Change[]>([]);
   const [models, setModels] = useState<ModelSummary[]>([]);
@@ -160,6 +163,15 @@ export function Home() {
   return (
     <main className="wrap home">
       <section className="hero">
+        <div className="hero-radar" aria-hidden="true">
+          <span className="hr-ring r1" />
+          <span className="hr-ring r2" />
+          <span className="hr-ring r3" />
+          <span className="hr-sweep" />
+          <span className="hr-blip b1" />
+          <span className="hr-blip b2" />
+          <span className="hr-blip b3" />
+        </div>
         <div className="hero-copy">
           <h1>
             别猜哪家中转站
@@ -190,6 +202,7 @@ export function Home() {
           <Link to="/guides/how-to-choose-relay" className="hero-link">
             新手？先看 10 分钟选站清单 →
           </Link>
+          <a className="hero-scroll mono" href="#ranking">向下看完整榜单 <span aria-hidden="true">↓</span></a>
         </div>
 
         <div className="hero-card">
@@ -202,9 +215,9 @@ export function Home() {
             可用性取 95% 置信下界，小样本不吹满分；纯度与价格单列，不参与排名。
           </p>
           <div className="hero-stats">
-            <div><b>{meta ? fmtNum(meta.stations) : '—'}</b><span>站点</span></div>
-            <div><b>{meta ? fmtNum(meta.groups) : '—'}</b><span>分组</span></div>
-            <div><b>{meta ? fmtNum(meta.probes) : '—'}</b><span>探针</span></div>
+            <div><b>{meta ? fmtNum(heroStations) : '—'}</b><span>站点</span></div>
+            <div><b>{meta ? fmtNum(heroGroups) : '—'}</b><span>分组</span></div>
+            <div><b>{meta ? fmtNum(heroProbes) : '—'}</b><span>探针</span></div>
           </div>
           <Link className="hero-formula-link" to="/methodology">看完整公式与已知局限 →</Link>
         </div>
@@ -290,7 +303,7 @@ export function Home() {
         </div>
       </div>
 
-      <section className="panel">
+      <section className="panel" id="ranking">
         <div className="panel-head">
           <div>
             <h2>中转站实时榜单</h2>
@@ -498,4 +511,29 @@ export function Home() {
       </section>
     </main>
   );
+}
+
+// Animate a number from 0 on mount, respecting reduced-motion.
+function useCountUp(target: number | undefined, duration = 900) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!target) {
+      setValue(0);
+      return;
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      setValue(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
 }
