@@ -32,14 +32,14 @@ func (s *Server) handleSubmission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Name    string `json:"name"`
-		Domain  string `json:"domain"`
-		BaseURL string `json:"baseUrl"`
-		Contact string `json:"contact"`
-		Note    string `json:"note"`
-		Payments []string `json:"payments"`
-		Invoice  bool   `json:"invoice"`
-		RefundPolicy string `json:"refundPolicy"`
+		Name         string   `json:"name"`
+		Domain       string   `json:"domain"`
+		BaseURL      string   `json:"baseUrl"`
+		Contact      string   `json:"contact"`
+		Note         string   `json:"note"`
+		Payments     []string `json:"payments"`
+		Invoice      bool     `json:"invoice"`
+		RefundPolicy string   `json:"refundPolicy"`
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -347,6 +347,11 @@ func (s *Server) handleLLMs(w http.ResponseWriter, r *http.Request) {
 	b.WriteString("- `GET /api/v1/stations` — 榜单（参数 service/tier/q/sort）\n")
 	b.WriteString("- `GET /api/v1/stations/{slug}` — 站点详情、分组、模型实价\n")
 	b.WriteString("- `GET /api/v1/models` — 模型目录\n")
+	b.WriteString("- `GET /api/v1/search?q=` — 全站搜索（站点与模型）\n")
+	b.WriteString("- `GET /api/v1/models/{id}/price-history?days=` — 全网最低价日序列\n")
+	b.WriteString("- `GET /api/v1/stations/{slug}/price-history?model=&days=` — 站点单模型日价格\n")
+	b.WriteString("- `GET /api/v1/leaderboards/price-drops?days=` — 近 N 天降价榜\n")
+	b.WriteString("- `POST /api/v1/subscriptions` — 价格/可用性提醒（站点、模型、跌幅、价格上限）\n")
 	b.WriteString("- `POST /api/v1/audit` — 探测任意 OpenAI 兼容端点（SSRF 守卫）\n")
 	b.WriteString("- `GET /api/v1/audit/{id}` — 分享检测报告\n")
 	b.WriteString("- `GET /llms-full.txt` — 全量站点与模型快照\n")
@@ -361,6 +366,7 @@ func (s *Server) handleLLMs(w http.ResponseWriter, r *http.Request) {
 	b.WriteString("## 说明\n\n")
 	b.WriteString("- 纯度只对 Claude 分组做签名抽检，不参与排名。\n")
 	b.WriteString("- 价格 = 官方 USD × 站点汇率 × 分组倍率，取全站最低输入价。\n")
+	b.WriteString("- 价格快照每天写入一次，price-history 与降价榜都基于这些快照。\n")
 	b.WriteString("- 本站不收款、不担保售后；引用数据请保留时间戳。\n")
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")

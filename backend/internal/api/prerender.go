@@ -133,7 +133,8 @@ func (s *Server) bodyFor(r *http.Request, d *app.Dataset) template.HTML {
 		return enMethodologyBody()
 	case path == "/en/faq":
 		return enFaqBody()
-	case path == "/api-docs":		return template.HTML(`<article><h1>公开 API</h1>
+	case path == "/api-docs":
+		return template.HTML(`<article><h1>公开 API</h1>
 <p>只读 JSON 接口，按 IP 限流。榜单 <a href="/api/v1/stations">/api/v1/stations</a>，站点档案 <code>/api/v1/stations/{slug}</code>，模型 <code>/api/v1/models/{id}</code>，变更 <a href="/api/v1/changes">/api/v1/changes</a>，AI 摘要 <a href="/llms.txt">/llms.txt</a> 与 <a href="/llms-full.txt">/llms-full.txt</a>。</p></article>`)
 	}
 	return ""
@@ -1158,6 +1159,12 @@ var faqItems = []struct{ Q, A string }{
 		"Key 只用于本次探测，不写日志、不落库，报告只保存端点、模型与测量结果。生产环境请始终使用可随时吊销的临时 Key。"},
 	{"为什么有些站点显示“未检测”？",
 		"纯度抽检只覆盖 Claude 分组。没有 Claude 分组的站点，或尚未完成抽检的分组，会显示“未检测”，这不是负面评价。"},
+	{"价格走势和降价榜的数据是怎么来的？",
+		"系统每天把每个分组的价格写入一次快照（price_daily），模型页用各站最低价聚合出日曲线，站点页按单个模型展示。降价榜比较同一站点同一模型在窗口内第一张与最后一张快照，只收录跌幅超过 1% 的组合。"},
+	{"怎么设置降价提醒？阈值是什么意思？",
+		"在变更雷达或站点/模型页点“订阅降价提醒”，选择 Webhook 或邮件，可限定站点、模型，并设置“跌幅至少 x%”和“新价格不高于 ¥y”。0 表示不限制；两项可以只填一个。"},
+	{"价格快照多久更新一次？为什么曲线只有一两个点？",
+		"快照在服务启动后写入当天数据，之后每 6 小时刷新；曲线从部署当天开始积累，因此前几天点数很少。曲线、降价榜和价格提醒都会随天数增长。"},
 	{"这个网站的数据是真实的吗？",
 		"当前仓库使用演示数据集：站点名称与域名取自媒体公开信息，仅用于展示图标；倍率、探针、评分与评价为生成值，不代表真实商家表现。"},
 }
@@ -1183,7 +1190,8 @@ func auditBody() template.HTML {
 <p><a href="/audit">打开检测工具</a> · <a href="/methodology">评分方法</a></p></article>`)
 }
 
-func faqBody() template.HTML {	var b strings.Builder
+func faqBody() template.HTML {
+	var b strings.Builder
 	b.WriteString(`<article><h1>常见问题</h1>`)
 	for _, q := range faqItems {
 		fmt.Fprintf(&b, `<h2>%s</h2><p>%s</p>`, escHTML(q.Q), escHTML(q.A))
@@ -1380,15 +1388,15 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 			addCrumb("指南", base+"/guides")
 			addCrumb(g.Title, base+"/guides/"+g.Slug)
 			out = append(out, map[string]any{
-				"@context":     "https://schema.org",
-				"@type":        "TechArticle",
-				"headline":     g.Title,
-				"description":  g.Desc,
-				"dateModified": g.Updated,
-				"datePublished": g.Updated,
-				"inLanguage":   "zh-CN",
-				"author":       map[string]any{"@type": "Organization", "name": "RelayRadar"},
-				"publisher":    map[string]any{"@type": "Organization", "name": "RelayRadar"},
+				"@context":         "https://schema.org",
+				"@type":            "TechArticle",
+				"headline":         g.Title,
+				"description":      g.Desc,
+				"dateModified":     g.Updated,
+				"datePublished":    g.Updated,
+				"inLanguage":       "zh-CN",
+				"author":           map[string]any{"@type": "Organization", "name": "RelayRadar"},
+				"publisher":        map[string]any{"@type": "Organization", "name": "RelayRadar"},
 				"mainEntityOfPage": base + "/guides/" + g.Slug,
 			})
 		}
