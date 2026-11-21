@@ -2,13 +2,24 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station } from '../types';
-import { Spinner, UptimeBars } from '../components/ui';
+import { fmtCny, Spinner, UptimeBars } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PayMark } from '../components/pay';
 import { SERVICE_LABEL, SERVICE_VENDOR } from '../lib/services';
 import { usePointerGlow } from '../lib/parallax';
 import { Quadrant } from '../components/Quadrant';
 
+
+type PresetKey = 'all' | 'invoice' | 'cheap' | 'cn' | 'official' | 'fast';
+
+const PRESETS: Array<{ key: PresetKey; label: string; desc: string; test: (s: Station) => boolean; sort: 'rank' | 'price' | 'reach' }> = [
+  { key: 'all', label: '全部', desc: '', test: () => true, sort: 'rank' },
+  { key: 'invoice', label: '企业开票', desc: '支持开票且填写了退款政策，适合公司采购与报销', test: (s) => s.invoice && !['', '未知', '—'].includes(s.refundPolicy.trim()), sort: 'rank' },
+  { key: 'cheap', label: '低起充省钱', desc: '起充 ≤ ¥20 且最低输入价更低，按价格升序', test: (s) => s.minTopupCny <= 20 && s.fromPriceCny > 0, sort: 'price' },
+  { key: 'cn', label: '国产模型', desc: '覆盖 DeepSeek / Qwen / Kimi 至少一条线路', test: (s) => s.services.some((k) => ['deepseek', 'qwen', 'kimi', 'moonshot'].includes(k)), sort: 'rank' },
+  { key: 'official', label: '官方直连', desc: '纯度抽检为官方直连，签名完整', test: (s) => s.purityTier === 'official', sort: 'rank' },
+  { key: 'fast', label: '低延迟', desc: '首页可达延迟 ≤ 300ms 或速度分 ≥ 85', test: (s) => (s.reachability?.latencyMs ?? 99999) <= 300 || s.speed >= 85, sort: 'reach' },
+];
 
 const healthOf = (s: Station) => {
   if (s.uptimePct >= 97) return { cls: 'ok', label: '正常' };
@@ -30,11 +41,28 @@ export function StationsPage() {
   const tableRef = useRef<HTMLDivElement>(null);
   usePointerGlow(tableRef, !!stations);
   const [q, setQ] = useState(params.get('q') ?? '');
-  const [sort, setSort] = useState<'rank' | 'uptime' | 'reviews' | 'reach'>('rank');
   const [onlyClaimed, setOnlyClaimed] = useState(false);
   const [minModels, setMinModels] = useState(0);
   const [onlyReachable, setOnlyReachable] = useState(false);
   const view = params.get('view') === 'quadrant' ? 'quadrant' : 'list';
+  const presetParam = params.get('preset') as PresetKey | null;
+  const preset: PresetKey = PRESETS.some((p) => p.key === presetParam) ? (presetParam as PresetKey) : 'all';
+  const activePreset = PRESETS.find((p) => p.key === preset) ?? PRESETS[0];
+  type SortKey = 'rank' | 'uptime' | 'reviews' | 'reach' | 'price';
+  const urlSort = params.get('sort') as SortKey | null;
+  const sort: SortKey = urlSort && ['rank', 'uptime', 'reviews', 'reach', 'price'].includes(urlSort) ? urlSort : activePreset.sort;
+  const setSort = (next: SortKey) => {
+    const p = new URLSearchParams(params);
+    p.set('sort', next);
+    setParams(p, { replace: true });
+  };
+  const setPreset = (next: PresetKey) => {
+    const p = new URLSearchParams(params);
+    if (next === 'all') p.delete('preset'); else p.set('preset', next);
+    const def = PRESETS.find((x) => x.key === next);
+    if (def && def.sort !== 'rank') p.set('sort', def.sort); else p.delete('sort');
+    setParams(p, { replace: true });
+  };
   const setView = (next: 'list' | 'quadrant') => {
     const p = new URLSearchParams(params);
     if (next === 'quadrant') p.set('view', 'quadrant'); else p.delete('view');
@@ -62,9 +90,10 @@ export function StationsPage() {
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const list = (stations ?? []).filter(
-      (s) => !s.officialVendor && (!onlyClaimed || s.claimed) && (!minModels || s.modelsCount >= minModels) && (!onlyReachable || s.reachability?.status === 'ok') && (!needle || `${s.name} ${s.domain} ${s.slug}`.toLowerCase().includes(needle)),
+      (s) => !s.officialVendor && (!onlyClaimed || s.claimed) && (!minModels || s.modelsCount >= minModels) && (!onlyReachable || s.reachability?.status === 'ok') && activePreset.test(s) && (!needle || `${s.name} ${s.domain} ${s.slug}`.toLowerCase().includes(needle)),
     );
     return [...list].sort((a, b) => {
+      if (sort === 'price') return (a.fromPriceCny > 0 ? a.fromPriceCny : 1e9) - (b.fromPriceCny > 0 ? b.fromPriceCny : 1e9) || a.rank - b.rank;
       if (sort === 'uptime') return b.uptimePct - a.uptimePct;
       if (sort === 'reviews') return b.reviewsCount - a.reviewsCount || b.ratingAvg - a.ratingAvg;
       if (sort === 'reach') {
@@ -73,10 +102,10 @@ export function StationsPage() {
       }
       return a.rank - b.rank;
     });
-  }, [stations, q, sort, onlyClaimed, minModels, onlyReachable]);
+  }, [stations, q, sort, onlyClaimed, minModels, onlyReachable, preset]);
 
   const [visible, setVisible] = useState(60);
-  useEffect(() => setVisible(60), [q, sort, onlyClaimed, minModels, onlyReachable]);
+  useEffect(() => setVisible(60), [q, sort, onlyClaimed, minModels, onlyReachable, preset]);
   const shown = rows.slice(0, visible);
 
   const missingOf = (s: Station) =>
@@ -179,6 +208,7 @@ export function StationsPage() {
           </select>
           <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} aria-label="排序方式">
             <option value="rank">按排名</option>
+            <option value="price">按最低价</option>
             <option value="uptime">按可用率</option>
             <option value="reviews">按评价数</option>
             <option value="reach">按可达延迟</option>
@@ -188,6 +218,22 @@ export function StationsPage() {
             <button type="button" className={view === 'quadrant' ? 'on' : ''} aria-pressed={view === 'quadrant'} onClick={() => setView('quadrant')}>象限图</button>
           </div>
         </div>
+      </div>
+
+      <div className="preset-row">
+        <span className="preset-label mono dim">场景速配</span>
+        {PRESETS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            className={`chip ${preset === p.key ? 'on' : ''}`}
+            aria-pressed={preset === p.key}
+            onClick={() => setPreset(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+        {activePreset.desc && <span className="preset-desc fine">{activePreset.desc}</span>}
       </div>
 
       {error && <div className="error-box">{error}</div>}
@@ -213,6 +259,7 @@ export function StationsPage() {
                 <th>站点</th>
                 <th>模型覆盖</th>
                 <th>健康状态</th>
+                <th className="num">最低价</th>
                 <th>付款方式</th>
                 <th>退款</th>
                 <th>发票</th>
@@ -221,7 +268,7 @@ export function StationsPage() {
             </thead>
             <tbody>
               {!stations && !error && (
-                <tr><td colSpan={7} className="loading"><Spinner /> 加载站点目录…</td></tr>
+                <tr><td colSpan={8} className="loading"><Spinner /> 加载站点目录…</td></tr>
               )}
               {shown.map((s) => {
                 const h = healthOf(s);
@@ -273,6 +320,7 @@ export function StationsPage() {
                       </div>
                       <UptimeBars data={s.uptime} width={3} />
                     </td>
+                    <td className="num mono">{s.fromPriceCny > 0 ? `${fmtCny(s.fromPriceCny)}/M` : '—'}</td>
                     <td>
                       <span className="pay-list">
                         {s.payments.slice(0, 3).map((p) => (
@@ -320,6 +368,7 @@ export function StationsPage() {
                   className="coverage-btn dim tiny"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCoverageStation(s); }}
                 >{s.modelsCount}{totalModels > 0 ? `/${totalModels}` : ''} 模型{missingOf(s).length > 0 ? ` · 缺${missingOf(s).length}` : ''}</button></div>
+                <div className="dir-line"><span className="mono dim">最低价</span><b className="mono">{s.fromPriceCny > 0 ? `${fmtCny(s.fromPriceCny)}/M` : '—'}</b></div>
                 <div className="dir-line"><span className="mono dim">健康</span><b className="mono">{s.uptimePct.toFixed(1)}%</b><UptimeBars data={s.uptime} width={3} />
                   {s.reachability && (() => {
                     const ri = reachInfo(s.reachability)!;

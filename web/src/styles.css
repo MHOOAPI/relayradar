@@ -2645,3 +2645,10 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .quadrant { padding: 6px 10px 14px; }
   .quadrant-legend .quadrant-hint { display: none; }
 }
+/* station presets */
+.preset-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 0 12px; }
+.preset-label { font-size: 11px; margin-right: 2px; }
+.preset-desc { margin-left: 4px; color: var(--text-3); }
+@media (max-width: 760px) {
+  .preset-desc { flex-basis: 100%; margin-left: 0; }
+}
