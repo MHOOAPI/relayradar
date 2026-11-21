@@ -62,17 +62,17 @@ type Model struct {
 }
 
 type Submission struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Domain    string    `json:"domain"`
-	BaseURL   string    `json:"baseUrl"`
-	Contact   string    `json:"contact"`
-	Note      string    `json:"note"`
-	Payments  []string  `json:"payments"`
-	Invoice   bool      `json:"invoice"`
-	RefundPolicy string `json:"refundPolicy"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID           int64     `json:"id"`
+	Name         string    `json:"name"`
+	Domain       string    `json:"domain"`
+	BaseURL      string    `json:"baseUrl"`
+	Contact      string    `json:"contact"`
+	Note         string    `json:"note"`
+	Payments     []string  `json:"payments"`
+	Invoice      bool      `json:"invoice"`
+	RefundPolicy string    `json:"refundPolicy"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 // ClaimEdit is a pending change to a claimed station profile.
@@ -259,6 +259,8 @@ type Subscription struct {
 	Kinds         []string   `json:"kinds"`
 	Stations      []string   `json:"stations"`
 	Providers     []string   `json:"providers"`
+	MinDeltaPct   float64    `json:"minDeltaPct"`
+	MaxPriceCNY   float64    `json:"maxPriceCny"`
 	Enabled       bool       `json:"enabled"`
 	Attempts      int        `json:"attempts"`
 	LastError     string     `json:"lastError"`
@@ -267,7 +269,8 @@ type Subscription struct {
 	LastSentAt    time.Time  `json:"lastSentAt"`
 }
 
-type AuditReport struct {	ID        string    `json:"id"`
+type AuditReport struct {
+	ID        string    `json:"id"`
 	TargetURL string    `json:"targetUrl"`
 	Model     string    `json:"model"`
 	Passed    bool      `json:"passed"`
@@ -654,17 +657,17 @@ func (s *Store) ClaimEditsByToken(ctx context.Context, token string, limit int) 
 
 func (s *Store) CreateSubscription(ctx context.Context, sub Subscription) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO subscriptions (id, channel, url, email, secret, kinds, stations, providers, enabled, created_at, last_sent_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+		INSERT INTO subscriptions (id, channel, url, email, secret, kinds, stations, providers, enabled, min_delta_pct, max_price_cny, created_at, last_sent_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
 		sub.ID, sub.Channel, sub.URL, sub.Email, sub.Secret, sub.Kinds, sub.Stations, sub.Providers,
-		sub.Enabled, sub.CreatedAt, sub.LastSentAt)
+		sub.Enabled, sub.MinDeltaPct, sub.MaxPriceCNY, sub.CreatedAt, sub.LastSentAt)
 	return err
 }
 
 func (s *Store) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT id, channel, url, email, secret, kinds, stations, providers, enabled, attempts, last_error,
-		       next_attempt_at, created_at, last_sent_at
+		       min_delta_pct, max_price_cny, next_attempt_at, created_at, last_sent_at
 		FROM subscriptions ORDER BY created_at`)
 	if err != nil {
 		return nil, err
@@ -676,7 +679,7 @@ func (s *Store) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 		var sub Subscription
 		if err := rows.Scan(&sub.ID, &sub.Channel, &sub.URL, &sub.Email, &sub.Secret,
 			&sub.Kinds, &sub.Stations, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
-			&sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt); err != nil {
+			&sub.MinDeltaPct, &sub.MaxPriceCNY, &sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt); err != nil {
 			return nil, err
 		}
 		out = append(out, sub)
@@ -688,18 +691,21 @@ func (s *Store) GetSubscription(ctx context.Context, id string) (Subscription, e
 	var sub Subscription
 	err := s.pool.QueryRow(ctx, `
 		SELECT id, channel, url, email, secret, kinds, stations, providers, enabled, attempts, last_error,
-		       next_attempt_at, created_at, last_sent_at
+		       min_delta_pct, max_price_cny, next_attempt_at, created_at, last_sent_at
 		FROM subscriptions WHERE id = $1`, id).
 		Scan(&sub.ID, &sub.Channel, &sub.URL, &sub.Email, &sub.Secret,
 			&sub.Kinds, &sub.Stations, &sub.Providers, &sub.Enabled, &sub.Attempts, &sub.LastError,
-			&sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt)
+			&sub.MinDeltaPct, &sub.MaxPriceCNY, &sub.NextAttemptAt, &sub.CreatedAt, &sub.LastSentAt)
 	return sub, err
 }
 
 func (s *Store) UpdateSubscription(ctx context.Context, sub Subscription) error {
 	_, err := s.pool.Exec(ctx, `
-		UPDATE subscriptions SET kinds = $2, stations = $3, providers = $4, enabled = $5 WHERE id = $1`,
-		sub.ID, sub.Kinds, sub.Stations, sub.Providers, sub.Enabled)
+		UPDATE subscriptions
+		SET kinds = $2, stations = $3, providers = $4, enabled = $5,
+		    min_delta_pct = $6, max_price_cny = $7
+		WHERE id = $1`,
+		sub.ID, sub.Kinds, sub.Stations, sub.Providers, sub.Enabled, sub.MinDeltaPct, sub.MaxPriceCNY)
 	return err
 }
 
@@ -1147,7 +1153,8 @@ func (s *Store) DeleteReview(ctx context.Context, id int64) error {
 	return err
 }
 
-func (s *Store) GetAudit(ctx context.Context, id string) (AuditReport, error) {	var a AuditReport
+func (s *Store) GetAudit(ctx context.Context, id string) (AuditReport, error) {
+	var a AuditReport
 	err := s.pool.QueryRow(ctx, `
 		SELECT id, target_url, model, passed, payload, created_at
 		FROM audit_reports WHERE id = $1`, id).

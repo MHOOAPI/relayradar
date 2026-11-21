@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime"
 	"net"
 	"net/http"
@@ -20,9 +21,24 @@ import (
 	"syscall"
 	"time"
 
+	"relayradar/internal/app"
 	"relayradar/internal/audit"
 	"relayradar/internal/store"
 )
+
+// alertMatches applies the price thresholds (other kinds pass through).
+func alertMatches(sub store.Subscription, c app.Change) bool {
+	if c.Kind != "price_change" {
+		return true
+	}
+	if sub.MinDeltaPct > 0 && math.Abs(c.DeltaPct) < sub.MinDeltaPct {
+		return false
+	}
+	if sub.MaxPriceCNY > 0 && (c.PriceCNY <= 0 || c.PriceCNY > sub.MaxPriceCNY) {
+		return false
+	}
+	return true
+}
 
 type alertHub struct {
 	client *http.Client
@@ -91,7 +107,17 @@ func newAlertHub(s *Server) *alertHub {
 	}
 }
 
-func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds, stations, providers []string) (*store.Subscription, error) {
+func validateThresholds(minDeltaPct, maxPriceCNY float64) error {
+	if minDeltaPct < 0 || minDeltaPct > 100 {
+		return fmt.Errorf("minDeltaPct must be between 0 and 100")
+	}
+	if maxPriceCNY < 0 || maxPriceCNY > 1_000_000 {
+		return fmt.Errorf("maxPriceCny must be between 0 and 1000000")
+	}
+	return nil
+}
+
+func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds, stations, providers []string, minDeltaPct, maxPriceCNY float64) (*store.Subscription, error) {
 	channel = strings.ToLower(strings.TrimSpace(channel))
 	if channel == "" {
 		channel = "webhook"
@@ -133,6 +159,9 @@ func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds
 	if err != nil {
 		return nil, err
 	}
+	if err := validateThresholds(minDeltaPct, maxPriceCNY); err != nil {
+		return nil, err
+	}
 
 	all, err := h.srv.svc.Repo().ListSubscriptions(ctx)
 	if err != nil {
@@ -146,6 +175,7 @@ func (h *alertHub) add(ctx context.Context, channel, rawURL, email string, kinds
 	sub := &store.Subscription{
 		ID: "sub-" + randToken(4), Channel: channel, URL: rawURL, Email: email,
 		Secret: randToken(16), Kinds: clean, Stations: stations, Providers: cleanProviders,
+		MinDeltaPct: minDeltaPct, MaxPriceCNY: maxPriceCNY,
 		Enabled: true, CreatedAt: now, LastSentAt: now,
 	}
 	if err := h.srv.svc.Repo().CreateSubscription(ctx, *sub); err != nil {
@@ -189,6 +219,9 @@ func (h *alertHub) dispatch() {
 				continue
 			}
 			if !contains(sub.Kinds, c.Kind) || (len(sub.Stations) > 0 && !contains(sub.Stations, c.StationSlug)) {
+				continue
+			}
+			if !alertMatches(*sub, c) {
 				continue
 			}
 			b, _ := json.Marshal(c)
@@ -457,12 +490,14 @@ func (h *alertHub) send(sub *store.Subscription, event string, payload map[strin
 
 func (s *Server) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Channel  string   `json:"channel"`
-		URL      string   `json:"url"`
-		Email    string   `json:"email"`
-		Kinds    []string `json:"kinds"`
-		Stations []string `json:"stations"`
-		Providers []string `json:"providers"`
+		Channel     string   `json:"channel"`
+		URL         string   `json:"url"`
+		Email       string   `json:"email"`
+		Kinds       []string `json:"kinds"`
+		Stations    []string `json:"stations"`
+		Providers   []string `json:"providers"`
+		MinDeltaPct float64  `json:"minDeltaPct"`
+		MaxPriceCNY float64  `json:"maxPriceCny"`
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -481,7 +516,7 @@ func (s *Server) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	sub, err := s.alerts.add(r.Context(), body.Channel, body.URL, body.Email, body.Kinds, body.Stations, body.Providers)
+	sub, err := s.alerts.add(r.Context(), body.Channel, body.URL, body.Email, body.Kinds, body.Stations, body.Providers, body.MinDeltaPct, body.MaxPriceCNY)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
@@ -489,6 +524,7 @@ func (s *Server) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"id": sub.ID, "channel": sub.Channel, "url": sub.URL, "email": sub.Email,
 		"secret": sub.Secret, "kinds": sub.Kinds, "stations": sub.Stations, "providers": sub.Providers,
+		"minDeltaPct": sub.MinDeltaPct, "maxPriceCny": sub.MaxPriceCNY,
 	})
 }
 
@@ -590,10 +626,12 @@ func (s *Server) handleSubUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Kinds     []string `json:"kinds"`
-		Stations  []string `json:"stations"`
-		Providers []string `json:"providers"`
-		Enabled   *bool    `json:"enabled"`
+		Kinds       []string `json:"kinds"`
+		Stations    []string `json:"stations"`
+		Providers   []string `json:"providers"`
+		Enabled     *bool    `json:"enabled"`
+		MinDeltaPct *float64 `json:"minDeltaPct"`
+		MaxPriceCNY *float64 `json:"maxPriceCny"`
 	}
 	if err := decodeJSON(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -623,6 +661,20 @@ func (s *Server) handleSubUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	if body.Enabled != nil {
 		sub.Enabled = *body.Enabled
+	}
+	if body.MinDeltaPct != nil {
+		if err := validateThresholds(*body.MinDeltaPct, sub.MaxPriceCNY); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		sub.MinDeltaPct = *body.MinDeltaPct
+	}
+	if body.MaxPriceCNY != nil {
+		if err := validateThresholds(sub.MinDeltaPct, *body.MaxPriceCNY); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		sub.MaxPriceCNY = *body.MaxPriceCNY
 	}
 	if body.Providers != nil {
 		clean, err := validateProviders(body.Providers)
@@ -667,6 +719,7 @@ func publicSub(sub store.Subscription) map[string]any {
 	return map[string]any{
 		"id": sub.ID, "channel": sub.Channel, "url": sub.URL, "email": sub.Email,
 		"kinds": sub.Kinds, "stations": sub.Stations, "providers": sub.Providers,
+		"minDeltaPct": sub.MinDeltaPct, "maxPriceCny": sub.MaxPriceCNY,
 		"enabled": sub.Enabled, "attempts": sub.Attempts, "lastError": sub.LastError,
 		"nextAttemptAt": sub.NextAttemptAt, "createdAt": sub.CreatedAt, "lastSentAt": sub.LastSentAt,
 	}

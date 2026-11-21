@@ -43,6 +43,8 @@ export function ChangesPage() {
   const [subKinds, setSubKinds] = useState<string[]>(SUB_KINDS);
   const [subProviders, setSubProviders] = useState<string[]>([]);
   const [subWatch, setSubWatch] = useState(false);
+  const [subMinDelta, setSubMinDelta] = useState('0');
+  const [subMaxPrice, setSubMaxPrice] = useState('0');
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<{ id: string; secret: string } | null>(null);
   const [subMsg, setSubMsg] = useState('');
@@ -61,6 +63,8 @@ export function ChangesPage() {
         kinds: subKinds,
         stations: subWatch ? ids : [],
         providers: subProviders,
+        minDeltaPct: subKinds.includes('price_change') ? Number(subMinDelta) || 0 : 0,
+        maxPriceCny: subKinds.includes('price_change') ? Number(subMaxPrice) || 0 : 0,
       });
       setCreated({ id: r.id, secret: r.secret });
     } catch (err) {
@@ -188,6 +192,21 @@ export function ChangesPage() {
                 </label>
               ))}
             </div>
+            {subKinds.includes('price_change') && (
+              <div className="sub-thresholds">
+                <label>
+                  <span>跌幅至少</span>
+                  <input type="number" min={0} max={100} step={0.5} value={subMinDelta} onChange={(e) => setSubMinDelta(e.target.value)} />
+                  <span className="dim">%</span>
+                </label>
+                <label>
+                  <span>新价格不高于</span>
+                  <input type="number" min={0} step={0.01} value={subMaxPrice} onChange={(e) => setSubMaxPrice(e.target.value)} />
+                  <span className="dim">元 / 1M</span>
+                </label>
+                <span className="fine">0 表示不限制；只影响「价格变动」事件。</span>
+              </div>
+            )}
             <div className="sub-kinds">
               <span className="ref-label mono">上游厂商</span>
               {[
