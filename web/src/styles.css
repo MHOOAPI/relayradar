@@ -2616,3 +2616,32 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 .admin-snapshot h2 { font-size: 14px; margin: 0 0 2px; }
 .admin-snapshot .sub { margin: 0; }
 .admin-snapshot-actions { display: flex; align-items: center; gap: 10px; }
+/* list / quadrant view toggle */
+.view-toggle { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; }
+.view-toggle button {
+  border: 0; background: var(--panel-2); color: var(--text-2);
+  font-size: 12px; padding: 6px 12px; cursor: pointer;
+}
+.view-toggle button.on { background: var(--accent); color: #04120c; font-weight: 600; }
+
+/* quadrant scatter */
+.quadrant-panel .panel-head { align-items: flex-start; }
+.quadrant { padding: 8px 20px 20px; }
+.quadrant-legend { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; font-size: 11px; padding: 6px 0 10px; }
+.quadrant-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.quadrant-legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.quadrant-hint { margin-left: auto; color: var(--text-3); }
+.quadrant-canvas { position: relative; }
+.quadrant-canvas svg { width: 100%; height: auto; display: block; }
+.quadrant-tip {
+  position: absolute; transform: translate(-50%, -118%);
+  display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px;
+  background: #0b1117; border: 1px solid var(--line-2); pointer-events: none;
+  font-size: 11px; color: var(--text-2); white-space: nowrap; z-index: 2;
+}
+.quadrant-tip b { color: var(--text); font-size: 12px; }
+.quadrant-empty { padding: 40px 20px; color: var(--text-3); font-size: 13px; }
+@media (max-width: 760px) {
+  .quadrant { padding: 6px 10px 14px; }
+  .quadrant-legend .quadrant-hint { display: none; }
+}
