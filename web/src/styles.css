@@ -2579,3 +2579,8 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   outline-offset: 2px;
   border-radius: 6px;
 }
+/* model price trend */
+.price-trend-chart { padding: 12px 20px 16px; }
+.price-trend-empty { padding: 18px 20px 22px; display: grid; gap: 6px; }
+.price-trend-empty b { font-size: 14px; }
+.price-trend-empty p { margin: 0; }

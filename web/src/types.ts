@@ -451,3 +451,10 @@ export interface SearchModel {
   minInputCny: number;
   offersCount: number;
 }
+export interface PriceDailyPoint {
+  day: string;
+  minInputCny: number;
+  minOutputCny: number;
+  stations: number;
+  offers: number;
+}

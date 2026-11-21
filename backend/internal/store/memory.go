@@ -1,9 +1,9 @@
 package store
 
 import (
-	"fmt"
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"strings"
 	"sync"
@@ -55,6 +55,8 @@ type Repo interface {
 	DeleteReview(ctx context.Context, id int64) error
 	ListUsers(ctx context.Context) ([]User, error)
 	ListAllReviews(ctx context.Context) ([]AdminReview, error)
+	SnapshotPriceDaily(ctx context.Context, day time.Time) (int, error)
+	PriceDailyHistory(ctx context.Context, modelID string, days int) ([]PriceDailyPoint, error)
 	UpdateUserRole(ctx context.Context, id int64, role string) error
 	SetUserVerified(ctx context.Context, id int64) error
 	CreateAuthToken(ctx context.Context, tokenHash string, userID int64, kind string, expires time.Time) error
@@ -94,36 +96,37 @@ var _ Repo = (*Store)(nil)
 // Memory is a volatile store used for local previews when PostgreSQL is not
 // available. It holds the same deterministic demo dataset.
 type Memory struct {
-	mu           sync.RWMutex
-	snap         *Snapshot
-	reviews      []Review
-	audits       map[string]AuditReport
-	submissions  []Submission
-	claims       map[string]Claim
+	mu            sync.RWMutex
+	snap          *Snapshot
+	reviews       []Review
+	audits        map[string]AuditReport
+	submissions   []Submission
+	claims        map[string]Claim
 	subscriptions map[string]Subscription
-	nextReviewID int64
-	nextSubID    int64
-	nextClaimID  int64
-	outbound     []outboundClick
-	users        map[int64]User
-	userByEmail  map[string]int64
-	sessions     map[string]memSession
-	authTokens   map[string]memToken
-	deliveries   []Delivery
-	nextDelivery int64
-	adminActions []AdminAction
-	nextAdminAct int64
-	freeKeys     map[int64]FreeKey
-	nextFreeKey  int64
-	statuses     []StatusSnapshot
-	incidents    map[int64]Incident
-	nextIncident int64
-	providers    []ProviderSnapshot
-	reachability map[string]Reachability
-	reachHistory []Reachability
-	claimEdits   []ClaimEdit
+	nextReviewID  int64
+	nextSubID     int64
+	nextClaimID   int64
+	outbound      []outboundClick
+	priceDaily    []PriceDaily
+	users         map[int64]User
+	userByEmail   map[string]int64
+	sessions      map[string]memSession
+	authTokens    map[string]memToken
+	deliveries    []Delivery
+	nextDelivery  int64
+	adminActions  []AdminAction
+	nextAdminAct  int64
+	freeKeys      map[int64]FreeKey
+	nextFreeKey   int64
+	statuses      []StatusSnapshot
+	incidents     map[int64]Incident
+	nextIncident  int64
+	providers     []ProviderSnapshot
+	reachability  map[string]Reachability
+	reachHistory  []Reachability
+	claimEdits    []ClaimEdit
 	nextClaimEdit int64
-	nextUserID   int64
+	nextUserID    int64
 }
 
 type memToken struct {
@@ -146,12 +149,13 @@ func NewMemory() *Memory {
 	snap, reviews := BuildSeedSnapshot()
 	sort.SliceStable(reviews, func(i, j int) bool { return reviews[i].CreatedAt.After(reviews[j].CreatedAt) })
 	return &Memory{
-		snap:         snap,
-		reviews:      reviews,
-		audits:       map[string]AuditReport{},
-		claims:       map[string]Claim{},
+		snap:          snap,
+		reviews:       reviews,
+		audits:        map[string]AuditReport{},
+		claims:        map[string]Claim{},
 		subscriptions: map[string]Subscription{},
 		users:         map[int64]User{},
+		priceDaily:    []PriceDaily{},
 		userByEmail:   map[string]int64{},
 		sessions:      map[string]memSession{},
 		authTokens:    map[string]memToken{},
@@ -162,9 +166,9 @@ func NewMemory() *Memory {
 		incidents:     map[int64]Incident{},
 		nextIncident:  1,
 		nextUserID:    1,
-		nextReviewID: int64(len(reviews) + 1),
-		nextSubID:    1,
-		nextClaimID:  1,
+		nextReviewID:  int64(len(reviews) + 1),
+		nextSubID:     1,
+		nextClaimID:   1,
 	}
 }
 
@@ -1074,7 +1078,6 @@ func (m *Memory) ApplyTermsToStation(ctx context.Context, id int64) error {
 	return nil
 }
 
-
 func (m *Memory) UpdateStationIcon(ctx context.Context, slug, iconURL string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1087,3 +1090,97 @@ func (m *Memory) UpdateStationIcon(ctx context.Context, slug, iconURL string) er
 	return fmt.Errorf("station %s not found", slug)
 }
 
+func sameDay(a, b time.Time) bool {
+	ay, am, ad := a.Date()
+	by, bm, bd := b.Date()
+	return ay == by && am == bm && ad == bd
+}
+
+// SnapshotPriceDaily aggregates the in-memory catalogue into one row per model
+// and station for the given day, mirroring the Postgres job.
+func (m *Memory) SnapshotPriceDaily(ctx context.Context, day time.Time) (int, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	stationSlug := make(map[int64]string, len(m.snap.Stations))
+	for _, st := range m.snap.Stations {
+		stationSlug[st.ID] = st.Slug
+	}
+	stationOfGroup := make(map[int64]int64, len(m.snap.Groups))
+	for _, g := range m.snap.Groups {
+		stationOfGroup[g.ID] = g.StationID
+	}
+	agg := make(map[string]*PriceDaily)
+	for _, gm := range m.snap.GroupModels {
+		if gm.InputCNY == nil || *gm.InputCNY <= 0 {
+			continue
+		}
+		slug := stationSlug[stationOfGroup[gm.GroupID]]
+		if slug == "" {
+			continue
+		}
+		key := gm.ModelID + "|" + slug
+		out := 0.0
+		if gm.OutputCNY != nil {
+			out = *gm.OutputCNY
+		}
+		if cur, ok := agg[key]; ok {
+			if *gm.InputCNY < cur.MinInputCNY {
+				cur.MinInputCNY = *gm.InputCNY
+			}
+			if out > 0 && (cur.MinOutputCNY == 0 || out < cur.MinOutputCNY) {
+				cur.MinOutputCNY = out
+			}
+			cur.Offers++
+			continue
+		}
+		agg[key] = &PriceDaily{Day: day, ModelID: gm.ModelID, StationSlug: slug, MinInputCNY: *gm.InputCNY, MinOutputCNY: out, Offers: 1}
+	}
+	kept := m.priceDaily[:0]
+	for _, p := range m.priceDaily {
+		if !sameDay(p.Day, day) {
+			kept = append(kept, p)
+		}
+	}
+	m.priceDaily = kept
+	for _, p := range agg {
+		m.priceDaily = append(m.priceDaily, *p)
+	}
+	return len(agg), nil
+}
+
+// PriceDailyHistory aggregates stored rows into one point per day.
+func (m *Memory) PriceDailyHistory(ctx context.Context, modelID string, days int) ([]PriceDailyPoint, error) {
+	if days <= 0 {
+		days = 90
+	}
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	cutoff := time.Now().UTC().AddDate(0, 0, -days)
+	byDay := map[string]*PriceDailyPoint{}
+	for _, p := range m.priceDaily {
+		if p.ModelID != modelID || p.Day.Before(cutoff) {
+			continue
+		}
+		key := p.Day.Format("2006-01-02")
+		cur := byDay[key]
+		if cur == nil {
+			cur = &PriceDailyPoint{Day: p.Day, MinInputCNY: p.MinInputCNY, MinOutputCNY: p.MinOutputCNY, Stations: 1, Offers: p.Offers}
+			byDay[key] = cur
+			continue
+		}
+		if p.MinInputCNY < cur.MinInputCNY {
+			cur.MinInputCNY = p.MinInputCNY
+		}
+		if p.MinOutputCNY > 0 && (cur.MinOutputCNY == 0 || p.MinOutputCNY < cur.MinOutputCNY) {
+			cur.MinOutputCNY = p.MinOutputCNY
+		}
+		cur.Stations++
+		cur.Offers += p.Offers
+	}
+	out := make([]PriceDailyPoint, 0, len(byDay))
+	for _, p := range byDay {
+		out = append(out, *p)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Day.Before(out[j].Day) })
+	return out, nil
+}

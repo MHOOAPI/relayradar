@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
-import type { ModelProviderStatus, ModelSummary, Offer, PriceChange } from '../types';
+import type { ModelProviderStatus, ModelSummary, Offer, PriceChange, PriceDailyPoint } from '../types';
+import { TrendChart } from '../components/TrendChart';
 import { fmtCny, fmtDate, fmtUsd, Spinner, TierBadge } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PriceTexture } from '../components/Backdrop';
@@ -42,6 +43,7 @@ export function ModelPage() {
   const [upstream, setUpstream] = useState<ModelProviderStatus | null>(null);
   const [offerSort, setOfferSort] = useState<'price' | 'availability' | 'rank' | 'multiplier'>('price');
   const [onlyOfficial, setOnlyOfficial] = useState(false);
+  const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
 
   useEffect(() => {
     if (!model) return;
@@ -75,6 +77,12 @@ export function ModelPage() {
   useEffect(() => {
     api.models().then((r) => setAllModels(r.items)).catch(() => setAllModels([]));
   }, []);
+
+  useEffect(() => {
+    if (!id) return;
+    setPriceHistory([]);
+    api.modelPriceHistory(id).then((r) => setPriceHistory(r.points ?? [])).catch(() => setPriceHistory([]));
+  }, [id]);
 
   const related = useMemo(() => {
     if (!model) return [];
@@ -241,6 +249,45 @@ export function ModelPage() {
           </div>
         </section>
       </div>
+
+      <section className="panel price-trend">
+        <div className="panel-head">
+          <div>
+            <h2>全网最低价走势</h2>
+            <p className="sub">每天记录一次各站最低输入价；系统从部署当天开始积累，曲线随天数增长。</p>
+          </div>
+          <span className="mono dim">
+            {priceHistory.length > 0
+              ? `${priceHistory.length} 天 · 最新 ${fmtCny(priceHistory[priceHistory.length - 1].minInputCny)}`
+              : '尚未记录'}
+          </span>
+        </div>
+        {priceHistory.length >= 2 ? (
+          <div className="price-trend-chart">
+            <TrendChart
+              values={priceHistory.map((p) => p.minInputCny)}
+              labels={priceHistory.map((p) => p.day.slice(5))}
+              color="#2ee6a6"
+              unit=" 元"
+              decimals={2}
+              height={160}
+            />
+          </div>
+        ) : (
+          <div className="price-trend-empty">
+            <b>
+              {priceHistory.length === 1
+                ? `今天全网最低 ${fmtCny(priceHistory[0].minInputCny)}`
+                : '还没有价格快照'}
+            </b>
+            <p className="sub">
+              {priceHistory.length === 1
+                ? `已记录 ${priceHistory[0].stations} 个站点的报价，累计 2 天后这里显示走势曲线。`
+                : '快照任务每天运行一次，部署后的第二天开始有数据。'}
+            </p>
+          </div>
+        )}
+      </section>
 
       <section className="panel model-offers">
         <div className="panel-head">
