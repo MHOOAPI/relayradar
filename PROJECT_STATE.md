@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.55**（模型级订阅过滤：订阅 add models、模型页入口、投递按 modelId 过滤）
+- 版本：**v0.2.56**（告警投递健康度：近 50 次成功率、平均耗时、最近投递）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

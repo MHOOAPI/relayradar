@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { AlertSubscription, DeliveryLog } from '../types';
@@ -32,6 +32,17 @@ export function AlertsPage() {
   const [busy, setBusy] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [deliveries, setDeliveries] = useState<DeliveryLog[]>([]);
+
+  const deliveryStats = useMemo(() => {
+    const total = deliveries.length;
+    const ok = deliveries.filter((d) => d.ok).length;
+    const withDuration = deliveries.filter((d) => d.durationMs > 0);
+    const avg = withDuration.length
+      ? Math.round(withDuration.reduce((sum, d) => sum + d.durationMs, 0) / withDuration.length)
+      : 0;
+    const last = deliveries[0]?.createdAt;
+    return { total, ok, fail: total - ok, rate: total ? (ok / total) * 100 : 0, avg, last };
+  }, [deliveries]);
 
   const loadDeliveries = () => {
     if (!id || !token) return;
@@ -249,6 +260,31 @@ export function AlertsPage() {
             <p className="sub">最近 50 次投递；失败可手动重放，重放会写入一条新记录。</p>
           </div>
           <button className="btn btn-ghost btn-sm" onClick={loadDeliveries}>刷新</button>
+        </div>
+        <div className="delivery-stats">
+          <div>
+            <span className="dim tiny">近 50 次投递</span>
+            <b className="mono">{deliveryStats.total}</b>
+          </div>
+          <div>
+            <span className="dim tiny">成功率</span>
+            <b className="mono">{deliveryStats.total ? `${deliveryStats.rate.toFixed(1)}%` : '—'}</b>
+            <span className="ds-bar" aria-hidden="true">
+              <i style={{ width: `${deliveryStats.rate}%` }} />
+            </span>
+          </div>
+          <div>
+            <span className="dim tiny">成功 / 失败</span>
+            <b className="mono">{deliveryStats.ok} / {deliveryStats.fail}</b>
+          </div>
+          <div>
+            <span className="dim tiny">平均耗时</span>
+            <b className="mono">{deliveryStats.avg ? `${deliveryStats.avg}ms` : '—'}</b>
+          </div>
+          <div>
+            <span className="dim tiny">最近投递</span>
+            <b className="mono">{deliveryStats.last ? fmt(deliveryStats.last) : '—'}</b>
+          </div>
         </div>
         <div className="table-wrap">
           <table className="index-table">
