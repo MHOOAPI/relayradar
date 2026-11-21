@@ -2457,3 +2457,25 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .model-card, .station-card, .offer-card, .related-card, .dir-card, .pick { transition: none; }
   .model-card:hover, .station-card:hover, .related-card:hover, .dir-card:hover { transform: none; }
 }
+/* ---------- detail-page data backdrops ---------- */
+.has-wave { position: relative; overflow: hidden; }
+.has-wave > :not(.wave-backdrop):not(.price-texture) { position: relative; z-index: 1; }
+.wave-backdrop {
+  position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 62%;
+  pointer-events: none; opacity: 0.8;
+}
+.price-texture {
+  position: absolute; right: 0; bottom: 0; width: 46%; height: 84%;
+  pointer-events: none; opacity: 0.85;
+  -webkit-mask-image: linear-gradient(to left, #000 24%, transparent 94%);
+  mask-image: linear-gradient(to left, #000 24%, transparent 94%);
+}
+
+/* a whisper of glow on the numbers that carry the signal */
+.hero-stats b { text-shadow: 0 0 24px rgba(46, 230, 166, 0.16); }
+.scorecards .big { text-shadow: 0 0 18px rgba(46, 230, 166, 0.12); }
+@media (max-width: 760px) {
+  .price-texture { width: 70%; opacity: 0.6; }
+}
+/* keep Chinese words whole in detail heroes */
+.tagline { word-break: keep-all; }
