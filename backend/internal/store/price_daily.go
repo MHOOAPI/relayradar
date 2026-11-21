@@ -97,3 +97,53 @@ func (s *Store) StationPriceHistory(ctx context.Context, slug, modelID string, d
 	}
 	return out, rows.Err()
 }
+
+// PriceDropRow is one station/model pair whose price fell inside the window.
+type PriceDropRow struct {
+	StationSlug string
+	ModelID     string
+	OldPriceCNY float64
+	NewPriceCNY float64
+	OldDay      time.Time
+	NewDay      time.Time
+}
+
+// PriceDrops compares the first and last snapshot in the window for every
+// station/model pair and returns the ones whose input price fell.
+func (s *Store) PriceDrops(ctx context.Context, days int) ([]PriceDropRow, error) {
+	if days <= 0 {
+		days = 30
+	}
+	rows, err := s.pool.Query(ctx, `
+		WITH w AS (
+			SELECT station_slug, model_id, day, min_input_cny,
+			       FIRST_VALUE(min_input_cny) OVER (PARTITION BY station_slug, model_id ORDER BY day) AS first_price,
+			       FIRST_VALUE(day) OVER (PARTITION BY station_slug, model_id ORDER BY day) AS first_day,
+			       LAST_VALUE(min_input_cny) OVER (
+			           PARTITION BY station_slug, model_id ORDER BY day
+			           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_price,
+			       LAST_VALUE(day) OVER (
+			           PARTITION BY station_slug, model_id ORDER BY day
+			           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_day
+			FROM price_daily
+			WHERE day > CURRENT_DATE - $1::int
+		)
+		SELECT DISTINCT ON (station_slug, model_id)
+		       station_slug, model_id, first_price, last_price, first_day, last_day
+		FROM w
+		WHERE last_price < first_price * 0.99
+		ORDER BY station_slug, model_id, last_day DESC`, days)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]PriceDropRow, 0, 32)
+	for rows.Next() {
+		var r PriceDropRow
+		if err := rows.Scan(&r.StationSlug, &r.ModelID, &r.OldPriceCNY, &r.NewPriceCNY, &r.OldDay, &r.NewDay); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}

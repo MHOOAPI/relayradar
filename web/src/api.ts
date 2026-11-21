@@ -19,6 +19,7 @@ import type {
   Offer,
   PriceChange,
   PriceDailyPoint,
+  PriceDrop,
   Review,
   Station,
   StationDetail,
@@ -197,6 +198,8 @@ export const api = {
     }),
   windowLeaderboard: (days: number) =>
     request<{ items: WindowRow[]; windowDays: number }>(`/leaderboards/window?days=${days}`),
+  priceDrops: (days = 30, limit = 20) =>
+    request<{ days: number; items: PriceDrop[] }>(`/leaderboards/price-drops?days=${days}&limit=${limit}`),
   me: () => request<{ user: User }>('/auth/me'),
   account: () => request<AccountData>('/account'),
   accountSetSub: (id: string, enabled: boolean) =>

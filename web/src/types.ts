@@ -458,3 +458,14 @@ export interface PriceDailyPoint {
   stations: number;
   offers: number;
 }
+export interface PriceDrop {
+  modelId: string;
+  modelName: string;
+  vendorName: string;
+  stationSlug: string;
+  stationName: string;
+  oldInputCny: number;
+  newInputCny: number;
+  deltaPct: number;
+  at: string;
+}

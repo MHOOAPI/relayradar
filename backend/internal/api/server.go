@@ -107,6 +107,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/v1/stations/{slug}/history", s.handleStationHistory)
 	mux.HandleFunc("GET /api/v1/stations/{slug}/price-history", s.handleStationPriceHistory)
 	mux.HandleFunc("GET /api/v1/leaderboards/window", s.handleWindowLeaderboard)
+	mux.HandleFunc("GET /api/v1/leaderboards/price-drops", s.handlePriceDrops)
 	mux.HandleFunc("POST /api/v1/outbound", s.handleOutbound)
 	mux.HandleFunc("POST /api/v1/auth/register", s.handleRegister)
 	mux.HandleFunc("POST /api/v1/auth/login", s.handleLogin)

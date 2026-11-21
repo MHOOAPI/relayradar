@@ -58,6 +58,7 @@ type Repo interface {
 	SnapshotPriceDaily(ctx context.Context, day time.Time) (int, error)
 	PriceDailyHistory(ctx context.Context, modelID string, days int) ([]PriceDailyPoint, error)
 	StationPriceHistory(ctx context.Context, slug, modelID string, days int) ([]PriceDailyPoint, error)
+	PriceDrops(ctx context.Context, days int) ([]PriceDropRow, error)
 	UpdateUserRole(ctx context.Context, id int64, role string) error
 	SetUserVerified(ctx context.Context, id int64) error
 	CreateAuthToken(ctx context.Context, tokenHash string, userID int64, kind string, expires time.Time) error
@@ -1202,5 +1203,48 @@ func (m *Memory) StationPriceHistory(ctx context.Context, slug, modelID string, 
 		out = append(out, PriceDailyPoint{Day: p.Day, MinInputCNY: p.MinInputCNY, MinOutputCNY: p.MinOutputCNY, Stations: 1, Offers: p.Offers})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Day.Before(out[j].Day) })
+	return out, nil
+}
+
+// PriceDrops compares the earliest and latest snapshot per station/model.
+func (m *Memory) PriceDrops(ctx context.Context, days int) ([]PriceDropRow, error) {
+	if days <= 0 {
+		days = 30
+	}
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	cutoff := time.Now().UTC().AddDate(0, 0, -days)
+	type pair struct{ first, last PriceDaily }
+	byPair := map[string]*pair{}
+	for _, p := range m.priceDaily {
+		if p.Day.Before(cutoff) {
+			continue
+		}
+		key := p.StationSlug + "|" + p.ModelID
+		cur := byPair[key]
+		if cur == nil {
+			byPair[key] = &pair{first: p, last: p}
+			continue
+		}
+		if p.Day.Before(cur.first.Day) {
+			cur.first = p
+		}
+		if p.Day.After(cur.last.Day) {
+			cur.last = p
+		}
+	}
+	out := make([]PriceDropRow, 0, len(byPair))
+	for _, pr := range byPair {
+		if pr.last.MinInputCNY > 0 && pr.first.MinInputCNY > 0 && pr.last.MinInputCNY < pr.first.MinInputCNY*0.99 {
+			out = append(out, PriceDropRow{
+				StationSlug: pr.last.StationSlug,
+				ModelID:     pr.last.ModelID,
+				OldPriceCNY: pr.first.MinInputCNY,
+				NewPriceCNY: pr.last.MinInputCNY,
+				OldDay:      pr.first.Day,
+				NewDay:      pr.last.Day,
+			})
+		}
+	}
 	return out, nil
 }
