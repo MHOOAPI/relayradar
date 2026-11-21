@@ -22,10 +22,10 @@ type PresetKey = 'all' | 'invoice' | 'cheap' | 'cn' | 'official' | 'fast';
 const PRESETS: Array<{ key: PresetKey; label: string; desc: string; test: (s: Station) => boolean; sort: 'rank' | 'price' | 'reach' }> = [
   { key: 'all', label: '全部', desc: '', test: () => true, sort: 'rank' },
   { key: 'invoice', label: '企业开票', desc: '支持开票且填写了退款政策，适合公司采购与报销', test: (s) => s.invoice && !['', '未知', '—'].includes(s.refundPolicy.trim()), sort: 'rank' },
-  { key: 'cheap', label: '低起充省钱', desc: '起充 ≤ ¥20 且最低输入价更低，按价格升序', test: (s) => s.minTopupCny <= 20 && s.fromPriceCny > 0, sort: 'price' },
+  { key: 'cheap', label: '低起充省钱', desc: '起充 ≤ ¥10 且最低价 ≤ ¥0.03/M，按价格升序', test: (s) => s.minTopupCny <= 10 && s.fromPriceCny > 0 && s.fromPriceCny <= 0.03, sort: 'price' },
   { key: 'cn', label: '国产模型', desc: '覆盖 DeepSeek / Qwen / Kimi 至少一条线路', test: (s) => s.services.some((k) => ['deepseek', 'qwen', 'kimi', 'moonshot'].includes(k)), sort: 'rank' },
   { key: 'official', label: '官方直连', desc: '纯度抽检为官方直连，签名完整', test: (s) => s.purityTier === 'official', sort: 'rank' },
-  { key: 'fast', label: '低延迟', desc: '首页可达延迟 ≤ 300ms 或速度分 ≥ 85', test: (s) => (s.reachability?.latencyMs ?? 99999) <= 300 || s.speed >= 85, sort: 'reach' },
+  { key: 'fast', label: '低延迟', desc: '首页可达延迟 ≤ 500ms 或速度分 ≥ 92', test: (s) => (s.reachability?.status === 'ok' && s.reachability.latencyMs <= 500) || s.speed >= 92, sort: 'reach' },
 ];
 
 const healthOf = (s: Station) => {
@@ -94,11 +94,21 @@ export function StationsPage() {
     if (params.get('reachable') === '1') setOnlyReachable(true);
   }, [params]);
 
-  const rows = useMemo(() => {
+  const base = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const list = (stations ?? []).filter(
-      (s) => !s.officialVendor && (!onlyClaimed || s.claimed) && (!minModels || s.modelsCount >= minModels) && (!onlyReachable || s.reachability?.status === 'ok') && activePreset.test(s) && (!needle || `${s.name} ${s.domain} ${s.slug}`.toLowerCase().includes(needle)),
+    return (stations ?? []).filter(
+      (s) => !s.officialVendor && (!onlyClaimed || s.claimed) && (!minModels || s.modelsCount >= minModels) && (!onlyReachable || s.reachability?.status === 'ok') && (!needle || `${s.name} ${s.domain} ${s.slug}`.toLowerCase().includes(needle)),
     );
+  }, [stations, q, onlyClaimed, minModels, onlyReachable]);
+
+  const presetCounts = useMemo(() => {
+    const m = new Map<PresetKey, number>();
+    for (const p of PRESETS) m.set(p.key, base.filter(p.test).length);
+    return m;
+  }, [base]);
+
+  const rows = useMemo(() => {
+    const list = base.filter(activePreset.test);
     return [...list].sort((a, b) => {
       if (sort === 'price') return (a.fromPriceCny > 0 ? a.fromPriceCny : 1e9) - (b.fromPriceCny > 0 ? b.fromPriceCny : 1e9) || a.rank - b.rank;
       if (sort === 'uptime') return b.uptimePct - a.uptimePct;
@@ -109,7 +119,7 @@ export function StationsPage() {
       }
       return a.rank - b.rank;
     });
-  }, [stations, q, sort, onlyClaimed, minModels, onlyReachable, preset]);
+  }, [base, sort, activePreset]);
 
   const [visible, setVisible] = useState(60);
   useEffect(() => setVisible(60), [q, sort, onlyClaimed, minModels, onlyReachable, preset]);
@@ -238,6 +248,9 @@ export function StationsPage() {
             onClick={() => setPreset(p.key)}
           >
             {p.label}
+            {presetCounts.get(p.key) !== undefined && (
+              <span className="preset-count">{presetCounts.get(p.key)}</span>
+            )}
           </button>
         ))}
         {activePreset.desc && <span className="preset-desc fine">{activePreset.desc}</span>}
@@ -276,6 +289,9 @@ export function StationsPage() {
             <tbody>
               {!stations && !error && (
                 <tr><td colSpan={8} className="loading"><Spinner /> 加载站点目录…</td></tr>
+              )}
+              {stations && shown.length === 0 && (
+                <tr><td colSpan={8} className="loading">没有符合条件的站点，试试清除筛选或换一个场景。</td></tr>
               )}
               {shown.map((s) => {
                 const h = healthOf(s);
@@ -397,6 +413,9 @@ export function StationsPage() {
               </Link>
             );
           })}
+          {stations && shown.length === 0 && (
+            <p className="fine" style={{ padding: 16 }}>没有符合条件的站点，试试清除筛选或换一个场景。</p>
+          )}
         </div>
       </section>
 
