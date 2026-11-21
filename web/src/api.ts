@@ -18,6 +18,7 @@ import type {
   ModelOption,
   Offer,
   PriceChange,
+  PriceDailyPoint,
   Review,
   Station,
   StationDetail,
@@ -81,6 +82,10 @@ export const api = {
   station: (slug: string) => request<StationDetail>(`/stations/${encodeURIComponent(slug)}`),
   stationReachability: (slug: string) => request<StationReachabilityHistory>(`/stations/${encodeURIComponent(slug)}/reachability`),
   models: () => request<{ items: ModelSummary[]; total: number }>('/models'),
+  modelPriceHistory: (id: string, days = 90) =>
+    request<{ modelId: string; days: number; points: PriceDailyPoint[] }>(
+      `/models/${encodeURIComponent(id)}/price-history?days=${days}`,
+    ),
   model: (id: string) => request<{ model: ModelSummary; offers: Offer[]; priceChanges: PriceChange[] }>(`/models/${encodeURIComponent(id)}`),
   reviews: (slug: string, body: { author: string; rating: number; body: string }) =>
     request<Review>(`/stations/${encodeURIComponent(slug)}/reviews`, {

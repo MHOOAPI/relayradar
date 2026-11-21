@@ -9,11 +9,12 @@ type Props = {
   max?: number;
   unit?: string;
   selected?: number | null;
+  decimals?: number;
   onSelect?: (index: number) => void;
 };
 
 /** Dependency-free SVG line chart with a soft area fill and hover readout. */
-export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, min, max, unit = '', selected = null, onSelect }: Props) {
+export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, min, max, unit = '', selected = null, onSelect, decimals = 1 }: Props) {
   const [hover, setHover] = useState<number | null>(null);
   const W = 720;
   const H = height;
@@ -68,7 +69,7 @@ export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, mi
             <circle cx={hoverX} cy={hoverY} r="4.6" fill={color} stroke="#06070a" strokeWidth="2" />
             <rect x={tipX - 44} y={tipY - 15} width="88" height="26" rx="6" fill="#0b1117" stroke="#26313d" />
             <text x={tipX} y={tipY + 3} textAnchor="middle" fontSize="11.5" fill="#e9edf4">
-              {values[hover].toFixed(1)}{unit}
+              {values[hover].toFixed(decimals)}{unit}
             </text>
           </g>
         )}
@@ -92,7 +93,7 @@ export function TrendChart({ values, labels, color = '#2ee6a6', height = 180, mi
       <div className="trend-axis mono">
         <span>{labels[0]}</span>
         <span className="trend-range">
-          {hover !== null ? `${labels[hover]} · ${values[hover].toFixed(1)}${unit}` : `${lo.toFixed(1)}${unit} – ${hi.toFixed(1)}${unit}`}
+          {hover !== null ? `${labels[hover]} · ${values[hover].toFixed(decimals)}${unit}` : `${lo.toFixed(decimals)}${unit} – ${hi.toFixed(decimals)}${unit}`}
         </span>
         <span>{labels[labels.length - 1]}</span>
       </div>

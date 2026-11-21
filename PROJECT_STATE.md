@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.48**（服务端搜索 API、ETag/304 条件请求、命令面板改用服务端搜索）
+- 版本：**v0.2.49**（每日价格快照 job、price_daily 表、模型页全网最低价走势）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
