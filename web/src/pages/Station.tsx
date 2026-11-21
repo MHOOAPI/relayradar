@@ -103,6 +103,20 @@ export function StationPage() {
       .slice(0, 4);
   })();
 
+  const priced = allStations.filter((st) => st.fromPriceCny > 0).sort((a, b) => a.fromPriceCny - b.fromPriceCny);
+  const priceIdx = priced.findIndex((st) => st.slug === s.slug);
+  const priceRank = priceIdx >= 0 ? priceIdx + 1 : 0;
+  const cheaperPct = priced.length && priceRank > 0
+    ? Math.round(((priced.length - priceRank) / priced.length) * 100)
+    : 0;
+  const priceMin = priced[0]?.fromPriceCny ?? 0;
+  const priceMax = priced.length ? priced[priced.length - 1].fromPriceCny : 0;
+  const priceMedian = priced.length ? priced[Math.floor(priced.length / 2)].fromPriceCny : 0;
+  const logPos = (v: number) =>
+    priceMax > priceMin && v > 0
+      ? Math.max(0, Math.min(100, ((Math.log(v) - Math.log(priceMin)) / (Math.log(priceMax) - Math.log(priceMin))) * 100))
+      : 0;
+
   const faq = [
     {
       q: `${s.name} 的综合分是怎么算的？`,
@@ -235,6 +249,33 @@ export function StationPage() {
           ))}
         </div>
       </section>
+
+      {s.fromPriceCny > 0 && priced.length > 10 && (
+        <section className="panel price-pos">
+          <div className="panel-head">
+            <div>
+              <h2>价格位置</h2>
+              <p className="sub">全站 {priced.length} 家站点的最低输入价，按对数刻度排布；便宜不等于更稳，综合分一起看。</p>
+            </div>
+            <span className="mono dim">第 {priceRank} 便宜 / {priced.length}</span>
+          </div>
+          <div className="pp-body">
+            <div className="pp-track" aria-hidden="true">
+              <span className="pp-marker median" style={{ left: `${logPos(priceMedian)}%` }} title={`全站中位 ${fmtCny(priceMedian)}`} />
+              <span className="pp-marker me" style={{ left: `${logPos(s.fromPriceCny)}%` }} title={`本站 ${fmtCny(s.fromPriceCny)}`} />
+            </div>
+            <div className="pp-scale mono dim">
+              <span>¥{priceMin.toFixed(2)}</span>
+              <span>中位 ¥{priceMedian.toFixed(2)}</span>
+              <span>¥{priceMax.toFixed(2)}</span>
+            </div>
+            <p className="pp-note">
+              本站最低输入价 <b className="mono">{fmtCny(s.fromPriceCny)}</b>/M，
+              比 <b className="accent">{cheaperPct}%</b> 的站点便宜；全站中位 <b className="mono">¥{priceMedian.toFixed(2)}</b>。
+            </p>
+          </div>
+        </section>
+      )}
 
       {reach && reach.some((d) => d.status !== 'unknown') && (() => {
         const known = reach.filter((d) => d.status !== 'unknown');
