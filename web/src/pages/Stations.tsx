@@ -85,13 +85,19 @@ export function StationsPage() {
   const [totalModels, setTotalModels] = useState(0);
   const [modelList, setModelList] = useState<Array<{ id: string; name: string }>>([]);
   const [compareOpen, setCompareOpen] = useState(false);
-  const [picked, setPicked] = useState<string[]>([]);
+  const [picked, setPicked] = useState<string[]>(() => {
+    const raw = params.get('pick');
+    return raw ? raw.split(',').filter(Boolean).slice(0, 4) : [];
+  });
+  const applyPicked = (next: string[]) => {
+    setPicked(next);
+    const p = new URLSearchParams(params);
+    if (next.length) p.set('pick', next.join(',')); else p.delete('pick');
+    setParams(p, { replace: true });
+  };
   const togglePick = (slug: string) => {
-    setPicked((prev) => {
-      if (prev.includes(slug)) return prev.filter((x) => x !== slug);
-      if (prev.length >= 4) return prev;
-      return [...prev, slug];
-    });
+    if (picked.includes(slug)) applyPicked(picked.filter((x) => x !== slug));
+    else if (picked.length < 4) applyPicked([...picked, slug]);
   };
   const [coverageStation, setCoverageStation] = useState<Station | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,8 +110,11 @@ export function StationsPage() {
     api.models().then((r) => setModelList(r.items.map((m) => ({ id: m.id, name: m.name })))).catch(() => setModelList([]));
   }, []);
 
+  const qParam = params.get('q') ?? '';
   useEffect(() => {
-    setQ(params.get('q') ?? '');
+    setQ(qParam);
+  }, [qParam]);
+  useEffect(() => {
     if (params.get('reachable') === '1') setOnlyReachable(true);
   }, [params]);
 
@@ -508,7 +517,7 @@ export function StationsPage() {
             })}
           </div>
           <span className="fine">最多 4 家</span>
-          <button type="button" className="link-btn" onClick={() => setPicked([])}>清空</button>
+          <button type="button" className="link-btn" onClick={() => applyPicked([])}>清空</button>
           {picked.length >= 2 ? (
             <Link className="btn btn-primary btn-sm" to={`/compare?ids=${picked.join(',')}`}>对比 {picked.length} 家</Link>
           ) : (
