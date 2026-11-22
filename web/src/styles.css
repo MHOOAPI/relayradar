@@ -2711,3 +2711,26 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   .drop-table { display: none; }
   .drop-cards { display: grid; gap: 8px; padding: 12px; }
 }
+/* in-page section navigation */
+.section-nav {
+  position: sticky; top: 64px; z-index: 25;
+  display: flex; align-items: center; gap: 6px;
+  margin: 12px 0 6px; padding: 8px 0;
+  overflow-x: auto; scrollbar-width: none;
+  background: linear-gradient(180deg, rgba(6, 7, 10, .97), rgba(6, 7, 10, .86));
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.section-nav::-webkit-scrollbar { display: none; }
+.section-nav-item {
+  flex: none; border: 1px solid transparent; background: transparent;
+  color: var(--text-2); font-size: 12px; padding: 5px 10px; border-radius: 7px;
+  cursor: pointer; white-space: nowrap;
+}
+.section-nav-item:hover { color: var(--text); background: var(--panel-2); }
+.section-nav-item.on { color: var(--accent); border-color: rgba(46, 230, 166, .35); background: rgba(46, 230, 166, .06); }
+section[id] { scroll-margin-top: 120px; }
+@media (max-width: 760px) {
+  .section-nav { top: 56px; margin-top: 8px; }
+  section[id] { scroll-margin-top: 108px; }
+}
