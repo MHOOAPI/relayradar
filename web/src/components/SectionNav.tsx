@@ -30,7 +30,17 @@ export function SectionNav({ items }: { items: SectionItem[] }) {
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash && items.some((i) => i.id === hash)) setActive(hash);
+    if (!hash || !items.some((i) => i.id === hash)) return;
+    setActive(hash);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const align = () => {
+      const el = document.getElementById(hash);
+      if (!el) return;
+      if (Math.abs(el.getBoundingClientRect().top - 116) < 40) return;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 116, behavior: reduce ? 'auto' : 'smooth' });
+    };
+    const timers = [80, 400, 1000].map((ms) => window.setTimeout(align, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
   }, [items]);
 
   const jump = (id: string) => {
