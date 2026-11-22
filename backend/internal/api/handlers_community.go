@@ -360,7 +360,7 @@ func (s *Server) handleLLMs(w http.ResponseWriter, r *http.Request) {
 
 	b.WriteString("## 指南\n\n")
 	for _, g := range guides {
-		fmt.Fprintf(&b, "- [%s](%s/guides/%s) — %s\n", g.Title, s.cfg.PublicBaseURL, g.Slug, g.Desc)
+		fmt.Fprintf(&b, "- [%s](%s/guides/%s) — %s\n", g.Title, s.publicBase(r), g.Slug, g.Desc)
 	}
 	b.WriteString("\n")
 	b.WriteString("## 说明\n\n")

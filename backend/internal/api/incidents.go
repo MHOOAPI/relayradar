@@ -139,8 +139,8 @@ func (s *Server) handleStatusRSS(w http.ResponseWriter, r *http.Request) {
 		Desc    string `xml:"description"`
 	}
 	type rss struct {
-		XMLName xml.Name  `xml:"rss"`
-		Version string    `xml:"version,attr"`
+		XMLName xml.Name `xml:"rss"`
+		Version string   `xml:"version,attr"`
 		Channel struct {
 			Title string    `xml:"title"`
 			Link  string    `xml:"link"`
@@ -148,14 +148,14 @@ func (s *Server) handleStatusRSS(w http.ResponseWriter, r *http.Request) {
 			Items []rssItem `xml:"item"`
 		} `xml:"channel"`
 	}
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	feed := rss{Version: "2.0"}
 	feed.Channel.Title = "RelayRadar 服务状态"
 	feed.Channel.Link = base + "/status"
 	feed.Channel.Desc = "服务事故与维护记录"
 	for _, i := range items {
 		feed.Channel.Items = append(feed.Channel.Items, rssItem{
-			Title:   i.Title, Link: base + "/status", GUID: fmt.Sprintf("%s/status#incident-%d", base, i.ID),
+			Title: i.Title, Link: base + "/status", GUID: fmt.Sprintf("%s/status#incident-%d", base, i.ID),
 			PubDate: i.StartedAt.Format(time.RFC1123Z), Desc: i.Body,
 		})
 	}

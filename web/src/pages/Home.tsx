@@ -189,6 +189,20 @@ export function Home() {
   useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
 
+  const heroTop = useMemo(
+    () => [...(stations ?? [])].filter((s) => s.rank > 0).sort((a, b) => a.rank - b.rank).slice(0, 5),
+    [stations],
+  );
+
+  const hotModels = useMemo(
+    () =>
+      (models ?? [])
+        .filter((m) => m.minInputCny > 0 && !/(?:^|[-:])batch|(?:^|[-:])free/i.test(m.id))
+        .sort((a, b) => b.offersCount - a.offersCount)
+        .slice(0, 4),
+    [models],
+  );
+
   const exportCsv = () => {
     const esc = (v: string | number | boolean) => `"${String(v).replace(/"/g, '""')}"`;
     const header = ['rank', 'name', 'domain', 'services', 'rankScore', 'uptimePct', 'speed', 'purityTier', 'purity', 'models', 'fromPriceCny', 'minTopupCny', 'invoice'];
@@ -228,11 +242,17 @@ export function Home() {
             <em>掺了水</em>，看数据。
           </h1>
           <p>
-            每 2 小时一次真实探针，按可用性、速度、思考签名抽检和真实倍率排序。
-            赞助位与广告不参与排名。
+            {meta?.demo
+              ? '演示数据集：站点名称与域名来自公开信息，探针、评分与价格为示例值，不代表真实商家表现。'
+              : '每 2 小时一次真实探针，按可用性、速度、思考签名抽检和真实倍率排序。赞助位与广告不参与排名。'}
           </p>
           <div className="hero-cta">
+            <a className="btn btn-primary" href="#ranking">看实时榜单</a>
             <Link to="/methodology" className="btn btn-ghost">评分怎么算的</Link>
+          </div>
+          <div className="hero-formula-line mono">
+            <span>综合分 = 62% 可用性 + 26% 速度 + 12% 稳定性</span>
+            <Link to="/methodology">看完整公式与已知局限 →</Link>
           </div>
           <div className="trust-strip">
             <span className="trust-item">
@@ -251,28 +271,37 @@ export function Home() {
           <Link to="/guides/how-to-choose-relay" className="hero-link">
             新手？先看 10 分钟选站清单 →
           </Link>
-          <a className="hero-scroll mono" href="#ranking">向下看完整榜单 <span aria-hidden="true">↓</span></a>
         </div>
 
-        <div className="hero-card" ref={heroCardRef}>
-          <div className="hero-card-head">
-            <span className="mono label">评分构成</span>
-            <span className="mono tag-live">v2.0</span>
+        <div className="hero-board" ref={heroCardRef}>
+          <div className="hero-board-head">
+            <span className="mono label">当前前 5</span>
+            <span className={`prov-badge ${meta?.demo ? 'demo' : 'live'}`}>
+              {meta?.demo ? '演示数据' : '实测数据'}
+            </span>
           </div>
-          <p className="hero-formula">综合分 = 62% 可用性 + 26% 速度 + 12% 稳定性</p>
-          <p className="hero-formula-note">
-            可用性取 95% 置信下界，小样本不吹满分；纯度与价格单列，不参与排名。
+          <ol className="hero-board-list">
+            {heroTop.map((s) => (
+              <li key={s.slug}>
+                <Link to={`/stations/${s.slug}`} className="hb-row">
+                  <span className="hb-rank mono">{s.rank}</span>
+                  <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={22} />
+                  <span className="hb-name">
+                    {s.name}
+                    <small className="mono">{s.domain}</small>
+                  </span>
+                  <span className="hb-score mono">{s.rankScore.toFixed(1)}</span>
+                  <span className="hb-price mono">{fmtCny(s.fromPriceCny)}</span>
+                </Link>
+              </li>
+            ))}
+            {heroTop.length === 0 && <li className="hb-empty">加载榜单…</li>}
+          </ol>
+          <p className="hb-foot mono">
+            {meta ? fmtNum(heroStations) : '—'} 站点 · {meta ? fmtNum(heroGroups) : '—'} 分组 · {meta ? fmtNum(heroProbes) : '—'} 探针
           </p>
-          <div className="hero-stats">
-            <div><b>{meta ? fmtNum(heroStations) : '—'}</b><span>站点</span></div>
-            <div><b>{meta ? fmtNum(heroGroups) : '—'}</b><span>分组</span></div>
-            <div><b>{meta ? fmtNum(heroProbes) : '—'}</b><span>探针</span></div>
-          </div>
-          <Link className="hero-formula-link" to="/methodology">看完整公式与已知局限 →</Link>
         </div>
       </section>
-
-      <KeyCheck />
 
       {changes.length > 0 && (
         <div className="live-strip" aria-label="最近变更">
@@ -311,7 +340,8 @@ export function Home() {
         ))}
       </section>
 
-      <div className="toolbar">
+      <div className="ranking-scope">
+        <div className="toolbar">
         <div className="chips">
           {SERVICES.map(([k, label]) => (
             <button key={k} className={`chip ${service === k ? 'on' : ''}`} onClick={() => setService(k)}>
@@ -362,8 +392,14 @@ export function Home() {
             </p>
           </div>
           <div className="panel-head-right">
+            <span
+              className={`prov-badge ${meta?.demo ? 'demo' : 'live'}`}
+              title={meta?.demo ? '探针、评分与价格为生成值，仅用于演示' : '来自真实探针与站点公开价格'}
+            >
+              {meta?.demo ? '演示数据' : '实测数据'}
+            </span>
             <span className="mono dim">
-              数据时间 {meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}
+              {meta?.demo ? '生成时间' : '数据时间'} {meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}
             </span>
             <button className="btn btn-ghost btn-xs" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
           </div>
@@ -416,6 +452,11 @@ export function Home() {
                           </Link>
                           {s.claimed && <span className="badge-ok" title="站长已认领">✓</span>}
                           {s.newDomain && <span className="badge-warn">新站</span>}
+                          {meta && (
+                            <span className={`prov-chip ${meta.demo ? 'demo' : 'live'}`} title={meta.demo ? '该行评分为演示数据' : '该行评分来自真实探针'}>
+                              {meta.demo ? '演示' : '实测'}
+                            </span>
+                          )}
                           <WatchStar slug={s.slug} size={13} />
                         </div>
                         <span className="station-domain mono">{s.domain}</span>
@@ -475,6 +516,11 @@ export function Home() {
                   <b>{s.name}</b>
                   <small className="mono">{s.domain}</small>
                 </div>
+                {meta && (
+                  <span className={`prov-chip ${meta.demo ? 'demo' : 'live'}`} title={meta.demo ? '该行评分为演示数据' : '该行评分来自真实探针'}>
+                    {meta.demo ? '演示' : '实测'}
+                  </span>
+                )}
                 <span className="sc-score mono">{s.rankScore.toFixed(1)}<small>分</small></span>
               </div>
               <div className="sc-row2">
@@ -501,28 +547,35 @@ export function Home() {
           价格 = 官方 USD 单价 × 站点结算汇率 × 分组倍率；取该站全部模型中的最低输入价，非单一模型报价。
         </div>
       </section>
+      </div>
+
+      <KeyCheck />
 
       <section className="home-section">
         <div className="home-sec-head">
           <div>
             <h2>热门模型最低价</h2>
-            <p className="sub">同一模型在不同中转分组差价可达数倍，这里只取当前最低输入价。</p>
+            <p className="sub">按报价站点数取前 4，已排除 batch / free 变体；价格为该模型的全网最低输入价。</p>
           </div>
           <Link className="link-btn" to="/models">全部模型 →</Link>
         </div>
         <div className="home-model-grid">
-          {models.filter((m) => m.minInputCny > 0).sort((a, b) => b.codingScore - a.codingScore).slice(0, 4).map((m) => (
-            <Link key={m.id} className="home-model-card" to={`/models/${encodeURIComponent(m.id)}`}>
-              <div className="hmc-head">
-                <b>{m.name}</b>
-                <span className={`tier-dot ${m.vendor}`} />
-              </div>
-              <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
-              <div className="hmc-meta mono">
-                编程 {m.codingScore.toFixed(1)} · {m.offersCount} 条报价
-              </div>
-            </Link>
-          ))}
+          {hotModels.map((m) => {
+            const officialCny = m.inputUsd * 7.2;
+            const saved = officialCny > 0 ? Math.round((1 - m.minInputCny / officialCny) * 100) : 0;
+            return (
+              <Link key={m.id} className="home-model-card" to={`/models/${encodeURIComponent(m.id)}`}>
+                <div className="hmc-head">
+                  <b>{m.name}</b>
+                  <span className={`tier-dot ${m.vendor}`} />
+                </div>
+                <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
+                <div className="hmc-meta mono">
+                  {m.offersCount} 站报价{saved > 0 ? ` · 比官方省 ${saved}%` : ''}
+                </div>
+              </Link>
+            );
+          })}
           {models.length === 0 && <p className="fine">加载模型报价中…</p>}
         </div>
       </section>
