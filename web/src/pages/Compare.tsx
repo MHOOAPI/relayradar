@@ -113,6 +113,7 @@ export function ComparePage() {
   const optionsShown = options.slice(0, visible);
 
   const [onlyDiff, setOnlyDiff] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const shownRows = useMemo(() => {
     if (!onlyDiff || selected.length < 2) return rows;
     return rows.filter((r) => {
@@ -192,7 +193,20 @@ export function ComparePage() {
             <button type="button" className="link-btn" onClick={clearAll}>清空</button>
           </div>
         )}
-        <div className="picker">
+        {selected.length >= 2 && (
+          <div className="picker-toggle-row">
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => setPickerOpen((v) => !v)}
+              aria-expanded={pickerOpen}
+            >
+              {pickerOpen ? '收起站点列表' : `换站 / 加站（${options.length} 家可选）`}
+            </button>
+          </div>
+        )}
+        {(pickerOpen || selected.length < 2) && (
+          <div className="picker">
           {!stations && <div className="loading"><Spinner /> 加载中…</div>}
           {optionsShown.map((s) => (
             <button
@@ -207,8 +221,9 @@ export function ComparePage() {
               <i className="pick-check">{ids.includes(s.slug) ? '✓' : '+'}</i>
             </button>
           ))}
-        </div>
-        {options.length > optionsShown.length && (
+          </div>
+        )}
+        {(pickerOpen || selected.length < 2) && options.length > optionsShown.length && (
           <div className="list-more">
             <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 96)}>显示更多站点</button>
             <span className="mono">已显示 {optionsShown.length} / {options.length}</span>
