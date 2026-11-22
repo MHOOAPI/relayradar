@@ -307,7 +307,7 @@ export function LeaderboardsPage() {
         {drops && drops.length === 0 ? (
           <p className="loading">近 30 天没有观测到降价。</p>
         ) : (
-          <div className="table-wrap">
+          <div className="table-wrap drop-table">
             <table className="index-table">
               <thead>
                 <tr><th>模型</th><th>站点</th><th className="num">价格</th><th className="num">降幅</th><th className="num hide-sm">时间</th></tr>
@@ -329,6 +329,24 @@ export function LeaderboardsPage() {
             </table>
           </div>
         )}
+        <div className="drop-cards">
+          {(drops ?? []).map((d) => (
+            <div key={`${d.modelId}-${d.stationSlug}-${d.at}`} className="drop-card">
+              <div className="drop-top">
+                <Link className="drop-model" to={`/models/${encodeURIComponent(d.modelId)}`}>{d.modelName}</Link>
+                <span className="mono delta-down">{d.deltaPct.toFixed(1)}%</span>
+              </div>
+              <div className="drop-meta dim tiny">{d.vendorName} · {fmtDate(d.at)}</div>
+              <div className="drop-row mono">
+                <s>{fmtCny(d.oldInputCny)}</s>
+                <span className="dim">→</span>
+                <b>{fmtCny(d.newInputCny)}</b>
+                <span className="dim">/M</span>
+              </div>
+              <Link className="drop-station dim tiny" to={`/stations/${d.stationSlug}`}>{d.stationName} →</Link>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );

@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.68**（模型页「值得先看」高亮卡：供给/覆盖/最新/最低价；报价表长表吸顶表头）
+- 版本：**v0.2.69**（降价榜移动端卡片化，桌面保留表格）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
