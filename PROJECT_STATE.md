@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.81**（首屏改为 Top5 迷你榜、Key 检测下移并说明接收方、演示标签跟随数据、canonical 按请求 Host 推导）
+- 版本：**v0.2.82**（服务状态新增 Canonical 域名组件：PUBLIC_BASE_URL 仍为本地时降级提示）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

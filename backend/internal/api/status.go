@@ -122,6 +122,13 @@ func (s *Server) collectStatus(ctx context.Context) statusResponse {
 	}
 	comps = append(comps, snapStatus)
 
+	canon := statusComponent{Key: "canonical", Name: "Canonical 域名", Status: "operational", Detail: "公开域名已配置"}
+	if isLocalHost(originHost(s.cfg.PublicBaseURL)) {
+		canon.Status = "degraded"
+		canon.Detail = "PUBLIC_BASE_URL 指向本地地址，公网部署需设置正式域名"
+	}
+	comps = append(comps, canon)
+
 	return statusResponse{
 		Status:     worstStatus(comps),
 		CheckedAt:  now,
