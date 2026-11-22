@@ -2676,3 +2676,26 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   margin-left: 5px; font-size: 10px; color: inherit; opacity: .65;
   font-variant-numeric: tabular-nums;
 }
+/* model spotlight strip */
+.model-spotlight { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 4px 0 14px; }
+.spot-card {
+  display: grid; gap: 6px; padding: 12px 13px; border-radius: 10px;
+  border: 1px solid var(--line); background: linear-gradient(180deg, #0c1218, #090d12);
+  color: var(--text); transition: border-color .15s ease, transform .15s ease;
+}
+.spot-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.spot-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.spot-label { font-size: 10px; color: var(--text-3); letter-spacing: .02em; }
+.spot-name { font-size: 13.5px; line-height: 1.25; }
+.spot-metric { font-size: 11px; color: var(--text-2); }
+@media (max-width: 900px) { .model-spotlight { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .model-spotlight { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .spot-name { font-size: 12.5px; } .spot-metric { font-size: 10.5px; } }
+
+/* sticky header for the long offer table */
+@media (min-width: 641px) {
+  .offer-table { max-height: 72vh; overflow: auto; }
+  .offer-table thead th {
+    position: sticky; top: 0; z-index: 1;
+    background: #0a0f14; box-shadow: inset 0 -1px 0 var(--line);
+  }
+}

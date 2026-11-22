@@ -57,6 +57,27 @@ export function ModelsPage() {
   const showAll = all || (items !== null && priced.length === 0);
   const scopeItems = useMemo(() => (items ? (showAll ? items : priced) : []), [items, showAll, priced]);
 
+  const spotlight = useMemo(() => {
+    if (!items) return [] as Array<{ m: ModelSummary; label: string }>;
+    const pool = items.filter(hasOffer);
+    const picks: Array<{ m: ModelSummary; label: string }> = [];
+    const add = (m: ModelSummary | undefined, label: string) => {
+      if (m && !picks.some((p) => p.m.id === m.id)) picks.push({ m, label });
+    };
+    add([...pool].sort((a, b) => b.relayScore - a.relayScore)[0], '供给评分最高');
+    add([...pool].sort((a, b) => b.offersCount - a.offersCount)[0], '覆盖最广');
+    add([...pool].sort((a, b) => Date.parse(b.releasedAt) - Date.parse(a.releasedAt))[0], '最新发布');
+    add([...pool].filter((m) => m.minInputCny > 0).sort((a, b) => a.minInputCny - b.minInputCny)[0], '全网最低价');
+    return picks.slice(0, 4);
+  }, [items]);
+
+  const spotMetric = (m: ModelSummary, label: string) => {
+    if (label === '供给评分最高') return `供给 ${m.relayScore.toFixed(0)} · ${m.offersCount} 站报价`;
+    if (label === '覆盖最广') return `${m.offersCount} 站报价 · ${fmtCny(m.minInputCny)}/M 起`;
+    if (label === '最新发布') return `${new Date(m.releasedAt).toLocaleDateString('zh-CN')} 上架`;
+    return `${fmtCny(m.minInputCny)}/M · ${m.offersCount} 站有货`;
+  };
+
   const rows = useMemo(() => {
     const n = q.trim().toLowerCase();
     return scopeItems
@@ -89,6 +110,21 @@ export function ModelsPage() {
         <Link to="/models/license">按许可证浏览 →</Link>
         <Link to="/compare/models">模型对比 →</Link>
       </div>
+
+      {q === '' && cat === 'all' && spotlight.length > 0 && (
+        <div className="model-spotlight">
+          {spotlight.map(({ m, label }) => (
+            <Link key={m.id} className="spot-card" to={`/models/${encodeURIComponent(m.id)}`}>
+              <div className="spot-top">
+                <VendorMark vendor={m.vendor} size={24} />
+                <span className="spot-label mono">{label}</span>
+              </div>
+              <b className="spot-name">{m.name}</b>
+              <span className="spot-metric mono">{spotMetric(m, label)}</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div className="cat-tabs">
         {CATEGORIES.map(([key, label]) => (
