@@ -150,7 +150,6 @@ ul { list-style: none; padding: 0; }
 }
 .hero h1 em {
   font-style: normal; color: var(--accent);
-  text-shadow: 0 0 40px rgba(46, 230, 166, 0.35);
 }
 .hero p { max-width: 520px; color: var(--text-2); font-size: 14px; }
 .hero-cta { display: flex; gap: 10px; margin-top: 24px; }
@@ -763,7 +762,7 @@ select:hover { border-color: #303a49; }
 .compare-table td { padding: 11px 16px; border-bottom: 1px solid #12161d; font-size: 12.5px; vertical-align: middle; }
 .compare-table tr:last-child td { border-bottom: 0; }
 .compare-table .row-label { color: var(--text-3); font-size: 11.5px; white-space: nowrap; }
-.compare-table td.best { background: rgba(46, 230, 166, .06); box-shadow: inset 2px 0 0 var(--accent); }
+.compare-table td.best { background: rgba(46, 230, 166, .07); box-shadow: inset 0 0 0 1px rgba(46, 230, 166, .2); }
 .compare-head { display: flex; align-items: center; gap: 8px; }
 .compare-head b { display: block; font-size: 12.5px; color: var(--text); }
 .compare-head small { display: block; color: var(--text-3); font-size: 10.5px; }
@@ -1380,7 +1379,7 @@ html, body { max-width: 100%; overflow-x: clip; }
 /* ---------- station directory ---------- */
 .health { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
 .health-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: var(--text-3); flex: none; }
-.health-dot.ok { background: var(--accent); box-shadow: 0 0 8px rgba(46, 230, 166, .5); }
+.health-dot.ok { background: var(--accent); box-shadow: 0 0 0 3px rgba(46, 230, 166, .14); }
 .health-dot.warn { background: var(--amber); }
 .health-dot.bad { background: var(--red); }
 .pay-list { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -1465,7 +1464,6 @@ body {
 }
 .index-table tbody tr { transition: background .15s ease; }
 .index-table tbody tr:hover td { background: rgba(255, 255, 255, .022); }
-.index-table tbody tr:hover td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
 .btn { border-radius: var(--r-sm); transition: transform .15s ease, border-color .15s ease, background .15s ease; }
 .btn:hover:not(:disabled) { transform: translateY(-1px); }
 input, select, textarea { border-radius: var(--r-sm); }
@@ -1566,7 +1564,14 @@ input, select, textarea { border-radius: var(--r-sm); }
 .status-hero h1 { font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 4px; }
 .status-hero p { color: var(--text-2); font-size: 12px; }
 .status-orb { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(46, 230, 166, .1); border: 1px solid rgba(46, 230, 166, .3); }
-.status-orb i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 16px rgba(46, 230, 166, .7); }
+.status-orb i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(46, 230, 166, .16); }
+.status-hero.status-unknown { border-color: var(--line-2); background: #0a1015; }
+.status-hero.status-unknown .status-orb { background: rgba(255, 255, 255, .03); border-color: var(--line-2); }
+.status-hero.status-unknown .status-orb i { background: var(--text-3); box-shadow: 0 0 0 4px rgba(255, 255, 255, .05); }
+.status-hero.status-degraded .status-orb { background: rgba(245, 185, 66, .08); border-color: rgba(245, 185, 66, .3); }
+.status-hero.status-degraded .status-orb i { background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 185, 66, .14); }
+.status-hero.status-outage .status-orb { background: rgba(255, 93, 93, .08); border-color: rgba(255, 93, 93, .3); }
+.status-hero.status-outage .status-orb i { background: var(--red); box-shadow: 0 0 0 4px rgba(255, 93, 93, .14); }
 .status-hero-side { display: grid; grid-template-columns: auto auto; gap: 2px 12px; font-size: 10.5px; color: var(--text-3); text-align: right; }
 .status-hero-side b { color: var(--text-2); font-weight: 500; }
 .status-panel { margin-bottom: 12px; }
@@ -1582,7 +1587,7 @@ input, select, textarea { border-radius: var(--r-sm); }
 .status-pill.degraded { color: var(--amber); border-color: rgba(245, 185, 66, .3); background: rgba(245, 185, 66, .07); }
 .status-pill.outage { color: var(--red); border-color: rgba(255, 93, 93, .3); background: rgba(255, 93, 93, .07); }
 .status-row .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); flex: none; }
-.status-row.status-operational .status-dot { background: var(--accent); box-shadow: 0 0 8px rgba(46, 230, 166, .55); }
+.status-row.status-operational .status-dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(46, 230, 166, .14); }
 .status-row.status-degraded .status-dot { background: var(--amber); }
 .status-row.status-outage .status-dot { background: var(--red); }
 .status-empty { display: flex; align-items: center; gap: 12px; padding: 22px 18px; color: var(--text-2); font-size: 12px; }
@@ -1962,7 +1967,6 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 /* Model page: lowest-price offer emphasis */
 .offer-best td { background: rgba(46, 230, 166, .045); }
-.offer-best td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
 .best-chip { font-size: 9.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }
 
 /* Model offers: mobile cards */
@@ -2471,9 +2475,6 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
   mask-image: linear-gradient(to left, #000 24%, transparent 94%);
 }
 
-/* a whisper of glow on the numbers that carry the signal */
-.hero-stats b { text-shadow: 0 0 24px rgba(46, 230, 166, 0.16); }
-.scorecards .big { text-shadow: 0 0 18px rgba(46, 230, 166, 0.12); }
 @media (max-width: 760px) {
   .price-texture { width: 70%; opacity: 0.6; }
 }
@@ -2773,10 +2774,22 @@ section[id] { scroll-margin-top: 120px; }
 }
 /* directory compare selection */
 .pick-col { width: 34px; padding-left: 4px !important; padding-right: 0 !important; }
-.pick-box { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+.pick-box {
+  appearance: none; -webkit-appearance: none; width: 16px; height: 16px; flex: none;
+  border: 1px solid var(--line-2); border-radius: 4px; background: #0b0e13;
+  display: inline-grid; place-items: center; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.pick-box:hover { border-color: var(--text-3); }
+.pick-box:checked { background: var(--accent); border-color: var(--accent); }
+.pick-box:checked::after {
+  content: ''; width: 8px; height: 4px; border-left: 2px solid #04120c; border-bottom: 2px solid #04120c;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.pick-box:disabled { opacity: .35; cursor: not-allowed; }
+.pick-box:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .dir-card-wrap { position: relative; }
 .dir-pick { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; padding: 2px; cursor: pointer; }
-.dir-card-wrap .dir-card-head { padding-right: 22px; }
+.dir-card-wrap .dir-card-head { padding-right: 34px; }
 .pick-bar {
   position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 60;
   display: flex; align-items: center; gap: 12px; padding: 10px 14px;
@@ -2800,3 +2813,21 @@ section[id] { scroll-margin-top: 120px; }
 .compare-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 0 12px; }
 .compare-presets .chip { font-size: 11.5px; }
 .empty-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+/* picker collapse */
+.picker-toggle-row { padding: 0 0 10px; }
+.picker-toggle-row .link-btn { font-size: 11.5px; }
+/* themed inline checkboxes (toolbar + compare toggles) */
+.check-inline input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 15px; height: 15px; flex: none; vertical-align: -2px;
+  border: 1px solid var(--line-2); border-radius: 4px; background: #0b0e13;
+  display: inline-grid; place-items: center; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.check-inline input[type="checkbox"]:hover { border-color: var(--text-3); }
+.check-inline input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+.check-inline input[type="checkbox"]:checked::after {
+  content: ''; width: 7px; height: 4px;
+  border-left: 2px solid #04120c; border-bottom: 2px solid #04120c;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
