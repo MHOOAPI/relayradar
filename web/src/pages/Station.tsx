@@ -13,6 +13,16 @@ import { useScrollParallax } from '../lib/parallax';
 import { useToast } from '../lib/toast';
 import { copyText } from '../lib/clipboard';
 import { SERVICE_LABEL, serviceLabel } from '../lib/services';
+import { SectionNav } from '../components/SectionNav';
+
+const STATION_SECTIONS = [
+  { id: 'score', label: '评分' },
+  { id: 'price', label: '价格' },
+  { id: 'price-trend', label: '走势' },
+  { id: 'groups', label: '分组' },
+  { id: 'models', label: '模型报价' },
+  { id: 'reviews', label: '评价' },
+];
 
 const daysOnline = (iso: string) => {
   const t = Date.parse(iso);
@@ -243,6 +253,8 @@ export function StationPage() {
         </div>
       </section>
 
+      <SectionNav items={STATION_SECTIONS} />
+
       <section className="scorecards five">
         {[
           { label: '综合分', value: s.rankScore, note: `全站第 ${s.rank || '—'} 名 · 0–100` },
@@ -270,7 +282,7 @@ export function StationPage() {
         </div>
       </section>
 
-      <section className="panel breakdown">
+      <section className="panel breakdown" id="score">
         <div className="breakdown-head">
           <div>
             <h2>综合分构成</h2>
@@ -297,7 +309,7 @@ export function StationPage() {
       </section>
 
       {s.fromPriceCny > 0 && priced.length > 10 && (
-        <section className="panel price-pos">
+        <section className="panel price-pos" id="price">
           <div className="panel-head">
             <div>
               <h2>价格位置</h2>
@@ -322,7 +334,7 @@ export function StationPage() {
         </section>
       )}
 
-      <section className="panel station-price-trend">
+      <section className="panel station-price-trend" id="price-trend">
         <div className="panel-head">
           <div>
             <h2>本站价格走势</h2>
@@ -527,7 +539,7 @@ export function StationPage() {
         </section>
       )}
 
-      <section className="panel">
+      <section className="panel" id="groups">
         <div className="panel-head">
           <div>
             <h2>分组与线路</h2>
@@ -567,7 +579,7 @@ export function StationPage() {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel" id="models">
         <div className="panel-head">
           <div>
             <h2>支持模型与本站实价</h2>
@@ -639,7 +651,7 @@ export function StationPage() {
           </p>
         </section>
 
-        <section className="panel">
+        <section className="panel" id="reviews">
           <div className="panel-head">
             <h2>开发者评价</h2>
             <span className="mono dim">{reviews.length} 条 · 均分 {avg ? avg.toFixed(1) : '—'}</span>

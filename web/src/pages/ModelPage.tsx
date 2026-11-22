@@ -6,6 +6,15 @@ import { TrendChart } from '../components/TrendChart';
 import { fmtCny, fmtDate, fmtUsd, Spinner, TierBadge } from '../components/ui';
 import { StationMark, VendorMark } from '../components/marks';
 import { PriceTexture } from '../components/Backdrop';
+import { SectionNav } from '../components/SectionNav';
+
+const MODEL_SECTIONS = [
+  { id: 'score', label: '评分' },
+  { id: 'price', label: '价格' },
+  { id: 'trend', label: '走势' },
+  { id: 'offers', label: '报价' },
+  { id: 'changes', label: '变动' },
+];
 
 const fmtCtx = (n: number) => {
   if (!n || n <= 0) return '—';
@@ -186,8 +195,10 @@ export function ModelPage() {
         </div>
       </section>
 
+      <SectionNav items={MODEL_SECTIONS} />
+
       <div className="model-grid">
-        <section className="panel">
+        <section className="panel" id="score">
           <div className="panel-head">
             <div>
               <h2>模型评分</h2>
@@ -216,7 +227,7 @@ export function ModelPage() {
           </p>
         </section>
 
-        <section className="panel">
+        <section className="panel" id="price">
           <div className="panel-head">
             <div>
               <h2>价格与供给</h2>
@@ -250,7 +261,7 @@ export function ModelPage() {
         </section>
       </div>
 
-      <section className="panel price-trend">
+      <section className="panel price-trend" id="trend">
         <div className="panel-head">
           <div>
             <h2>全网最低价走势</h2>
@@ -294,7 +305,7 @@ export function ModelPage() {
         )}
       </section>
 
-      <section className="panel model-offers">
+      <section className="panel model-offers" id="offers">
         <div className="panel-head">
           <div>
             <h2>全网报价</h2>
@@ -397,7 +408,7 @@ export function ModelPage() {
       </section>
 
       {priceChanges.length > 0 && (
-        <section className="panel">
+        <section className="panel" id="changes">
           <div className="panel-head">
             <div>
               <h2>价格变动记录</h2>
