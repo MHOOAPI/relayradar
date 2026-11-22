@@ -2750,3 +2750,24 @@ section[id] { scroll-margin-top: 120px; }
   .compare-head b { font-size: 11.5px; }
   .compare-hint { display: block; padding: 10px 12px 0; margin: 0; }
 }
+/* compact home on small screens */
+@media (max-width: 620px) {
+  .hero { gap: 18px; padding: 22px 0 16px; }
+  .hero h1 { font-size: 27px; margin: 10px 0; }
+  .hero p { font-size: 12.5px; }
+  .hero-cta { margin-top: 16px; }
+  .hero-scroll, .hero-link { display: none; }
+  .trust-strip { gap: 6px 10px; }
+  .trust-item { font-size: 10px; }
+  .hero-card { padding: 14px; }
+  .hero-stats b { font-size: 16px; }
+  .home-model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .home-model-card { padding: 12px; gap: 6px; border-radius: 12px; }
+  .hmc-head b { font-size: 12.5px; }
+  .hmc-price { font-size: 20px; }
+  .hmc-price small { font-size: 9px; }
+  .hmc-meta { font-size: 9.5px; }
+  .home-guide-grid { display: flex; overflow-x: auto; gap: 8px; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .home-guide-card { flex: 0 0 80%; scroll-snap-align: start; padding: 14px; }
+  .home-guide-card span { font-size: 11.5px; }
+}
