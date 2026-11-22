@@ -245,6 +245,12 @@ export function StationPage() {
           <Link className="btn btn-primary" to={`/audit?url=${encodeURIComponent(s.baseUrl)}`}>
             <ProbeIcon /> 检测该站接口
           </Link>
+          <Link className="btn btn-ghost" to={`/compare?ids=${encodeURIComponent(s.slug)}`}>
+            加入对比
+          </Link>
+          <Link className="btn btn-ghost" to={`/changes?subscribe=1&station=${encodeURIComponent(s.slug)}`}>
+            订阅降价
+          </Link>
           {s.claimed ? (
             <span className="claimed-badge">已认领</span>
           ) : (
