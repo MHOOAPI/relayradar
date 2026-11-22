@@ -14,6 +14,7 @@ type Row = {
   render: (s: Station) => React.ReactNode;
   score?: (s: Station) => number;
   better?: 'high' | 'low';
+  same?: (s: Station) => string;
 };
 
 const rows: Row[] = [
@@ -27,17 +28,17 @@ const rows: Row[] = [
   { label: '最低输入价', render: (s) => <span className="mono">{fmtCny(s.fromPriceCny)}</span>, score: (s) => (s.fromPriceCny < 0 ? 1e9 : s.fromPriceCny), better: 'low' },
   { label: '起充金额', render: (s) => <span className="mono">¥{s.minTopupCny}</span>, score: (s) => s.minTopupCny, better: 'low' },
   { label: '模型数', render: (s) => <span className="mono">{s.modelsCount}</span>, score: (s) => s.modelsCount, better: 'high' },
-  { label: '探针样本', render: (s) => <span className="mono dim">{s.samples}</span> },
-  { label: '发票', render: (s) => (s.invoice ? '支持' : '不支持') },
-  { label: '退款政策', render: (s) => s.refundPolicy },
+  { label: '探针样本', render: (s) => <span className="mono dim">{s.samples}</span>, same: (s) => String(s.samples) },
+  { label: '发票', render: (s) => (s.invoice ? '支持' : '不支持'), same: (s) => (s.invoice ? '1' : '0') },
+  { label: '退款政策', render: (s) => s.refundPolicy, same: (s) => s.refundPolicy },
   { label: '支付方式', render: (s) => (
     <span className="pay-list">
       {s.payments.map((p) => (
         <span className="pay-chip" key={p}><PayMark method={p} size={15} />{p}</span>
       ))}
     </span>
-  ) },
-  { label: '近 14 天', render: (s) => <UptimeBars data={s.uptime} width={8} /> },
+  ), same: (s) => [...s.payments].sort().join(',') },
+  { label: '近 14 天', render: (s) => <UptimeBars data={s.uptime} width={8} />, same: (s) => s.uptime.join(',') },
 ];
 
 export function ComparePage() {
@@ -111,6 +112,15 @@ export function ComparePage() {
   useEffect(() => setVisible(48), [q]);
   const optionsShown = options.slice(0, visible);
 
+  const [onlyDiff, setOnlyDiff] = useState(false);
+  const shownRows = useMemo(() => {
+    if (!onlyDiff || selected.length < 2) return rows;
+    return rows.filter((r) => {
+      const vals = selected.map((s) => (r.score ? Math.round(r.score(s) * 100) : r.same ? r.same(s) : r.label));
+      return new Set(vals).size > 1;
+    });
+  }, [onlyDiff, selected]);
+
   const bestIndex = (row: Row): number => {
     if (!row.score || selected.length < 2) return -1;
     let idx = -1;
@@ -133,6 +143,12 @@ export function ComparePage() {
           <p className="sub">最多同时对比 4 家。绿色为该行最优项，但“便宜”与“稳”经常不可兼得。</p>
         </div>
         <div className="head-actions">
+          {selected.length >= 2 && (
+            <label className="check-inline">
+              <input type="checkbox" checked={onlyDiff} onChange={(e) => setOnlyDiff(e.target.checked)} />
+              只看差异
+            </label>
+          )}
           <button
             className="btn btn-ghost btn-sm"
             onClick={() => {
@@ -213,7 +229,9 @@ export function ComparePage() {
         </div>
       ) : (
         <section className="panel">
-          <p className="fine compare-hint">左右滑动查看全部对比，首列固定。</p>
+          <p className="fine compare-hint">
+            {onlyDiff ? `仅显示差异项 ${shownRows.length} / ${rows.length} 行。` : '左右滑动查看全部对比，首列固定。'}
+          </p>
           <div className="table-wrap compare-wrap">
             <table className="compare-table">
               <thead>
@@ -233,7 +251,7 @@ export function ComparePage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => {
+                {shownRows.map((row) => {
                   const best = bestIndex(row);
                   return (
                     <tr key={row.label}>
