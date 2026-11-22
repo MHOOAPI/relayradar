@@ -70,6 +70,32 @@ export function ComparePage() {
 
   const clearAll = () => setParams({}, { replace: true });
 
+  const applyCombo = (kind: 'main' | 'official' | 'top3') => {
+    if (!stations?.length) return;
+    const pool = stations.filter((s) => s.rankScore > 0);
+    const affordable = stations
+      .filter((s) => s.fromPriceCny > 0 && s.purityTier !== 'counterfeit')
+      .sort((a, b) => a.fromPriceCny - b.fromPriceCny);
+    let slugs: string[] = [];
+    if (kind === 'top3') {
+      slugs = [...pool].sort((a, b) => b.rankScore - a.rankScore).slice(0, 3).map((s) => s.slug);
+    } else if (kind === 'main') {
+      const best = [...pool].sort((a, b) => b.rankScore - a.rankScore)[0];
+      const cheap = affordable.find((s) => s.slug !== best?.slug);
+      slugs = [best?.slug, cheap?.slug].filter((x): x is string => !!x);
+    } else {
+      const official = pool
+        .filter((s) => s.purityTier === 'official')
+        .sort((a, b) => b.rankScore - a.rankScore)[0];
+      const cheap = affordable.find((s) => s.slug !== official?.slug && s.purityTier !== 'official')
+        ?? affordable.find((s) => s.slug !== official?.slug);
+      slugs = [official?.slug, cheap?.slug].filter((x): x is string => !!x);
+    }
+    const p = new URLSearchParams(params);
+    if (slugs.length) p.set('ids', [...new Set(slugs)].join(',')); else p.delete('ids');
+    setParams(p, { replace: true });
+  };
+
   const options = useMemo(() => {
     if (!stations) return [];
     const n = q.trim().toLowerCase();
@@ -131,6 +157,12 @@ export function ComparePage() {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="筛选站点" aria-label="筛选站点" />
           </div>
         </div>
+        <div className="compare-presets">
+          <span className="fine">推荐组合</span>
+          <button type="button" className="chip" onClick={() => applyCombo('main')}>高可用 + 低价备份</button>
+          <button type="button" className="chip" onClick={() => applyCombo('official')}>官方直连 + 平价线路</button>
+          <button type="button" className="chip" onClick={() => applyCombo('top3')}>评分前三</button>
+        </div>
         {selected.length > 0 && (
           <div className="compare-bar">
             {selected.map((s, i) => (
@@ -173,12 +205,10 @@ export function ComparePage() {
           <b>至少选择 2 家站点</b>
           <p>推荐组合：一家高可用主力 + 一家低价备份，再对比纯度与退款政策。</p>
           {stations && (
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => setParams({ ids: stations.slice(0, 3).map((s) => s.slug).join(',') }, { replace: true })}
-            >
-              试试前 3 名
-            </button>
+            <div className="empty-actions">
+              <button className="btn btn-primary btn-sm" onClick={() => applyCombo('main')}>高可用 + 低价备份</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => applyCombo('official')}>官方直连 + 平价线路</button>
+            </div>
           )}
         </div>
       ) : (
