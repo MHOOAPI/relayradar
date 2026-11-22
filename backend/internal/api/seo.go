@@ -91,7 +91,7 @@ func (s *Server) spaHandler(dir string) http.Handler {
 				m.Body = s.bodyFor(r, d)
 				m.LD = append(m.LD, s.ldFor(r, m, d)...)
 			}
-			page = injectMeta(index, m, s.cfg.PublicBaseURL)
+			page = injectMeta(index, m, s.publicBase(r))
 		} else if missingContent(r.URL.Path) {
 			// Unknown station/model/guide: return a real 404 so crawlers do not
 			// index a soft-404, while the SPA still renders its NotFound page.
@@ -183,7 +183,7 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 	if err != nil {
 		return pageMeta{}, false
 	}
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	path := r.URL.Path
 
 	if m, ok := noIndexPageMeta(base, r); ok {
@@ -702,7 +702,7 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, http.StatusInternalServerError, err)
 		return
 	}
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	var b strings.Builder
 	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")
 	b.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` + "\n")
@@ -752,7 +752,7 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleRobots(w http.ResponseWriter, r *http.Request) {
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	body := `# Search engines and AI answer engines are welcome.
 User-agent: *
 Allow: /

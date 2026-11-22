@@ -1201,7 +1201,7 @@ func faqBody() template.HTML {
 }
 
 func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	org := map[string]any{
 		"@context": "https://schema.org", "@type": "Organization",
 		"name": "RelayRadar", "url": base + "/",
@@ -1442,7 +1442,7 @@ func (s *Server) handleStationMD(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(&b, "| %s | %.2f | %.2f | %s |\n", sm.Model.ID, sm.BestInputCNY, sm.BestOutputCNY, sm.CheapestGroup)
 	}
 	b.WriteString("\n数据时间：" + d.TakenAt.UTC().Format(time.RFC3339) + "\n")
-	b.WriteString("评分方法：" + s.cfg.PublicBaseURL + "/methodology\n")
+	b.WriteString("评分方法：" + s.publicBase(r) + "/methodology\n")
 
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
 	_, _ = w.Write([]byte(b.String()))
@@ -1484,7 +1484,7 @@ func (s *Server) handleLLMsFull(w http.ResponseWriter, r *http.Request) {
 	}
 	var b strings.Builder
 	b.WriteString("# RelayRadar — full dataset\n\n")
-	fmt.Fprintf(&b, "Data timestamp: %s\nBase URL: %s\n\n", d.TakenAt.UTC().Format(time.RFC3339), s.cfg.PublicBaseURL)
+	fmt.Fprintf(&b, "Data timestamp: %s\nBase URL: %s\n\n", d.TakenAt.UTC().Format(time.RFC3339), s.publicBase(r))
 
 	b.WriteString("## Stations\n\n")
 	for _, st := range d.Stations {
@@ -1492,7 +1492,7 @@ func (s *Server) handleLLMsFull(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(&b, "- rank %d · score %.1f · uptime %.1f%% · speed %.1f · consistency %.1f · purity %s\n",
 			st.Rank, st.RankScore, st.UptimePct, st.Speed, st.Consistency, tierLabel(st.PurityTier))
 		fmt.Fprintf(&b, "- domain %s · min topup ¥%.0f · invoice %v · refund %s\n", st.Domain, st.MinTopup, st.Invoice, st.RefundPolicy)
-		fmt.Fprintf(&b, "- markdown: %s/md/station/%s\n", s.cfg.PublicBaseURL, st.Slug)
+		fmt.Fprintf(&b, "- markdown: %s/md/station/%s\n", s.publicBase(r), st.Slug)
 	}
 
 	b.WriteString("\n## Models\n\n")
@@ -1501,7 +1501,7 @@ func (s *Server) handleLLMsFull(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(&b, "- vendor %s · official $%.2f/$%.2f · ctx %d · coding %.1f · reasoning %.1f\n",
 			m.VendorName, m.InputUSD, m.OutputUSD, m.ContextWindow, m.CodingScore, m.ReasoningScore)
 		fmt.Fprintf(&b, "- cheapest input ¥%.2f · offers %d · markdown %s/md/model/%s\n",
-			m.MinInputCNY, m.OffersCount, s.cfg.PublicBaseURL, m.ID)
+			m.MinInputCNY, m.OffersCount, s.publicBase(r), m.ID)
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -1533,7 +1533,7 @@ func (s *Server) handleChangesRSS(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, http.StatusInternalServerError, err)
 		return
 	}
-	base := strings.TrimRight(s.cfg.PublicBaseURL, "/")
+	base := s.publicBase(r)
 	var doc rssDoc
 	doc.Version = "2.0"
 	doc.Channel.Title = "RelayRadar 变更雷达"
