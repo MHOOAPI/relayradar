@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station } from '../types';
@@ -84,6 +85,14 @@ export function StationsPage() {
   const [totalModels, setTotalModels] = useState(0);
   const [modelList, setModelList] = useState<Array<{ id: string; name: string }>>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const togglePick = (slug: string) => {
+    setPicked((prev) => {
+      if (prev.includes(slug)) return prev.filter((x) => x !== slug);
+      if (prev.length >= 4) return prev;
+      return [...prev, slug];
+    });
+  };
   const [coverageStation, setCoverageStation] = useState<Station | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -282,6 +291,7 @@ export function StationsPage() {
           <table className="index-table">
             <thead>
               <tr>
+                <th className="pick-col" aria-label="选择对比" />
                 <th>站点</th>
                 <th>模型覆盖</th>
                 <th>健康状态</th>
@@ -294,15 +304,27 @@ export function StationsPage() {
             </thead>
             <tbody>
               {!stations && !error && (
-                <tr><td colSpan={8} className="loading"><Spinner /> 加载站点目录…</td></tr>
+                <tr><td colSpan={9} className="loading"><Spinner /> 加载站点目录…</td></tr>
               )}
               {stations && shown.length === 0 && (
-                <tr><td colSpan={8} className="loading">没有符合条件的站点，试试清除筛选或换一个场景。</td></tr>
+                <tr><td colSpan={9} className="loading">没有符合条件的站点，试试清除筛选或换一个场景。</td></tr>
               )}
               {shown.map((s) => {
                 const h = healthOf(s);
                 return (
                   <tr key={s.slug} className="clickable" onClick={() => navigate(`/stations/${s.slug}`)}>
+                    <td className="pick-col">
+                      <input
+                        type="checkbox"
+                        className="pick-box"
+                        checked={picked.includes(s.slug)}
+                        disabled={!picked.includes(s.slug) && picked.length >= 4}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => togglePick(s.slug)}
+                        aria-label={`选择 ${s.name} 进行对比`}
+                        title={picked.length >= 4 ? '最多对比 4 家' : '选中以对比'}
+                      />
+                    </td>
                     <td>
                       <div className="cell-station">
                         <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={30} />
@@ -388,7 +410,18 @@ export function StationsPage() {
           {shown.map((s) => {
             const h = healthOf(s);
             return (
-              <Link key={s.slug} className="dir-card" to={`/stations/${s.slug}`}>
+              <div key={s.slug} className="dir-card-wrap">
+                <label className="dir-pick" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    className="pick-box"
+                    checked={picked.includes(s.slug)}
+                    disabled={!picked.includes(s.slug) && picked.length >= 4}
+                    onChange={() => togglePick(s.slug)}
+                    aria-label={`选择 ${s.name} 进行对比`}
+                  />
+                </label>
+                <Link className="dir-card" to={`/stations/${s.slug}`}>
                 <div className="dir-card-head">
                   <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={30} />
                   <div className="dir-id"><b>{s.name}{s.claimed && <span className="badge-ok" title="站长已认领">✓</span>}</b><small className="mono">{s.domain}</small></div>
@@ -416,7 +449,8 @@ export function StationsPage() {
                 <div className="dir-line"><span className="mono dim">支付</span>{s.payments.slice(0, 3).map((p) => <span key={p} className="pay-item"><PayMark method={p} size={14} />{p}</span>)}</div>
                 <div className="dir-line"><span className="mono dim">退款</span><span className="dir-refund">{s.refundPolicy || '—'}</span><span className="dim">· {s.invoice ? '可开票' : '不开发票'}</span></div>
                 <div className="dir-line"><span className="mono dim">评价</span>{s.reviewsCount > 0 ? <span className="rating"><b className="mono">{s.ratingAvg.toFixed(1)}</b><span className="dim"> / 5 · {s.reviewsCount} 条</span></span> : <span className="dim">暂无</span>}</div>
-              </Link>
+                </Link>
+              </div>
             );
           })}
           {stations && shown.length === 0 && (
@@ -459,6 +493,29 @@ export function StationsPage() {
             </div>
           </div>
         </div>
+      )}
+      {picked.length > 0 && typeof document !== 'undefined' && createPortal(
+        <div className="pick-bar" role="region" aria-label="已选站点对比">
+          <div className="pick-bar-chips">
+            {picked.map((slug) => {
+              const s = stations?.find((x) => x.slug === slug);
+              return (
+                <span className="pick-chip" key={slug}>
+                  {s?.name ?? slug}
+                  <button type="button" aria-label={`移除 ${s?.name ?? slug}`} onClick={() => togglePick(slug)}>×</button>
+                </span>
+              );
+            })}
+          </div>
+          <span className="fine">最多 4 家</span>
+          <button type="button" className="link-btn" onClick={() => setPicked([])}>清空</button>
+          {picked.length >= 2 ? (
+            <Link className="btn btn-primary btn-sm" to={`/compare?ids=${picked.join(',')}`}>对比 {picked.length} 家</Link>
+          ) : (
+            <button type="button" className="btn btn-primary btn-sm" disabled>对比 1 家</button>
+          )}
+        </div>,
+        document.body,
       )}
     </main>
   );
