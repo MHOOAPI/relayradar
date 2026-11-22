@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.78**（对比页「推荐组合」一键填充：高可用+低价备份 / 官方直连+平价线路 / 评分前三）
+- 版本：**v0.2.79**（对比页「只看差异」：隐藏各家相同项，并显示剩余行数）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
