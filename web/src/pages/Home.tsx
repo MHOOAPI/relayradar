@@ -185,8 +185,8 @@ export function Home() {
     return list;
   }, [stations, service, tier, sort, q, onlyWatch, watched]);
 
-  const [visible, setVisible] = useState(60);
-  useEffect(() => setVisible(60), [q, service, tier, sort, onlyWatch]);
+  const [visible, setVisible] = useState(15);
+  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
 
   const exportCsv = () => {
@@ -489,9 +489,10 @@ export function Home() {
 
         {rows.length > shown.length && (
           <div className="list-more">
-            <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 120)}>
-              显示更多站点
+            <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 45)}>
+              再看 45 家
             </button>
+            <Link className="btn btn-ghost btn-sm" to="/stations">完整榜单 →</Link>
             <span className="mono">已显示 {shown.length} / {rows.length}</span>
           </div>
         )}
