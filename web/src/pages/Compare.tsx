@@ -183,7 +183,8 @@ export function ComparePage() {
         </div>
       ) : (
         <section className="panel">
-          <div className="table-wrap">
+          <p className="fine compare-hint">左右滑动查看全部对比，首列固定。</p>
+          <div className="table-wrap compare-wrap">
             <table className="compare-table">
               <thead>
                 <tr>

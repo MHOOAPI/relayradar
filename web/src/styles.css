@@ -2734,3 +2734,19 @@ section[id] { scroll-margin-top: 120px; }
   .section-nav { top: 56px; margin-top: 8px; }
   section[id] { scroll-margin-top: 108px; }
 }
+/* compare tables on narrow screens */
+.compare-hint { display: none; }
+@media (max-width: 700px) {
+  .compare-wrap { -webkit-overflow-scrolling: touch; }
+  .compare-wrap table { min-width: 460px; }
+  .compare-wrap th, .compare-wrap td { padding: 9px 10px; }
+  .compare-wrap th:first-child, .compare-wrap td:first-child {
+    position: sticky; left: 0; z-index: 2;
+    background: #0a0e13; min-width: 86px; max-width: 92px;
+    box-shadow: 1px 0 0 var(--line);
+  }
+  .compare-table th:first-child { width: 86px; }
+  .compare-head small { display: none; }
+  .compare-head b { font-size: 11.5px; }
+  .compare-hint { display: block; padding: 10px 12px 0; margin: 0; }
+}
