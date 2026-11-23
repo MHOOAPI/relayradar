@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.94**（站点「对比同服务」、走势空态 CTA、移动端巡检修复 th-sort 命中区）
+- 版本：**v0.2.95**（分组按倍率/模型排序、分组 CSV 导出、同厂模型按价格排序）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

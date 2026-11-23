@@ -58,13 +58,21 @@ export function StationPage() {
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
   const [modelQ, setModelQ] = useState('');
   const [modelLimit, setModelLimit] = useState(40);
-  const [groupByModels, setGroupByModels] = useState(false);
+  const [groupSort, setGroupSort] = useState<{ key: 'models' | 'multiplier'; dir: 1 | -1 } | null>(null);
   const [reviewSort, setReviewSort] = useState<'new' | 'high' | 'low'>('new');
   const [onlyVerified, setOnlyVerified] = useState(false);
   const sortedGroups = useMemo(() => {
     const list = data?.groups ?? [];
-    return groupByModels ? [...list].sort((a, b) => b.modelCount - a.modelCount) : list;
-  }, [data, groupByModels]);
+    if (!groupSort) return list;
+    return [...list].sort((a, b) => {
+      const av = groupSort.key === 'models' ? a.modelCount : a.multiplier;
+      const bv = groupSort.key === 'models' ? b.modelCount : b.multiplier;
+      return groupSort.dir * (av - bv);
+    });
+  }, [data, groupSort]);
+
+  const toggleGroupSort = (key: 'models' | 'multiplier') =>
+    setGroupSort((prev) => (prev && prev.key === key ? { key, dir: prev.dir === 1 ? -1 : 1 } : { key, dir: 1 }));
 
   const sortedReviews = useMemo(() => {
     const list = (data?.reviews ?? []).filter((r) => !onlyVerified || r.verified);
@@ -590,17 +598,42 @@ export function StationPage() {
             <h2>分组与线路</h2>
             <p className="sub">同一站点不同分组的倍率、可用性与纯度可以完全不同，别只看首页宣传价。</p>
           </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              const header = ['group', 'slug', 'service', 'multiplier', 'status', 'latencyMs', 'availability', 'speed', 'consistency', 'purity', 'models'];
+              const lines = [header.join(',')].concat(
+                sortedGroups.map((g) => [g.name, g.slug, g.service, g.multiplier, g.status, g.latencyMs, g.availability, g.speed, g.consistency, g.purity, g.modelCount]
+                  .map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')),
+              );
+              const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = `relayradar-${s.slug}-groups.csv`;
+              a.click();
+              URL.revokeObjectURL(a.href);
+            }}
+          >
+            导出 CSV
+          </button>
         </div>
         <div className="table-wrap">
           <table className="index-table">
             <thead>
               <tr>
-                <th>分组</th><th>服务</th><th className="num">倍率</th><th>当前状态</th>
+                <th>分组</th><th>服务</th>
+                <th className="num">
+                  <button type="button" className="th-sort" onClick={() => toggleGroupSort('multiplier')} aria-pressed={groupSort?.key === 'multiplier'}>
+                    倍率 <span aria-hidden="true">{groupSort?.key === 'multiplier' ? (groupSort.dir === 1 ? '↑' : '↓') : '↕'}</span>
+                  </button>
+                </th>
+                <th>当前状态</th>
                 <th className="num">延迟</th><th className="num">可用性分</th><th className="num hide-sm">速度</th>
                 <th className="num hide-sm">稳定性</th><th>纯度</th>
                 <th className="num">
-                  <button type="button" className="th-sort" onClick={() => setGroupByModels((v) => !v)} aria-pressed={groupByModels}>
-                    模型 <span aria-hidden="true">{groupByModels ? '↓' : '↕'}</span>
+                  <button type="button" className="th-sort" onClick={() => toggleGroupSort('models')} aria-pressed={groupSort?.key === 'models'}>
+                    模型 <span aria-hidden="true">{groupSort?.key === 'models' ? (groupSort.dir === 1 ? '↑' : '↓') : '↕'}</span>
                   </button>
                 </th>
               </tr>
