@@ -338,6 +338,15 @@ export function ModelPage() {
             {best && ` · 最低 ${fmtCny(best.inputCny)} · ${best.stationName}`}
           </span>
         </div>
+        <details className="price-basis">
+          <summary>价格口径与换算</summary>
+          <ul>
+            <li>官方价取自厂商公开定价页，单位为美元 / 百万 Token；没有公开价的模型显示 —。</li>
+            <li>本站人民币价 = 美元价 × 7.2 汇率 × 分组倍率；倍率来自站点公开的分组设置。</li>
+            <li>缓存命中、批处理、阶梯价与图片/视频计费可能另算，表中只反映标准输入与输出价。</li>
+            <li>价格快照每天记录一次，页面显示的是最近一次观测值，不等同于站点实时结算价。</li>
+          </ul>
+        </details>
         <div className="offer-tools">
           <div className="chips">
             <button

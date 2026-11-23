@@ -111,3 +111,15 @@
 .plan-table th, .plan-table td { padding: 10px 10px; }
 }
 
+
+/* free model filter */
+.free-filter { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
+.free-filter input {
+  min-height: 34px; width: 240px; padding: 6px 10px;
+  background: #070b0f; border: 1px solid var(--line); border-radius: 8px;
+  color: var(--text); font-size: 12px;
+}
+@media (max-width: 640px) {
+  .free-filter input { width: 100%; }
+  .free-filter { flex-wrap: wrap; }
+}

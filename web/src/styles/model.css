@@ -109,3 +109,11 @@
   font-size: 10.5px; letter-spacing: .05em; padding-top: 12px;
   border-bottom: 1px solid var(--line);
 }
+/* price basis disclosure */
+.price-basis {
+  margin: 2px 0 12px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--surface-head);
+}
+.price-basis summary { cursor: pointer; font-size: 11.5px; color: var(--text-2); }
+.price-basis ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; }
+.price-basis li { font-size: 11.5px; color: var(--text-3); line-height: 1.6; }
