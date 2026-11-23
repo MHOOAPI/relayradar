@@ -76,6 +76,12 @@ func (s *Server) bodyFor(r *http.Request, d *app.Dataset) template.HTML {
 		return template.HTML(`<article><h1>上游模型 API 状态</h1><p>聚合 OpenAI、Anthropic、Google Gemini、DeepSeek、Moonshot、阿里 Qwen 与 xAI 的官方 API 状态；优先读取官方状态页接口，缺失时用端点可达性探测兜底。</p><ul><li>OpenAI — status.openai.com</li><li>Anthropic — status.anthropic.com</li><li>Google Gemini — status.cloud.google.com</li><li>DeepSeek — status.deepseek.com</li><li>Moonshot — status.moonshot.cn</li><li>Alibaba Qwen — status.aliyun.com</li><li>xAI — status.x.ai</li></ul><p>这里展示的是上游厂商状态，不是 RelayRadar 自身；本站状态见 <a href="/status">/status</a>。</p></article>`)
 	case path == "/status":
 		return template.HTML(`<article><h1>服务状态</h1><p>公开 API、数据存储、探针采集、告警投递、接口检测与邮件通道的实时状态，每 30 秒刷新。</p><p>接口：<code>/api/v1/status</code>。当前演示部署暂无公开事故记录。</p></article>`)
+	case path == "/compare":
+		return template.HTML(`<article><h1>中转站横向对比</h1>
+<p>同时对比最多 4 家中转站：综合分、可用性、延迟、速度、稳定性、纯度、模型覆盖、最低充值、支付方式、退款与发票。绿色标出该行最优项，对比结果写进 URL，可直接分享或导出 CSV。</p>
+<h2>怎么用</h2>
+<ol><li>在榜单或站点目录勾选站点，最多 4 家。</li><li>打开本页，按需勾选「只看差异」。</li><li>复制链接留存，或导出 CSV 存档。</li></ol>
+<p><a href="/stations">站点目录</a> · <a href="/models">模型价格</a> · <a href="/methodology">评分方法</a></p></article>`)
 	case path == "/free-api-keys":
 		return template.HTML(`<article><h1>免费 API Key</h1>
 <p>社区共享的 OpenAI 兼容 Key，无需登录即可领取或提交。每个 Key 提交时由服务端自动探测一次可用性，列表按社区判定标注「可用 / 待验证 / 已失效」；领取人数公开，失效 Key 默认隐藏。共享 Key 随时可能被吊销，不要用于生产环境或绑定支付方式。</p>

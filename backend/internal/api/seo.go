@@ -663,6 +663,13 @@ func injectMeta(index []byte, m pageMeta, base string) []byte {
 	})
 	blocks := []string{string(ld)}
 	for _, v := range m.LD {
+		// The base WebPage block above already describes this page; skip a
+		// second WebPage node from page-specific LD to avoid duplicates.
+		if obj, ok := v.(map[string]any); ok {
+			if t, _ := obj["@type"].(string); t == "WebPage" {
+				continue
+			}
+		}
 		if b, err := json.Marshal(v); err == nil {
 			blocks = append(blocks, string(b))
 		}

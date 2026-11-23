@@ -117,6 +117,7 @@ export function StationPage() {
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+  const [postOk, setPostOk] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -143,11 +144,15 @@ export function StationPage() {
     }
     setPosting(true);
     setPostError(null);
+    setPostOk(null);
     try {
       const rv = await api.reviews(slug, { author: author.trim() || '匿名开发者', rating, body: body.trim() });
       setData((prev) => (prev ? { ...prev, reviews: [rv, ...prev.reviews] } : prev));
       setBody('');
       setAuthor('');
+      setOnlyVerified(false);
+      setReviewSort('new');
+      setPostOk('已发布，感谢补充。');
     } catch (err) {
       setPostError((err as Error).message);
     } finally {
@@ -806,6 +811,7 @@ export function StationPage() {
             </div>
             <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="写下你的真实调用体验：延迟、倍率、缓存、退款……" maxLength={600} rows={3} />
             {postError && <p className="form-error">{postError}</p>}
+            {postOk && <p className="form-ok">{postOk}</p>}
             <div className="form-foot">
               <span className="fine">评价仅代表用户个人体验，不参与评分。</span>
               <button className="btn btn-primary btn-sm" disabled={posting}>{posting ? '提交中…' : '发布评价'}</button>
