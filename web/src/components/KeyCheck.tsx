@@ -56,32 +56,38 @@ export function KeyCheck() {
         <span className="mono dim tiny">只存在当前页面内存，不写日志、不落库</span>
       </div>
       <div className="kc-row">
-        <input
-          value={baseUrl}
-          onChange={(e) => setBaseUrl(e.target.value)}
-          placeholder="https://api.example.com/v1"
-          aria-label="接口地址"
-          autoComplete="off"
-          spellCheck={false}
-        />
-        <div className="kc-key">
+        <div className="kc-field">
+          <span className="kc-label">接口地址</span>
           <input
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="sk-...（建议用临时 Key）"
-            aria-label="API Key"
-            type={showKey ? 'text' : 'password'}
+            value={baseUrl}
+            onChange={(e) => setBaseUrl(e.target.value)}
+            placeholder="https://api.example.com/v1"
+            aria-label="接口地址"
             autoComplete="off"
             spellCheck={false}
           />
-          <button type="button" className="kc-toggle" onClick={() => setShowKey((v) => !v)} aria-label={showKey ? '隐藏 Key' : '显示 Key'}>
-            {showKey ? '隐藏' : '显示'}
-          </button>
-          {key && (
-            <button type="button" className="kc-toggle" onClick={() => setKey('')} aria-label="清空 Key">
-              清空
+        </div>
+        <div className="kc-field">
+          <span className="kc-label">临时 Key</span>
+          <div className="kc-key">
+            <input
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="sk-...（建议用临时 Key）"
+              aria-label="API Key"
+              type={showKey ? 'text' : 'password'}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button type="button" className="kc-toggle" onClick={() => setShowKey((v) => !v)} aria-label={showKey ? '隐藏 Key' : '显示 Key'}>
+              {showKey ? '隐藏' : '显示'}
             </button>
-          )}
+            {key && (
+              <button type="button" className="kc-toggle" onClick={() => setKey('')} aria-label="清空 Key">
+                清空
+              </button>
+            )}
+          </div>
         </div>
         <button className="btn btn-primary" disabled={loading}>{loading ? '检测中…' : '开始检测'}</button>
       </div>

@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import type { Meta } from '../types';
@@ -36,6 +36,39 @@ export function Layout() {
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, [moreOpen]);
+
+  useEffect(() => {
+    const scopes = Array.from(document.querySelectorAll<HTMLElement>('[data-anim-scope]'));
+    if (!scopes.length || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.toggleAttribute('data-anim-paused', !entry.isIntersecting);
+        });
+      },
+      { rootMargin: '120px 0px' },
+    );
+    scopes.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -88,9 +121,24 @@ export function Layout() {
             <NavLink to="/leaderboards">排行</NavLink>
             <NavLink to="/audit">检测</NavLink>
             <NavLink to="/free-api-keys">免费 API</NavLink>
-            <div className="ref">
-              <button type="button" className="ref-btn">更多 <span>▾</span></button>
-              <div className="ref-menu">
+            <div className="ref" ref={moreRef}>
+              <button
+                type="button"
+                className="ref-btn"
+                aria-expanded={moreOpen}
+                aria-haspopup="menu"
+                aria-controls="more-menu"
+                onClick={() => setMoreOpen((v) => !v)}
+              >
+                更多 <span>▾</span>
+              </button>
+              <div
+                id="more-menu"
+                className={`ref-menu ${moreOpen ? 'open' : ''}`}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest('a')) setMoreOpen(false);
+                }}
+              >
                 <Link to="/changes"><b>变更雷达</b><small>价格、可用率与纯度异常</small></Link>
                 <Link to="/compare"><b>横向对比</b><small>按可用性、价格与纯度并排</small></Link>
                 <Link to="/free"><b>免费额度</b><small>官方免费层与赠送额度</small></Link>
@@ -212,7 +260,7 @@ export function Layout() {
             </p>
           </div>
           <div>
-            <h4>产品</h4>
+            <h3>产品</h3>
             <Link to="/">中转站榜单</Link>
             <Link to="/models">模型价格</Link>
             <Link to="/leaderboards">排行榜</Link>
@@ -221,7 +269,7 @@ export function Layout() {
             <Link to="/guides">指南</Link>
           </div>
           <div>
-            <h4>参与</h4>
+            <h3>参与</h3>
             <Link to="/free">免费额度</Link>
             <Link to="/submit">提交站点</Link>
             <Link to="/submit">站长认领</Link>
@@ -230,13 +278,13 @@ export function Layout() {
             <a href="/sitemap.xml" target="_blank" rel="noreferrer">sitemap</a>
           </div>
           <div>
-            <h4>参考站</h4>
+            <h3>参考站</h3>
             {REFS.map((r) => (
               <a key={r.name} href={r.url} target="_blank" rel="noreferrer noopener">{r.name}</a>
             ))}
           </div>
           <div>
-            <h4>声明</h4>
+            <h3>声明</h3>
             <Link to="/methodology">评分方法</Link>
             <span>数据为演示数据集</span>
             <span>不构成购买建议</span>
