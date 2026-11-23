@@ -323,6 +323,7 @@ export function ModelPage() {
                 ? `已记录 ${priceHistory[0].stations} 个站点的报价，累计 2 天后这里显示走势曲线。`
                 : '快照任务每天运行一次，部署后的第二天开始有数据。'}
             </p>
+            <a className="link-btn mono" href="#offers">先看当前 {offers.length} 条报价 →</a>
           </div>
         )}
       </section>

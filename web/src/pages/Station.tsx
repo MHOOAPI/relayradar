@@ -160,6 +160,14 @@ export function StationPage() {
   }
 
   const { station: s, groups, models, reviews } = data;
+  const comparePeers = (() => {
+    const svc = new Set(groups.map((g) => g.service));
+    const peers = allStations
+      .filter((x) => x.slug !== s.slug && x.services.some((v) => svc.has(v)))
+      .sort((a, b) => a.rank - b.rank)
+      .slice(0, 2);
+    return [s.slug, ...peers.map((p) => p.slug)];
+  })();
   const avg = reviews.length ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
   const ranked = allStations.filter((st) => st.rank > 0).sort((a, b) => a.rank - b.rank);
   const rankIdx = ranked.findIndex((st) => st.slug === s.slug);
@@ -274,6 +282,11 @@ export function StationPage() {
           <Link className="btn btn-ghost" to={`/compare?ids=${encodeURIComponent(s.slug)}`}>
             加入对比
           </Link>
+          {comparePeers.length > 1 && (
+            <Link className="btn btn-ghost" to={`/compare?ids=${comparePeers.map(encodeURIComponent).join(',')}`}>
+              对比同服务
+            </Link>
+          )}
           <Link className="btn btn-ghost" to={`/changes?subscribe=1&station=${encodeURIComponent(s.slug)}`}>
             订阅降价
           </Link>
