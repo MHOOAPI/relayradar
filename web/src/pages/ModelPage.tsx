@@ -1,5 +1,5 @@
 import '../styles/model.css';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { ModelProviderStatus, ModelSummary, Offer, PriceChange, PriceDailyPoint } from '../types';
@@ -48,6 +48,17 @@ export function ModelPage() {
   const [model, setModel] = useState<ModelSummary | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [priceChanges, setPriceChanges] = useState<PriceChange[]>([]);
+  const changeDays = useMemo(() => {
+    const groups = new Map<string, PriceChange[]>();
+    for (const c of priceChanges) {
+      const d = new Date(c.at);
+      const key = Number.isNaN(d.getTime()) ? '未知日期' : d.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      const list = groups.get(key);
+      if (list) list.push(c);
+      else groups.set(key, [c]);
+    }
+    return [...groups.entries()];
+  }, [priceChanges]);
   const [allModels, setAllModels] = useState<ModelSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [upstream, setUpstream] = useState<ModelProviderStatus | null>(null);
@@ -452,16 +463,23 @@ export function ModelPage() {
                 </tr>
               </thead>
               <tbody>
-                {priceChanges.map((c) => (
-                  <tr key={`${c.stationSlug}-${c.groupName}-${c.at}`}>
-                    <td><Link className="station-name" to={`/stations/${c.stationSlug}`}>{c.stationName}</Link></td>
-                    <td><span className="mono dim">{c.groupName}</span></td>
-                    <td className="num mono">{fmtCny(c.oldInputCny)} → {fmtCny(c.newInputCny)}</td>
-                    <td className={`num mono ${c.deltaPct > 0 ? 'delta-up' : 'delta-down'}`}>
-                      {c.deltaPct > 0 ? '+' : ''}{c.deltaPct.toFixed(1)}%
-                    </td>
-                    <td><span className="mono dim">{fmtDate(c.at)}</span></td>
-                  </tr>
+                {changeDays.map(([day, list]) => (
+                  <Fragment key={day}>
+                    <tr className="day-row">
+                      <td colSpan={5} className="mono dim">{day} · {list.length} 次</td>
+                    </tr>
+                    {list.map((c) => (
+                      <tr key={`${c.stationSlug}-${c.groupName}-${c.at}`}>
+                        <td><Link className="station-name" to={`/stations/${c.stationSlug}`}>{c.stationName}</Link></td>
+                        <td><span className="mono dim">{c.groupName}</span></td>
+                        <td className="num mono">{fmtCny(c.oldInputCny)} → {fmtCny(c.newInputCny)}</td>
+                        <td className={`num mono ${c.deltaPct > 0 ? 'delta-up' : 'delta-down'}`}>
+                          {c.deltaPct > 0 ? '+' : ''}{c.deltaPct.toFixed(1)}%
+                        </td>
+                        <td><span className="mono dim">{fmtDate(c.at)}</span></td>
+                      </tr>
+                    ))}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
