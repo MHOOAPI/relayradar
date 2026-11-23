@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.86**（性能：hashed 资源 immutable 缓存、HTML no-cache、nginx gzip_proxied）
+- 版本：**v0.2.87**（CSS 路由拆分：初始 CSS 122→80.5KB，12 个页面各有独立样式 chunk）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
