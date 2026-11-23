@@ -125,6 +125,18 @@ export function ChangesPage() {
   useEffect(() => setVisible(40), [kind, onlyWatch, station]);
   const shown = rows.slice(0, visible);
 
+  const dayGroups = useMemo(() => {
+    const groups = new Map<string, Change[]>();
+    for (const c of shown) {
+      const d = new Date(c.at);
+      const key = Number.isNaN(d.getTime()) ? '未知日期' : d.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      const list = groups.get(key);
+      if (list) list.push(c);
+      else groups.set(key, [c]);
+    }
+    return [...groups.entries()];
+  }, [shown]);
+
   return (
     <main className="wrap">
       <div className="page-head">
@@ -303,23 +315,31 @@ export function ChangesPage() {
             <p>换个筛选条件，或去榜单关注几家站点后再回来。</p>
           </div>
         )}
-        <ul className="changes-list big">
-          {shown.map((c) => (
-            <li key={c.id} className={`change change-${c.severity}`}>
-              <span className="change-dot" />
-              <div className="change-body">
-                <div className="change-title">
-                  <b>{c.title}</b>
-                  <span className={`sev sev-${c.severity}`}>{SEVERITY_LABEL[c.severity]}</span>
-                  <span className="mono dim tiny">{KIND_LABEL[c.kind]}</span>
-                </div>
-                <p>{c.detail}</p>
-                <Link className="change-station" to={`/stations/${c.stationSlug}`}>{c.stationName} →</Link>
-              </div>
-              <time className="mono dim">{new Date(c.at).toLocaleString('zh-CN', { hour12: false })}</time>
-            </li>
-          ))}
-        </ul>
+        {dayGroups.map(([day, list]) => (
+          <section key={day} className="change-day">
+            <h3 className="change-day-head mono">
+              <span>{day}</span>
+              <span>{list.length} 条</span>
+            </h3>
+            <ul className="changes-list big">
+              {list.map((c) => (
+                <li key={c.id} className={`change change-${c.severity}`}>
+                  <span className="change-dot" />
+                  <div className="change-body">
+                    <div className="change-title">
+                      <b>{c.title}</b>
+                      <span className={`sev sev-${c.severity}`}>{SEVERITY_LABEL[c.severity]}</span>
+                      <span className="mono dim tiny">{KIND_LABEL[c.kind]}</span>
+                    </div>
+                    <p>{c.detail}</p>
+                    <Link className="change-station" to={`/stations/${c.stationSlug}`}>{c.stationName} →</Link>
+                  </div>
+                  <time className="mono dim">{new Date(c.at).toLocaleString('zh-CN', { hour12: false })}</time>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
         {rows.length > shown.length && (
           <div className="list-more">
             <button className="btn btn-ghost btn-sm" onClick={() => setVisible((v) => v + 80)}>显示更多变更</button>

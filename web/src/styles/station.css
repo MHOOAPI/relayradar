@@ -149,3 +149,11 @@
   .model-table-tools input { width: 100%; }
   .model-table-tools { flex-wrap: wrap; }
 }
+/* sortable group header */
+.th-sort {
+  border: 0; background: none; color: inherit; font: inherit;
+  font-size: 11px; letter-spacing: .04em; cursor: pointer; padding: 2px 4px;
+  border-radius: 4px;
+}
+.th-sort:hover { color: var(--text); background: var(--panel-2); }
+.th-sort span { color: var(--text-3); margin-left: 2px; }

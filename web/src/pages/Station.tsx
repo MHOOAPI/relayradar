@@ -58,6 +58,12 @@ export function StationPage() {
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
   const [modelQ, setModelQ] = useState('');
   const [modelLimit, setModelLimit] = useState(40);
+  const [groupByModels, setGroupByModels] = useState(false);
+  const sortedGroups = useMemo(() => {
+    const list = data?.groups ?? [];
+    return groupByModels ? [...list].sort((a, b) => b.modelCount - a.modelCount) : list;
+  }, [data, groupByModels]);
+
   const modelRows = useMemo(() => {
     const list = data?.models ?? [];
     const n = modelQ.trim().toLowerCase();
@@ -567,11 +573,16 @@ export function StationPage() {
               <tr>
                 <th>分组</th><th>服务</th><th className="num">倍率</th><th>当前状态</th>
                 <th className="num">延迟</th><th className="num">可用性分</th><th className="num hide-sm">速度</th>
-                <th className="num hide-sm">稳定性</th><th>纯度</th><th className="num">模型</th>
+                <th className="num hide-sm">稳定性</th><th>纯度</th>
+                <th className="num">
+                  <button type="button" className="th-sort" onClick={() => setGroupByModels((v) => !v)} aria-pressed={groupByModels}>
+                    模型 <span aria-hidden="true">{groupByModels ? '↓' : '↕'}</span>
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {groups.map((g) => (
+              {sortedGroups.map((g) => (
                 <tr key={g.slug}>
                   <td><b>{g.name}</b><div className="mono dim tiny">{g.slug}</div></td>
                   <td><span className="svc">{SERVICE_LABEL[g.service] ?? g.service}</span></td>
