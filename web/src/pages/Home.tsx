@@ -68,6 +68,16 @@ export function Home() {
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
   const [watchedFirst, setWatchedFirst] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyFilterLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
   const radarRef = useRef<HTMLDivElement>(null);
   const radarInnerRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -407,6 +417,7 @@ export function Home() {
             <span className="mono dim">
               {meta?.demo ? '生成时间' : '数据时间'} {meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}
             </span>
+            <button className="btn btn-ghost btn-xs" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
             <button className="btn btn-ghost btn-xs" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
           </div>
         </div>

@@ -91,6 +91,19 @@ export function ModelsPage() {
   useEffect(() => setVisible(60), [q, cat, showAll]);
   const shown = rows.slice(0, visible);
 
+  const exportModelsCsv = () => {
+    const header = ['id', 'name', 'vendor', 'vendorName', 'category', 'contextWindow', 'inputUsd', 'outputUsd', 'minInputCny', 'offersCount', 'freeTier'];
+    const lines = [header.join(',')].concat(
+      rows.map((m) => header.map((k) => `"${String((m as unknown as Record<string, unknown>)[k] ?? '').replace(/"/g, '""')}"`).join(',')),
+    );
+    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'relayradar-models.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
   return (
     <main className="wrap">
       <div className="page-head">
@@ -147,6 +160,7 @@ export function ModelsPage() {
           </button>
         )}
         <span className="dim"> · 当前 {rows.length} 个</span>
+        <button className="link-btn mono" onClick={exportModelsCsv} disabled={!rows.length}>导出 CSV</button>
       </p>
       {!showAll && (
         <p className="fine model-scope-note">

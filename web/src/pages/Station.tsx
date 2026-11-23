@@ -770,6 +770,20 @@ export function StationPage() {
             </div>
           </div>
           <div className="reviews">
+            {reviews.length > 0 && (
+              <div className="rating-dist" aria-label="评分分布">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const count = reviews.filter((r) => Math.round(r.rating) === star).length;
+                  return (
+                    <div key={star} className="rd-row">
+                      <span className="mono dim">{star}★</span>
+                      <span className="rd-bar"><i style={{ width: `${(count / reviews.length) * 100}%` }} /></span>
+                      <span className="mono dim">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             {sortedReviews.length === 0 && <p className="empty">还没有符合条件的评价。</p>}
             {sortedReviews.map((r) => (
               <article key={r.id} className="review">
