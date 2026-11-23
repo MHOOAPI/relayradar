@@ -1,0 +1,77 @@
+.status-hero {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  margin: 22px 0 14px; padding: 26px 28px; border-radius: var(--r-lg);
+  border: 1px solid rgba(46, 230, 166, .22);
+  background: linear-gradient(120deg, rgba(46, 230, 166, .09), rgba(10, 15, 20, .4) 60%), #0a1015;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+.status-hero-main { display: flex; align-items: center; gap: 18px; }
+.status-hero h1 { font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 4px; }
+.status-hero p { color: var(--text-2); font-size: 12px; }
+.status-orb { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(46, 230, 166, .1); border: 1px solid rgba(46, 230, 166, .3); }
+.status-orb i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(46, 230, 166, .16); }
+.status-hero-side { display: grid; grid-template-columns: auto auto; gap: 2px 12px; font-size: 10.5px; color: var(--text-3); text-align: right; }
+.status-hero-side b { color: var(--text-2); font-weight: 500; }
+.status-panel { margin-bottom: 12px; }
+.status-list { display: grid; }
+.status-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-top: 1px solid var(--line); }
+.status-row:first-child { border-top: 0; }
+.status-info { min-width: 160px; }
+.status-info b { display: block; font-size: 13px; }
+.status-info small { color: var(--text-3); font-size: 10.5px; }
+.status-detail { flex: 1; color: var(--text-2); font-size: 11px; text-align: right; }
+@media (max-width: 760px) {
+.status-hero { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 760px) {
+.status-hero-side { display: none; }
+}
+@media (max-width: 760px) {
+.status-row { flex-wrap: wrap; gap: 8px 12px; }
+}
+@media (max-width: 760px) {
+.status-detail { flex: 1 1 100%; text-align: left; }
+}
+.status-row { flex-wrap: nowrap; }
+.status-bars { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: flex-end; min-width: 0; }
+.status-bars i { width: 3px; height: 16px; border-radius: 1px; background: #1b2430; flex: none; }
+.status-uptime { width: 54px; text-align: right; font-size: 10.5px; color: var(--text-2); flex: none; }
+.status-detail { flex: 0 1 auto; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.incident-list { display: grid; }
+.incident { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; border-top: 1px solid var(--line); }
+.incident:first-child { border-top: 0; }
+.incident-main b { display: block; font-size: 13px; }
+.incident-main p { color: var(--text-2); font-size: 12px; margin: 4px 0; line-height: 1.6; }
+.incident-main small { color: var(--text-3); font-size: 10.5px; }
+@media (max-width: 900px) {
+.status-bars { display: none; }
+}
+@media (max-width: 900px) {
+.status-uptime { width: auto; }
+}
+@media (max-width: 900px) {
+.status-detail { display: none; }
+}
+.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.provider-card {
+  border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px;
+  background: linear-gradient(180deg, #0c1117, #090d12);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.provider-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.provider-head b { font-size: 14px; }
+.provider-desc { color: var(--text-2); font-size: 11.5px; line-height: 1.6; flex: 1; }
+.provider-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 10.5px; }
+.provider-foot a { color: var(--accent); }
+.source-badge { color: var(--text-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 6px; }
+.provider-components { display: flex; flex-wrap: wrap; gap: 5px; }
+.provider-components .pc {
+  font-size: 10px; padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--line-2); color: var(--text-3);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.provider-incident { font-size: 10.5px; color: var(--amber); }
+.provider-incident:hover { text-decoration: underline; }
+.provider-detail-link { font-size: 10.5px; color: var(--text-3); }
+.provider-detail-link:hover { color: var(--accent); }
+

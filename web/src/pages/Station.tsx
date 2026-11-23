@@ -1,3 +1,4 @@
+import '../styles/station.css';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';

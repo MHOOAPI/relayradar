@@ -1,0 +1,55 @@
+.model-links { display: flex; gap: 16px; margin: -6px 0 12px; font-size: 11px; }
+.model-links a { color: var(--accent); }
+.model-scope-note + .model-scope-note { margin-top: 2px; }
+.model-scope-note:last-of-type { margin-bottom: 8px; }
+@media (max-width: 760px) {
+.model-card { display: flex; align-items: center; gap: 10px; }
+}
+@media (max-width: 760px) {
+.mc-id { flex: 1; min-width: 0; }
+}
+@media (max-width: 760px) {
+.mc-id b { display: block; font-size: 13px; }
+}
+@media (max-width: 760px) {
+.mc-id small { color: var(--text-3); font-size: 10.5px; }
+}
+@media (max-width: 760px) {
+.mc-price { text-align: right; display: flex; flex-direction: column; }
+}
+@media (max-width: 760px) {
+.mc-price span { font-size: 12.5px; color: var(--accent); }
+}
+@media (max-width: 760px) {
+.mc-price small { font-size: 10.5px; color: var(--text-3); }
+}
+.cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; }
+.cat-tab { border: 1px solid var(--line); background: transparent; color: var(--text-2); border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.cat-tab span { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.cat-chip { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--text-3); white-space: nowrap; }
+.model-scope { margin: 10px 0 0; font-size: 11px; }
+.model-scope-note { margin: 4px 0 0; line-height: 1.6; }
+.model-spotlight { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 4px 0 14px; }
+.spot-card {
+  display: grid; gap: 6px; padding: 12px 13px; border-radius: 10px;
+  border: 1px solid var(--line); background: linear-gradient(180deg, #0c1218, #090d12);
+  color: var(--text); transition: border-color .15s ease, transform .15s ease;
+}
+.spot-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.spot-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.spot-label { font-size: 10px; color: var(--text-3); letter-spacing: .02em; }
+.spot-name { font-size: 13.5px; line-height: 1.25; }
+.spot-metric { font-size: 11px; color: var(--text-2); }
+@media (max-width: 900px) {
+.model-spotlight { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+.model-spotlight { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+}
+@media (max-width: 520px) {
+.spot-name { font-size: 12.5px; }
+}
+@media (max-width: 520px) {
+.spot-metric { font-size: 10.5px; }
+}
+
