@@ -222,7 +222,7 @@ export function Home() {
 
   return (
     <main className="wrap home">
-      <section className="hero" ref={heroRef}>
+      <section className="hero" ref={heroRef} data-anim-scope>
         <span className="hero-scan" aria-hidden="true"><i /></span>
         <div className="hero-radar" aria-hidden="true" ref={radarRef}>
           <span className="radar-inner" ref={radarInnerRef}>
@@ -304,7 +304,7 @@ export function Home() {
       </section>
 
       {changes.length > 0 && (
-        <div className="live-strip" aria-label="最近变更">
+        <div className="live-strip" aria-label="最近变更" data-anim-scope>
           <span className="live-strip-label"><i className="live-dot" />LIVE</span>
           <div className="live-strip-viewport">
             <div className="live-strip-track">
