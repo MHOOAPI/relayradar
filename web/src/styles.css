@@ -262,7 +262,7 @@ select:hover { border-color: #303a49; }
 .station-line { display: flex; align-items: center; gap: 6px; }
 .station-name { font-size: 13px; font-weight: 650; letter-spacing: -0.005em; }
 .station-name:hover { color: var(--accent); }
-.station-domain { font-size: 10.5px; color: var(--text-3); }
+.station-domain { font-size: 11.5px; color: var(--text-3); }
 .avatar {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
   border-radius: 9px; border: 1px solid var(--line-2); font-weight: 800;
@@ -1341,7 +1341,7 @@ html, body { max-width: 100%; overflow-x: clip; }
   .mc-id .mc-tags { display: block; margin-top: 2px; font-size: 10px; color: var(--text-3); }
   .mc-price { text-align: right; display: flex; flex-direction: column; }
   .mc-price span { font-size: 12.5px; color: var(--accent); }
-  .mc-price small { font-size: 9.5px; color: var(--text-3); }
+  .mc-price small { font-size: 10.5px; color: var(--text-3); }
 }
 
 /* ---------- toasts ---------- */
@@ -1868,7 +1868,7 @@ h1, h2, h3, .hero h1, .home h2 { font-family: var(--display); }
 @media (max-width: 760px) { .live-strip { gap: 10px; } .live-station, .live-more { display: none; } }
 
 /* Credential-free reachability tag */
-.reach-tag { font-size: 9.5px; font-family: var(--mono); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--text-3); }
+.reach-tag { font-size: 10.5px; font-family: var(--mono); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--text-3); }
 .reach-tag.ok { color: var(--accent); border-color: rgba(46, 230, 166, .28); }
 .reach-tag.down { color: var(--red); border-color: rgba(255, 93, 93, .3); }
 
@@ -1897,8 +1897,8 @@ h1, h2, h3, .hero h1, .home h2 { font-family: var(--display); }
 .hmc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hmc-head b { font-size: 14px; }
 .hmc-price { font-family: var(--mono); font-size: 26px; letter-spacing: -.02em; }
-.hmc-price small { font-size: 10px; color: var(--text-3); margin-left: 4px; }
-.hmc-meta { font-size: 10.5px; color: var(--text-3); }
+.hmc-price small { font-size: 11px; color: var(--text-3); margin-left: 4px; }
+.hmc-meta { font-size: 11px; color: var(--text-3); }
 .home-guide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .home-guide-card {
   border: 1px solid var(--line); border-radius: 14px; padding: 20px;
@@ -1967,7 +1967,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 /* Model page: lowest-price offer emphasis */
 .offer-best td { background: rgba(46, 230, 166, .045); }
-.best-chip { font-size: 9.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }
+.best-chip { font-size: 10.5px; font-family: var(--mono); color: var(--accent); border: 1px solid rgba(46,230,166,.35); border-radius: 4px; padding: 1px 5px; margin-left: 2px; }
 
 /* Model offers: mobile cards */
 .offer-cards { display: none; }
@@ -2766,8 +2766,8 @@ section[id] { scroll-margin-top: 120px; }
   .home-model-card { padding: 12px; gap: 6px; border-radius: 12px; }
   .hmc-head b { font-size: 12.5px; }
   .hmc-price { font-size: 20px; }
-  .hmc-price small { font-size: 9px; }
-  .hmc-meta { font-size: 9.5px; }
+  .hmc-price small { font-size: 10px; }
+  .hmc-meta { font-size: 10.5px; }
   .home-guide-grid { display: flex; overflow-x: auto; gap: 8px; scroll-snap-type: x mandatory; padding-bottom: 4px; }
   .home-guide-card { flex: 0 0 80%; scroll-snap-align: start; padding: 14px; }
   .home-guide-card span { font-size: 11.5px; }
@@ -2916,3 +2916,22 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
 /* pause off-screen animation scopes */
 [data-anim-paused] *,
 [data-anim-paused] { animation-play-state: paused !important; }
+/* mobile comfort layer: 44px-ish targets */
+@media (max-width: 640px) {
+  .check-inline { min-height: 44px; }
+  .check-inline input[type="checkbox"] { width: 24px; height: 24px; }
+  .dir-pick { top: 0; right: 0; padding: 10px; }
+  .dir-pick .pick-box { width: 26px; height: 26px; }
+  .coverage-btn { min-height: 32px; }
+  .search input, .toolbar input, .keycheck input { min-height: 40px; }
+  .toolbar select { min-height: 40px; }
+  .chip { min-height: 36px; }
+  .ref-btn { min-height: 40px; }
+  .kc-toggle { min-width: 36px; min-height: 36px; }
+  .compare-chip button { width: 28px; height: 28px; }
+  .link-btn { min-height: 32px; }
+}
+/* mobile/coarse pointers: keep one authored radar sweep, drop decorative blips */
+@media (pointer: coarse) {
+  .hr-blip { display: none; }
+}

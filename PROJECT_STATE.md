@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.84**（审计收尾：页脚 h3 样式归位、站点字母标记提亮、live 标签 10.5px）
+- 版本：**v0.2.85**（移动端舒适触控层 44px、域名/单位 11.5px、触屏隐藏雷达 blip）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
