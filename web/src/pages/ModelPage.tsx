@@ -53,7 +53,14 @@ export function ModelPage() {
   const [upstream, setUpstream] = useState<ModelProviderStatus | null>(null);
   const [offerSort, setOfferSort] = useState<'price' | 'availability' | 'rank' | 'multiplier'>('price');
   const [onlyOfficial, setOnlyOfficial] = useState(false);
+  const [offerQ, setOfferQ] = useState('');
+  const initialOfferLimit = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches ? 20 : 60);
+  const [offerLimit, setOfferLimit] = useState(initialOfferLimit);
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
+
+  useEffect(() => {
+    setOfferLimit(initialOfferLimit());
+  }, [offerQ, onlyOfficial, offerSort]);
 
   useEffect(() => {
     if (!model) return;
@@ -106,14 +113,17 @@ export function ModelPage() {
 
   const best = offers.find((o) => o.purityTier !== 'counterfeit' && o.inputCny > 0);
   const officialCount = offers.filter((o) => o.purityTier === 'official').length;
+  const offerNeedle = offerQ.trim().toLowerCase();
   const visibleOffers = offers
     .filter((o) => !onlyOfficial || o.purityTier === 'official')
+    .filter((o) => !offerNeedle || `${o.stationName} ${o.stationSlug} ${o.groupName}`.toLowerCase().includes(offerNeedle))
     .sort((a, b) => {
       if (offerSort === 'availability') return b.availability - a.availability;
       if (offerSort === 'rank') return (a.stationRank || 1e9) - (b.stationRank || 1e9);
       if (offerSort === 'multiplier') return a.multiplier - b.multiplier;
       return a.inputCny - b.inputCny;
     });
+  const shownOffers = visibleOffers.slice(0, offerLimit);
   const isText = !model.category || model.category === 'text';
   const perUnit = model.category === 'image' ? '/张' : model.category === 'video' ? '/秒' : '';
   const purityTotal = model.purityOfficial + model.purityMixed + model.purityUnknown + model.purityCounterfeit;
@@ -336,6 +346,14 @@ export function ModelPage() {
               官方直连 <span className="chip-count">{officialCount}</span>
             </button>
           </div>
+          <div className="offer-search">
+            <input
+              value={offerQ}
+              onChange={(e) => setOfferQ(e.target.value)}
+              placeholder="筛选站点 / 分组"
+              aria-label="筛选报价"
+            />
+          </div>
           <label className="chip-select">
             <span className="dim">排序</span>
             <select value={offerSort} onChange={(e) => setOfferSort(e.target.value as typeof offerSort)} aria-label="报价排序">
@@ -358,7 +376,7 @@ export function ModelPage() {
               {visibleOffers.length === 0 && (
                 <tr><td colSpan={8} className="loading">{offers.length === 0 ? '暂无中转站报价；以上为官方价参考。' : '没有符合筛选的报价，试试看全部。'}</td></tr>
               )}
-              {visibleOffers.map((o, i) => (
+              {shownOffers.map((o, i) => (
                 <tr key={`${o.stationSlug}-${o.groupSlug}`} className={o === best ? 'offer-best' : undefined}>
                   <td className="num rank dim">{i + 1}</td>
                   <td>
@@ -382,7 +400,7 @@ export function ModelPage() {
         </div>
 
         <div className="offer-cards">
-          {visibleOffers.map((o, i) => (
+          {shownOffers.map((o, i) => (
             <Link key={`${o.stationSlug}-${o.groupSlug}`} to={`/stations/${o.stationSlug}`} className={`offer-card${o === best ? ' best' : ''}`}>
               <div className="oc-head">
                 <span className="mono dim">{i + 1}</span>
@@ -406,6 +424,14 @@ export function ModelPage() {
             </Link>
           ))}
         </div>
+        {visibleOffers.length > shownOffers.length && (
+          <div className="list-more">
+            <button className="btn btn-ghost btn-sm" onClick={() => setOfferLimit((v) => v + 60)}>
+              显示更多（剩余 {visibleOffers.length - shownOffers.length}）
+            </button>
+            <span className="mono">已显示 {shownOffers.length} / {visibleOffers.length}</span>
+          </div>
+        )}
       </section>
 
       {priceChanges.length > 0 && (

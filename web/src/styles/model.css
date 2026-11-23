@@ -92,3 +92,14 @@
   }
 }
 
+
+/* offer filter */
+.offer-search input {
+  min-height: 34px; width: 200px; padding: 6px 10px;
+  background: #070b0f; border: 1px solid var(--line); border-radius: 8px;
+  color: var(--text); font-size: 12px;
+}
+@media (max-width: 640px) {
+  .offer-tools { flex-wrap: wrap; }
+  .offer-search, .offer-search input { width: 100%; }
+}
