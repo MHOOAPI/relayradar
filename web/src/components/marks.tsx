@@ -77,7 +77,7 @@ export function StationMark({
   const src = iconUrl || (slug ? `/api/v1/favicon/${slug}` : '');
   const h = hash(key);
   const hue = (h * 137) % 360;
-  const fg = `hsl(${hue} 68% 63%)`;
+  const fg = `hsl(${hue} 70% 74%)`;
   const bg = `hsl(${hue} 45% 11%)`;
   const border = `hsl(${hue} 45% 26%)`;
 

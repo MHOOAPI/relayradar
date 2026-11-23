@@ -643,7 +643,7 @@ select:hover { border-color: #303a49; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 28px; }
 .footer-brand { margin-bottom: 12px; }
 .footer-grid p.fine { max-width: 340px; line-height: 1.7; }
-.footer-grid h4 { font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 600; }
+.footer-grid h3 { font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 600; }
 .footer-grid a, .footer-grid span { display: block; font-size: 12px; color: var(--text-2); margin: 6px 0; }
 .footer-grid a:hover { color: var(--accent); }
 .footer-bottom { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 16px; border-top: 1px solid #10141b; font-size: 10.5px; color: var(--text-3); }
@@ -1510,7 +1510,7 @@ input, select, textarea { border-radius: var(--r-sm); }
 }
 .footer-lang { margin-left: auto; color: var(--text-2); }
 .footer-grid { gap: 28px; }
-.footer-grid h4 { margin-bottom: 10px; letter-spacing: .06em; }
+.footer-grid h3 { margin-bottom: 10px; letter-spacing: .06em; }
 .footer-grid > div > a, .footer-grid > div > span { display: block; padding: 3px 0; }
 
 /* Empty state */
@@ -1859,7 +1859,7 @@ h1, h2, h3, .hero h1, .home h2 { font-family: var(--display); }
 @keyframes liveScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .live-item { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
 .live-item:hover .live-title { color: var(--accent); }
-.live-kind { font-family: var(--mono); font-size: 9.5px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--text-3); }
+.live-kind { font-family: var(--mono); font-size: 10.5px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--text-3); }
 .live-kind.critical { color: var(--red); border-color: rgba(255,93,93,.3); }
 .live-kind.warn { color: var(--amber); border-color: rgba(245,185,66,.3); }
 .live-station { font-size: 10.5px; color: var(--text-3); }
@@ -2759,7 +2759,7 @@ section[id] { scroll-margin-top: 120px; }
   .hero-cta { margin-top: 16px; }
   .hero-scroll, .hero-link { display: none; }
   .trust-strip { gap: 6px 10px; }
-  .trust-item { font-size: 10px; }
+  .trust-item { font-size: 11px; }
   .hero-card { padding: 14px; }
   .hero-stats b { font-size: 16px; }
   .home-model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
