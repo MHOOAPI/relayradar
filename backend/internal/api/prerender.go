@@ -1267,6 +1267,14 @@ func (s *Server) ldFor(r *http.Request, m pageMeta, d *app.Dataset) []any {
 			})
 		}
 		out = append(out, map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": items})
+	case path == "/compare":
+		addCrumb("横向对比", base+"/compare")
+	case path == "/status":
+		addCrumb("服务状态", base+"/status")
+	case path == "/free":
+		addCrumb("免费额度", base+"/free")
+	case path == "/methodology":
+		addCrumb("评分方法", base+"/methodology")
 	case path == "/leaderboards":
 		addCrumb("排行榜", base+"/leaderboards")
 		items := make([]any, 0, 10)
