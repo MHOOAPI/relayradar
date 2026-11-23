@@ -174,3 +174,9 @@
 @media (max-width: 760px) {
   .source-grid { grid-template-columns: 1fr; }
 }
+/* rating distribution */
+.rating-dist { display: grid; gap: 4px; margin-bottom: 14px; }
+.rd-row { display: grid; grid-template-columns: 34px 1fr 24px; align-items: center; gap: 8px; }
+.rd-bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.rd-bar i { display: block; height: 100%; background: var(--accent); opacity: .7; }
+.rd-row .mono { font-size: 10.5px; }
