@@ -59,10 +59,21 @@ export function StationPage() {
   const [modelQ, setModelQ] = useState('');
   const [modelLimit, setModelLimit] = useState(40);
   const [groupByModels, setGroupByModels] = useState(false);
+  const [reviewSort, setReviewSort] = useState<'new' | 'high' | 'low'>('new');
+  const [onlyVerified, setOnlyVerified] = useState(false);
   const sortedGroups = useMemo(() => {
     const list = data?.groups ?? [];
     return groupByModels ? [...list].sort((a, b) => b.modelCount - a.modelCount) : list;
   }, [data, groupByModels]);
+
+  const sortedReviews = useMemo(() => {
+    const list = (data?.reviews ?? []).filter((r) => !onlyVerified || r.verified);
+    return [...list].sort((a, b) => {
+      if (reviewSort === 'high') return b.rating - a.rating || +new Date(b.createdAt) - +new Date(a.createdAt);
+      if (reviewSort === 'low') return a.rating - b.rating || +new Date(b.createdAt) - +new Date(a.createdAt);
+      return +new Date(b.createdAt) - +new Date(a.createdAt);
+    });
+  }, [data, reviewSort, onlyVerified]);
 
   const modelRows = useMemo(() => {
     const list = data?.models ?? [];
@@ -699,11 +710,22 @@ export function StationPage() {
         <section className="panel" id="reviews">
           <div className="panel-head">
             <h2>开发者评价</h2>
-            <span className="mono dim">{reviews.length} 条 · 均分 {avg ? avg.toFixed(1) : '—'}</span>
+            <div className="review-head-tools">
+              <label className="check-inline">
+                <input type="checkbox" checked={onlyVerified} onChange={(e) => setOnlyVerified(e.target.checked)} />
+                只看已验证
+              </label>
+              <select value={reviewSort} onChange={(e) => setReviewSort(e.target.value as typeof reviewSort)} aria-label="评价排序">
+                <option value="new">最新</option>
+                <option value="high">评分最高</option>
+                <option value="low">评分最低</option>
+              </select>
+              <span className="mono dim">{sortedReviews.length} 条 · 均分 {avg ? avg.toFixed(1) : '—'}</span>
+            </div>
           </div>
           <div className="reviews">
-            {reviews.length === 0 && <p className="empty">还没有评价，欢迎补充第一条实测记录。</p>}
-            {reviews.map((r) => (
+            {sortedReviews.length === 0 && <p className="empty">还没有符合条件的评价。</p>}
+            {sortedReviews.map((r) => (
               <article key={r.id} className="review">
                 <div className="review-head">
                   <b>{r.author}</b>

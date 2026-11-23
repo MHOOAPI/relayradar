@@ -103,3 +103,9 @@
   .offer-tools { flex-wrap: wrap; }
   .offer-search, .offer-search input { width: 100%; }
 }
+/* day separator row in change history */
+.day-row td {
+  background: #070b0f; color: var(--text-3);
+  font-size: 10.5px; letter-spacing: .05em; padding-top: 12px;
+  border-bottom: 1px solid var(--line);
+}

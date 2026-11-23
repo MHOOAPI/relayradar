@@ -67,6 +67,7 @@ export function Home() {
   });
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
+  const [watchedFirst, setWatchedFirst] = useState(false);
   const radarRef = useRef<HTMLDivElement>(null);
   const radarInnerRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -183,11 +184,12 @@ export function Home() {
     else if (sort === 'price') list.sort((a, b) => (a.fromPriceCny < 0 ? 1 : b.fromPriceCny < 0 ? -1 : a.fromPriceCny - b.fromPriceCny));
     else if (sort === 'models') list.sort((a, b) => b.modelsCount - a.modelsCount);
     else list.sort((a, b) => a.rank - b.rank);
+    if (watchedFirst) list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1));
     return list;
-  }, [stations, service, tier, sort, q, onlyWatch, watched]);
+  }, [stations, service, tier, sort, q, onlyWatch, watched, watchedFirst]);
 
   const [visible, setVisible] = useState(15);
-  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch]);
+  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch, watchedFirst]);
   const shown = rows.slice(0, visible);
 
   const heroTop = useMemo(
@@ -362,6 +364,9 @@ export function Home() {
           <span className="chip-sep" />
           <button className={`chip ${onlyWatch ? 'on' : ''}`} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
+          </button>
+          <button className={`chip ${watchedFirst ? 'on' : ''}`} onClick={() => setWatchedFirst((v) => !v)} aria-pressed={watchedFirst}>
+            ★ 优先关注
           </button>
         </div>
         <div className="toolbar-right">
