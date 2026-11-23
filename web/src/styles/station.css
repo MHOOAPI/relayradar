@@ -164,3 +164,5 @@
   border-radius: 8px; color: var(--text-2); font-size: 11.5px; padding: 3px 8px;
 }
 .review-head-tools .check-inline { font-size: 11px; }
+/* alternative price delta */
+.rc-diff { margin-left: 8px; font-size: 11px; }

@@ -316,11 +316,11 @@ export function ChangesPage() {
           </div>
         )}
         {dayGroups.map(([day, list]) => (
-          <section key={day} className="change-day">
-            <h3 className="change-day-head mono">
+          <details key={day} className="change-day" open>
+            <summary className="change-day-head mono">
               <span>{day}</span>
               <span>{list.length} 条</span>
-            </h3>
+            </summary>
             <ul className="changes-list big">
               {list.map((c) => (
                 <li key={c.id} className={`change change-${c.severity}`}>
@@ -338,7 +338,7 @@ export function ChangesPage() {
                 </li>
               ))}
             </ul>
-          </section>
+          </details>
         ))}
         {rows.length > shown.length && (
           <div className="list-more">
