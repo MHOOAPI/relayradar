@@ -772,6 +772,20 @@ export function StationPage() {
         </div>
       </section>
 
+      <section className="panel" id="source">
+        <div className="panel-head">
+          <h2>数据来源与更新时间</h2>
+          <Link className="link-btn mono" to="/methodology">口径说明 →</Link>
+        </div>
+        <dl className="source-grid">
+          <div><dt>价格</dt><dd>站点公开价格页，按最便宜分组折算为人民币</dd></div>
+          <div><dt>探针</dt><dd>{s.samples} 次样本 · 最近{ s.reachability?.checkedAt ? ` ${new Date(s.reachability.checkedAt).toLocaleString('zh-CN', { hour12: false })}` : '未记录'}</dd></div>
+          <div><dt>评分</dt><dd>{s.scoredGroups} 个分组参与 · 综合分 {s.rankScore.toFixed(1)}</dd></div>
+          <div><dt>评价</dt><dd>{s.reviewsCount} 条人工反馈，不参与评分</dd></div>
+        </dl>
+        <p className="fine">演示数据集：示例生成值，不代表真实商家表现；正式部署后随探针与价格快照刷新。</p>
+      </section>
+
       {samePrice.length > 0 && (
         <section className="panel">
           <div className="panel-head">

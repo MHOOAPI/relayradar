@@ -80,6 +80,12 @@ export function FreePage() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
+  const [modelQ, setModelQ] = useState('');
+  const filteredModels = useMemo(() => {
+    const n = modelQ.trim().toLowerCase();
+    return (models ?? []).filter((m) => !n || `${m.name} ${m.id} ${m.vendorName}`.toLowerCase().includes(n));
+  }, [models, modelQ]);
+
   const plans = useMemo(() => PROGRAMS.filter((p) => {
     if (planFilter === 'free') return p.kind === 'free';
     if (planFilter === 'trial') return p.kind === 'trial';
@@ -111,8 +117,24 @@ export function FreePage() {
       {error && <div className="error-box">{error}</div>}
 
       {models && models.length > 0 ? (
+        <>
+        <div className="free-filter">
+          <input
+            value={modelQ}
+            onChange={(e) => setModelQ(e.target.value)}
+            placeholder="筛选免费模型 / 厂商"
+            aria-label="筛选免费模型"
+          />
+          <span className="mono dim">{filteredModels.length} / {models.length}</span>
+        </div>
+        {filteredModels.length === 0 ? (
+          <div className="empty-panel free-empty">
+            <b>没有匹配的免费模型</b>
+            <p>换个关键词，或清空筛选看全部。</p>
+          </div>
+        ) : (
         <div className="free-grid">
-          {models.map((m) => (
+          {filteredModels.map((m) => (
             <article key={m.id} className="free-card panel">
               <div className="free-head">
                 <VendorMark vendor={m.vendor} size={34} />
@@ -143,6 +165,8 @@ export function FreePage() {
             </article>
           ))}
         </div>
+        )}
+        </>
       ) : models && (
         <section className="panel free-empty">
           <b>目录里还没有标记免费层的模型</b>
