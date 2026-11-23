@@ -117,3 +117,8 @@
 .price-basis summary { cursor: pointer; font-size: 11.5px; color: var(--text-2); }
 .price-basis ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; }
 .price-basis li { font-size: 11.5px; color: var(--text-3); line-height: 1.6; }
+/* related model sort */
+.related-sort {
+  min-height: 30px; background: #070b0f; border: 1px solid var(--line);
+  border-radius: 8px; color: var(--text-2); font-size: 11.5px; padding: 3px 8px;
+}

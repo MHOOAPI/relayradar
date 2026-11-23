@@ -65,6 +65,7 @@ export function ModelPage() {
   const [offerSort, setOfferSort] = useState<'price' | 'availability' | 'rank' | 'multiplier'>('price');
   const [onlyOfficial, setOnlyOfficial] = useState(false);
   const [offerQ, setOfferQ] = useState('');
+  const [relatedSort, setRelatedSort] = useState<'default' | 'price'>('default');
   const initialOfferLimit = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches ? 20 : 60);
   const [offerLimit, setOfferLimit] = useState(initialOfferLimit);
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
@@ -114,10 +115,12 @@ export function ModelPage() {
 
   const related = useMemo(() => {
     if (!model) return [];
-    return allModels
-      .filter((m) => m.vendor === model.vendor && m.id !== model.id)
-      .slice(0, 6);
-  }, [allModels, model?.id, model?.vendor]);
+    const list = allModels.filter((m) => m.vendor === model.vendor && m.id !== model.id);
+    if (relatedSort === 'price') {
+      list.sort((a, b) => (a.minInputCny < 0 ? 1 : 0) - (b.minInputCny < 0 ? 1 : 0) || a.minInputCny - b.minInputCny);
+    }
+    return list.slice(0, 6);
+  }, [allModels, model?.id, model?.vendor, relatedSort]);
 
   if (error) return <main className="wrap"><div className="error-box">{error}</div></main>;
   if (!model) return <main className="wrap"><div className="loading-page"><Spinner /> 读取模型…</div></main>;
@@ -504,6 +507,15 @@ export function ModelPage() {
               <h2>同厂商模型</h2>
               <p className="sub">同一厂商的其他型号，价格与上下文可横向对比。</p>
             </div>
+            <select
+              className="related-sort"
+              value={relatedSort}
+              onChange={(e) => setRelatedSort(e.target.value as typeof relatedSort)}
+              aria-label="同厂商模型排序"
+            >
+              <option value="default">默认顺序</option>
+              <option value="price">价格从低到高</option>
+            </select>
             <Link className="link-btn mono" to={`/models?vendor=${encodeURIComponent(model.vendor)}`}>全部 {model.vendorName} 模型 →</Link>
           </div>
           <div className="related-grid">
