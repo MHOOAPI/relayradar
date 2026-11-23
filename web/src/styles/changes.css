@@ -43,3 +43,12 @@
   font-size: 11px; letter-spacing: .06em; color: var(--text-3); font-weight: 500;
 }
 .change-day:first-child .change-day-head { margin-top: 4px; }
+/* collapsible day groups */
+.change-day > summary { cursor: pointer; list-style: none; }
+.change-day > summary::-webkit-details-marker { display: none; }
+.change-day > summary::before {
+  content: "▸"; margin-right: 8px; color: var(--text-3); display: inline-block;
+  transition: transform .15s ease; transform-origin: 40% 50%;
+}
+.change-day[open] > summary::before { transform: rotate(90deg); }
+.change-day[open] > summary { margin-bottom: 4px; }

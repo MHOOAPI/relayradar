@@ -1,5 +1,5 @@
 import '../styles/compare.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station } from '../types';
@@ -114,6 +114,24 @@ export function ComparePage() {
   const optionsShown = options.slice(0, visible);
 
   const [onlyDiff, setOnlyDiff] = useState(false);
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const exportCsv = () => {
+    const table = tableRef.current;
+    if (!table) return;
+    const bodyRows = [...table.querySelectorAll('tbody tr')].map((tr) =>
+      [...tr.querySelectorAll('td')].map((c) => (c.textContent || '').replace(/\s+/g, ' ').trim()),
+    );
+    const header = ['对比维度', ...selected.map((s) => `${s.name} (${s.domain})`)];
+    const rows = [header, ...bodyRows];
+    const csv = rows.map((r) => r.map((v) => `"${v.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'relayradar-compare.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
   const [pickerOpen, setPickerOpen] = useState(false);
   const shownRows = useMemo(() => {
     if (!onlyDiff || selected.length < 2) return rows;
@@ -150,6 +168,9 @@ export function ComparePage() {
               <input type="checkbox" checked={onlyDiff} onChange={(e) => setOnlyDiff(e.target.checked)} />
               只看差异
             </label>
+          )}
+          {selected.length >= 2 && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={exportCsv}>导出 CSV</button>
           )}
           <button
             className="btn btn-ghost btn-sm"
@@ -249,7 +270,7 @@ export function ComparePage() {
             {onlyDiff ? `仅显示差异项 ${shownRows.length} / ${rows.length} 行。` : '左右滑动查看全部对比，首列固定。'}
           </p>
           <div className="table-wrap compare-wrap">
-            <table className="compare-table">
+            <table className="compare-table" ref={tableRef}>
               <thead>
                 <tr>
                   <th>对比维度</th>

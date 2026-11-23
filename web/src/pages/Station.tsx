@@ -784,19 +784,31 @@ export function StationPage() {
             <Link className="link-btn mono" to="/compare">去对比 →</Link>
           </div>
           <div className="related-grid">
-            {samePrice.map((n) => (
-              <Link key={n.slug} className="related-card" to={`/stations/${n.slug}`}>
-                <div className="rc-head">
-                  <StationMark slug={n.slug} name={n.name} iconUrl={n.iconUrl} size={22} />
-                  <b>{n.name}</b>
-                  <span className="mono dim">#{n.rank}</span>
-                </div>
-                <div className="rc-meta mono dim">
-                  综合分 {n.rankScore.toFixed(1)} · {n.services.map(serviceLabel).join(' / ')}
-                </div>
-                <div className="rc-price mono">{fmtCny(n.fromPriceCny)}<span className="dim"> /M</span></div>
-              </Link>
-            ))}
+            {samePrice.map((n) => {
+              const diff = s.fromPriceCny > 0 && n.fromPriceCny > 0
+                ? ((n.fromPriceCny - s.fromPriceCny) / s.fromPriceCny) * 100
+                : null;
+              return (
+                <Link key={n.slug} className="related-card" to={`/stations/${n.slug}`}>
+                  <div className="rc-head">
+                    <StationMark slug={n.slug} name={n.name} iconUrl={n.iconUrl} size={22} />
+                    <b>{n.name}</b>
+                    <span className="mono dim">#{n.rank}</span>
+                  </div>
+                  <div className="rc-meta mono dim">
+                    综合分 {n.rankScore.toFixed(1)} · {n.services.map(serviceLabel).join(' / ')}
+                  </div>
+                  <div className="rc-price mono">
+                    {fmtCny(n.fromPriceCny)}<span className="dim"> /M</span>
+                    {diff !== null && Math.abs(diff) >= 1 && (
+                      <span className={`rc-diff ${diff > 0 ? 'delta-up' : 'delta-down'}`}>
+                        {diff > 0 ? '+' : ''}{diff.toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}
