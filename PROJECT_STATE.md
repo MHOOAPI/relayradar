@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.83**（审计修复：控件 24px 命中区、更多菜单真 disclosure、占位符对比度、页脚标题层级、颜色 token、视口外动画暂停）
+- 版本：**v0.2.84**（审计收尾：页脚 h3 样式归位、站点字母标记提亮、live 标签 10.5px）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
