@@ -1,5 +1,5 @@
 import '../styles/station.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Station, StatusHistoryDay, StationDetail } from '../types';
@@ -56,6 +56,14 @@ export function StationPage() {
   const [dayPick, setDayPick] = useState<number | null>(null);
   const [priceModel, setPriceModel] = useState('');
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
+  const [modelQ, setModelQ] = useState('');
+  const [modelLimit, setModelLimit] = useState(40);
+  const modelRows = useMemo(() => {
+    const list = data?.models ?? [];
+    const n = modelQ.trim().toLowerCase();
+    return list.filter((m) => !n || `${m.model.name} ${m.model.id} ${m.model.vendor}`.toLowerCase().includes(n));
+  }, [data, modelQ]);
+  useEffect(() => setModelLimit(40), [modelQ]);
   useScrollParallax(waveRef, 0.05, 900);
 
   useEffect(() => {
@@ -592,9 +600,17 @@ export function StationPage() {
             <h2>支持模型与本站实价</h2>
             <p className="sub">按该站最便宜的分组折算，单位为每百万 Token 人民币。</p>
           </div>
-          <span className="mono dim">{models.length} 个模型</span>
+          <div className="model-table-tools">
+            <input
+              value={modelQ}
+              onChange={(e) => setModelQ(e.target.value)}
+              placeholder="筛选模型 / 厂商"
+              aria-label="筛选模型"
+            />
+            <span className="mono dim">{modelRows.length === models.length ? `${models.length} 个模型` : `${modelRows.length} / ${models.length}`}</span>
+          </div>
         </div>
-        <div className="table-wrap">
+        <div className="table-wrap station-models-wrap">
           <p className="table-hint">左右滑动查看全部列</p>
           <table className="index-table station-models">
             <thead>
@@ -605,7 +621,10 @@ export function StationPage() {
               </tr>
             </thead>
             <tbody>
-              {models.map((m) => (
+              {modelRows.length === 0 && (
+                <tr><td colSpan={7} className="loading">没有匹配的模型，试试清空筛选。</td></tr>
+              )}
+              {modelRows.slice(0, modelLimit).map((m) => (
                 <tr key={m.model.id} onClick={() => navigate(`/models/${encodeURIComponent(m.model.id)}`)} className="clickable">
                   <td>
                     <div className="cell-station">
@@ -627,6 +646,14 @@ export function StationPage() {
             </tbody>
           </table>
         </div>
+        {modelRows.length > modelLimit && (
+          <div className="list-more">
+            <button className="btn btn-ghost btn-sm" onClick={() => setModelLimit((v) => v + 40)}>
+              显示更多（剩余 {modelRows.length - modelLimit}）
+            </button>
+            <span className="mono">已显示 {Math.min(modelLimit, modelRows.length)} / {modelRows.length}</span>
+          </div>
+        )}
       </section>
 
       <div className="two-col">
