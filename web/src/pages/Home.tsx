@@ -459,6 +459,17 @@ export function Home() {
                             </span>
                           )}
                           <WatchStar slug={s.slug} size={13} />
+                          <button
+                            type="button"
+                            className="row-compare"
+                            title="把该站加入横向对比"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/compare?ids=${encodeURIComponent(s.slug)}`);
+                            }}
+                          >
+                            对比
+                          </button>
                         </div>
                         <span className="station-domain mono">{s.domain}</span>
                       </div>

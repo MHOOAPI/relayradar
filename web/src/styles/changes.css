@@ -35,3 +35,11 @@
 .change-station { display: inline-block; margin-top: 4px; font-size: 11px; color: var(--accent); }
 .change-station:hover { text-decoration: underline; }
 
+
+/* day grouping */
+.change-day-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 18px 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
+  font-size: 11px; letter-spacing: .06em; color: var(--text-3); font-weight: 500;
+}
+.change-day:first-child .change-day-head { margin-top: 4px; }
