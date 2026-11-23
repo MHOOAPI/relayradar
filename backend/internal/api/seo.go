@@ -71,6 +71,13 @@ func (s *Server) spaHandler(dir string) http.Handler {
 		clean := filepath.Clean("/" + r.URL.Path)
 		candidate := filepath.Join(dir, clean)
 		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			// Vite hashes asset filenames, so they can be cached forever. The
+			// shell and other static files revalidate.
+			if strings.HasPrefix(r.URL.Path, "/assets/") {
+				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			} else {
+				w.Header().Set("Cache-Control", "public, max-age=3600")
+			}
 			files.ServeHTTP(w, r)
 			return
 		}
@@ -101,6 +108,7 @@ func (s *Server) spaHandler(dir string) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(page)
 	})
