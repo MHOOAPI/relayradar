@@ -416,7 +416,7 @@ export function StationsPage() {
         </div>
 
         <div className="dir-cards">
-          {!stations && <p className="fine" style={{ padding: 16 }}>加载中…</p>}
+          {!stations && <p className="fine loading-block" style={{ padding: 16 }}>加载中…</p>}
           {shown.map((s) => {
             const h = healthOf(s);
             return (

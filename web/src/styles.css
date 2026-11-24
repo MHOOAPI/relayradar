@@ -232,7 +232,9 @@ select:hover { border-color: #303a49; }
 .rank.r3 { color: #f0c98b; font-weight: 600; }
 .index-table tbody tr:hover .col-go { color: var(--accent); }
 .loading { padding: 40px 20px !important; text-align: center; color: var(--text-3); }
-.loading-page { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 80px 0; color: var(--text-3); font-size: 12.5px; }
+.loading-page { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 80px 0; color: var(--text-3); font-size: 12.5px; min-height: calc(100vh - 160px); }
+.loading-block { min-height: 55vh; }
+td.loading { height: 40vh; }
 
 .cell-station { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .station-meta { display: flex; flex-direction: column; min-width: 0; }
