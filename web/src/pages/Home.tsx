@@ -223,13 +223,16 @@ export function Home() {
       .filter((s) => s.reachability && s.reachability.latencyMs > 0)
       .slice(0, 28);
     if (!list.length) return [];
-    const latencies = list.map((s) => s.reachability!.latencyMs);
-    const minLat = Math.min(...latencies);
-    const maxLat = Math.max(...latencies);
+    const frac = (ms: number) => {
+      const t = Math.min(Math.max(ms, 50), 4000);
+      if (t <= 100) return 0.06 + ((Math.log(t) - Math.log(50)) / (Math.log(100) - Math.log(50))) * 0.1;
+      if (t <= 500) return 0.16 + ((Math.log(t) - Math.log(100)) / (Math.log(500) - Math.log(100))) * 0.12;
+      if (t <= 2000) return 0.28 + ((Math.log(t) - Math.log(500)) / (Math.log(2000) - Math.log(500))) * 0.13;
+      return 0.41 + Math.min((t - 2000) / 2000, 1) * 0.06;
+    };
     return list.map((s, i) => {
       const angle = (i / list.length) * Math.PI * 2 - Math.PI / 2;
-      const norm = maxLat === minLat ? 0.5 : (s.reachability!.latencyMs - minLat) / (maxLat - minLat);
-      const radius = 0.3 + norm * 0.16;
+      const radius = frac(s.reachability!.latencyMs);
       const tone = s.purityTier === 'official' ? 'official' : s.purityTier === 'mixed' ? 'mixed' : 'unknown';
       return {
         slug: s.slug,
@@ -332,9 +335,6 @@ export function Home() {
         <div className="hero-board" ref={heroCardRef}>
           <div className="hero-board-head">
             <span className="mono label">此刻前 5</span>
-            <span className={`prov-badge ${meta?.demo ? 'demo' : 'live'}`}>
-              {meta?.demo ? '演示数据' : '实测数据'}
-            </span>
           </div>
           <ol className="hero-board-list">
             {heroTop.map((s) => (
@@ -358,7 +358,7 @@ export function Home() {
           </p>
           {radarPoints.length > 0 && (
             <p className="hb-radar-note mono">
-              雷达：{radarPoints.length} 次探测 · 距离=延迟 · 色=纯度
+              雷达：{radarPoints.length}/{meta?.stations ?? '—'} 站 · 圈=100ms/500ms/2s · 位置=排名 · 色=纯度
             </p>
           )}
         </div>
@@ -390,7 +390,9 @@ export function Home() {
 
       <section className="home-steps">
         {[
-          ['每 2 小时真实探针', '可用性、p50/p95 延迟、思考签名抽检，全部来自连续探测。'],
+          meta?.demo
+            ? ['演示数据集', '探针、评分与价格为示例值；评分方法与真实部署一致。']
+            : ['每 2 小时真实探针', '可用性、p50/p95 延迟、思考签名抽检，全部来自连续探测。'],
           ['评分只认数据', 'Wilson 下界 + 覆盖加权，赞助位与广告不参与排名。'],
           ['选站、比价、告警', '目录看覆盖与支付，模型页比价，变更可订阅。'],
         ].map(([title, desc]) => (

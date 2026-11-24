@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.1**（雷达接真实探针、首屏承诺先行、模型卡片改官方价、KeyCheck 空 host/清错/禁用态）
+- 版本：**v0.3.2**（critique #2 P1：演示/实测状态感知、雷达可读刻度+置于卡片后、移动端吸顶修复）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

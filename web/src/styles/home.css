@@ -421,3 +421,7 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 .hr-blip.mixed { background: var(--amber); box-shadow: 0 0 10px rgba(245, 185, 66, .65); }
 .hr-blip.unknown { background: #55627a; box-shadow: 0 0 8px rgba(85, 98, 122, .45); }
 .hb-radar-note { margin: 6px 0 0; font-size: 10px; color: var(--text-3); }
+/* radar reads as a chart: board above it, ticks on the rings */
+.hero-board { position: relative; z-index: 2; }
+.live.demo { color: var(--amber); }
+.live.demo i { background: var(--amber); animation: none; }
