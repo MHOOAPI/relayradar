@@ -129,7 +129,7 @@ export function StationPage() {
   }, [slug]);
 
   useEffect(() => {
-    api.stations(1000).then((r) => setAllStations(r.items)).catch(() => setAllStations([]));
+    api.stations(300).then((r) => setAllStations(r.items)).catch(() => setAllStations([]));
   }, []);
 
   const copy = (text: string) => {
