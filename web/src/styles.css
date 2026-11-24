@@ -1324,7 +1324,7 @@ html { scrollbar-color: #2a3442 #06070a; scrollbar-width: thin; }
 
 /* Mobile overflow guards */
 @media (max-width: 640px) {
-  html, body { overflow-x: hidden; }
+  html, body { overflow-x: clip; }
   /* legacy formula block kept for other surfaces */
 .formula { font-size: 10px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
   .hero .sub, .hero p { max-width: 100%; }

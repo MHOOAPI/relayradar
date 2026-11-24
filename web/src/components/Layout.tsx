@@ -86,7 +86,7 @@ export function Layout() {
       <div className="topbar">
         <div className="wrap topbar-inner">
           <div className="topbar-left">
-            <span className="live"><i />LIVE</span>
+            {meta && !meta.demo ? <span className="live"><i />LIVE</span> : <span className="live demo"><i />DEMO</span>}
             <span className="mono">
               {meta ? fmtDateTime(meta.dataUpdatedAt) : '—'}
             </span>
@@ -98,7 +98,6 @@ export function Layout() {
             </span>
           </div>
           <div className="topbar-right">
-            {meta?.demo && <span className="demo-tag">DEMO 数据集</span>}
             <span className="mono dim">方法 v{meta?.methodologyVersion ?? '1.0'}</span>
           </div>
         </div>
