@@ -32,6 +32,7 @@ const SORTS: Array<[string, string]> = [
   ['speed', '速度'],
   ['price', '最低价'],
   ['models', '模型数'],
+  ['watched', '已关注优先'],
 ];
 
 
@@ -67,7 +68,6 @@ export function Home() {
   });
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
-  const [watchedFirst, setWatchedFirst] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyFilterLink = async () => {
     try {
@@ -83,6 +83,17 @@ export function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const heroCardRef = useRef<HTMLDivElement>(null);
   const rankingRef = useRef<HTMLElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty('--rank-head-top', `${64 + el.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   useScrollParallax(radarRef, 0.16, 700);
   usePointerGlow(rankingRef, !!stations);
 
@@ -193,13 +204,13 @@ export function Home() {
     else if (sort === 'speed') list.sort((a, b) => b.speed - a.speed);
     else if (sort === 'price') list.sort((a, b) => (a.fromPriceCny < 0 ? 1 : b.fromPriceCny < 0 ? -1 : a.fromPriceCny - b.fromPriceCny));
     else if (sort === 'models') list.sort((a, b) => b.modelsCount - a.modelsCount);
+    else if (sort === 'watched') list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1) || a.rank - b.rank);
     else list.sort((a, b) => a.rank - b.rank);
-    if (watchedFirst) list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1));
     return list;
-  }, [stations, service, tier, sort, q, onlyWatch, watched, watchedFirst]);
+  }, [stations, service, tier, sort, q, onlyWatch, watched]);
 
   const [visible, setVisible] = useState(15);
-  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch, watchedFirst]);
+  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
 
   const heroTop = useMemo(
@@ -354,7 +365,7 @@ export function Home() {
       </section>
 
       <div className="ranking-scope">
-        <div className="toolbar">
+        <div className="toolbar" ref={toolbarRef}>
         <div className="chips">
           {SERVICES.map(([k, label]) => (
             <button key={k} className={`chip ${service === k ? 'on' : ''}`} onClick={() => setService(k)}>
@@ -372,11 +383,8 @@ export function Home() {
             </select>
           </label>
           <span className="chip-sep" />
-          <button className={`chip ${onlyWatch ? 'on' : ''}`} onClick={() => setOnlyWatch((v) => !v)}>
+          <button className={`chip ${onlyWatch ? 'on' : ''}`} aria-pressed={onlyWatch} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
-          </button>
-          <button className={`chip ${watchedFirst ? 'on' : ''}`} onClick={() => setWatchedFirst((v) => !v)} aria-pressed={watchedFirst}>
-            ★ 优先关注
           </button>
         </div>
         <div className="toolbar-right">
@@ -431,12 +439,12 @@ export function Home() {
                 <th className="col-rank">#</th>
                 <th>站点</th>
                 <th className="hide-md">线路</th>
-                <th className="num">排名分</th>
+                <th className="num">排名分 <small>0–100</small></th>
                 <th title="原始可用率；排名使用 95% 置信下界">可用率</th>
-                <th className="num hide-sm">速度分</th>
-                <th>纯度</th>
-                <th className="num hide-sm">模型</th>
-                <th className="num">最低输入价</th>
+                <th className="num hide-sm">速度分 <small>0–100</small></th>
+                <th>纯度 <small>0–100</small></th>
+                <th className="num hide-sm">模型 <small>个</small></th>
+                <th className="num">最低输入价 <small>¥/M</small></th>
                 <th />
               </tr>
             </thead>
@@ -469,11 +477,6 @@ export function Home() {
                           </Link>
                           {s.claimed && <span className="badge-ok" title="站长已认领">✓</span>}
                           {s.newDomain && <span className="badge-warn">新站</span>}
-                          {meta && (
-                            <span className={`prov-chip ${meta.demo ? 'demo' : 'live'}`} title={meta.demo ? '该行评分为演示数据' : '该行评分来自真实探针'}>
-                              {meta.demo ? '演示' : '实测'}
-                            </span>
-                          )}
                           <WatchStar slug={s.slug} size={13} />
                           <button
                             type="button"
@@ -544,11 +547,6 @@ export function Home() {
                   <b>{s.name}</b>
                   <small className="mono">{s.domain}</small>
                 </div>
-                {meta && (
-                  <span className={`prov-chip ${meta.demo ? 'demo' : 'live'}`} title={meta.demo ? '该行评分为演示数据' : '该行评分来自真实探针'}>
-                    {meta.demo ? '演示' : '实测'}
-                  </span>
-                )}
                 <span className="sc-score mono">{s.rankScore.toFixed(1)}<small>分</small></span>
               </div>
               <div className="sc-row2">

@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.2.99**（CLS 0.75→0.13：加载态预留高度；站点页首屏数据 814KB→~250KB；llms 链接全量校验 0 异常）
+- 版本：**v0.3.0**（critique P1 修复：表头吸顶+列单位、筛选栏单行、行级演示 chip 移除、关注排序并入排序菜单）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
