@@ -11,7 +11,7 @@ const hostOf = (raw: string) => {
 };
 
 export function KeyCheck() {
-  const [baseUrl, setBaseUrl] = useState('https://api.mhoo.cc/v1');
+  const [baseUrl, setBaseUrl] = useState('');
   const [key, setKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -60,9 +60,10 @@ export function KeyCheck() {
           <span className="kc-label">接口地址</span>
           <input
             value={baseUrl}
-            onChange={(e) => setBaseUrl(e.target.value)}
+            onChange={(e) => { setBaseUrl(e.target.value); setFieldError(''); setResult(null); }}
             placeholder="https://api.example.com/v1"
             aria-label="接口地址"
+            aria-invalid={!!fieldError && !validUrl}
             autoComplete="off"
             spellCheck={false}
           />
@@ -72,9 +73,10 @@ export function KeyCheck() {
           <div className="kc-key">
             <input
               value={key}
-              onChange={(e) => setKey(e.target.value)}
+              onChange={(e) => { setKey(e.target.value); setFieldError(''); setResult(null); }}
               placeholder="sk-...（建议用临时 Key）"
               aria-label="API Key"
+              aria-invalid={!!fieldError && !key.trim()}
               type={showKey ? 'text' : 'password'}
               autoComplete="off"
               spellCheck={false}
@@ -89,12 +91,12 @@ export function KeyCheck() {
             )}
           </div>
         </div>
-        <button className="btn btn-primary" disabled={loading}>{loading ? '检测中…' : '开始检测'}</button>
+        <button className="btn btn-primary" disabled={loading || !validUrl || !key.trim()}>{loading ? '检测中…' : '开始检测'}</button>
       </div>
-      <p className="kc-dest mono">
+      {fieldError && <p className="kc-result err" role="alert">{fieldError}</p>}
+      <p className="kc-dest mono" role="status">
         {host ? <>将用你的 Key 向 <b>{host}</b> 发起 1 次只读请求（拉取模型列表）</> : '填写接口地址后，这里会显示请求发往哪个站点'}
       </p>
-      {fieldError && <p className="kc-result err">{fieldError}</p>}
       {result && (
         <p className={`kc-result ${result.ok ? 'ok' : 'err'}`}>
           {result.text}

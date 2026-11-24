@@ -218,6 +218,30 @@ export function Home() {
     [stations],
   );
 
+  const radarPoints = useMemo(() => {
+    const list = (stations ?? [])
+      .filter((s) => s.reachability && s.reachability.latencyMs > 0)
+      .slice(0, 28);
+    if (!list.length) return [];
+    const latencies = list.map((s) => s.reachability!.latencyMs);
+    const minLat = Math.min(...latencies);
+    const maxLat = Math.max(...latencies);
+    return list.map((s, i) => {
+      const angle = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      const norm = maxLat === minLat ? 0.5 : (s.reachability!.latencyMs - minLat) / (maxLat - minLat);
+      const radius = 0.3 + norm * 0.16;
+      const tone = s.purityTier === 'official' ? 'official' : s.purityTier === 'mixed' ? 'mixed' : 'unknown';
+      return {
+        slug: s.slug,
+        name: s.name,
+        latency: s.reachability!.latencyMs,
+        left: 50 + Math.cos(angle) * radius * 100,
+        top: 50 + Math.sin(angle) * radius * 100,
+        tone,
+      };
+    });
+  }, [stations]);
+
   const hotModels = useMemo(
     () =>
       (models ?? [])
@@ -254,9 +278,17 @@ export function Home() {
             <span className="hr-ring r2" />
             <span className="hr-ring r3" />
             <span className="hr-sweep" />
-            <span className="hr-blip b1" />
-            <span className="hr-blip b2" />
-            <span className="hr-blip b3" />
+            {radarPoints.length > 0 ? (
+              radarPoints.map((b) => (
+                <span key={b.slug} className={`hr-blip ${b.tone}`} style={{ left: `${b.left}%`, top: `${b.top}%` }} />
+              ))
+            ) : (
+              <>
+                <span className="hr-blip b1" />
+                <span className="hr-blip b2" />
+                <span className="hr-blip b3" />
+              </>
+            )}
           </span>
         </div>
         <div className="hero-copy">
@@ -267,7 +299,7 @@ export function Home() {
           </h1>
           <p>
             {meta?.demo
-              ? '演示数据集：站点名称与域名来自公开信息，探针、评分与价格为示例值，不代表真实商家表现。'
+              ? '独立探针 + 可复算评分，赞助位与广告不参与排名。演示数据集：站点名称与域名来自公开信息，探针、评分与价格为示例值。'
               : '每 2 小时一次真实探针，按可用性、速度、思考签名抽检和真实倍率排序。赞助位与广告不参与排名。'}
           </p>
           <div className="hero-cta">
@@ -299,7 +331,7 @@ export function Home() {
 
         <div className="hero-board" ref={heroCardRef}>
           <div className="hero-board-head">
-            <span className="mono label">当前前 5</span>
+            <span className="mono label">此刻前 5</span>
             <span className={`prov-badge ${meta?.demo ? 'demo' : 'live'}`}>
               {meta?.demo ? '演示数据' : '实测数据'}
             </span>
@@ -324,6 +356,11 @@ export function Home() {
           <p className="hb-foot mono">
             {meta ? fmtNum(heroStations) : '—'} 站点 · {meta ? fmtNum(heroGroups) : '—'} 分组 · {meta ? fmtNum(heroProbes) : '—'} 探针
           </p>
+          {radarPoints.length > 0 && (
+            <p className="hb-radar-note mono">
+              雷达：{radarPoints.length} 次探测 · 距离=延迟 · 色=纯度
+            </p>
+          )}
         </div>
       </section>
 
@@ -588,7 +625,6 @@ export function Home() {
         <div className="home-model-grid">
           {hotModels.map((m) => {
             const officialCny = m.inputUsd * 7.2;
-            const saved = officialCny > 0 ? Math.round((1 - m.minInputCny / officialCny) * 100) : 0;
             return (
               <Link key={m.id} className="home-model-card" to={`/models/${encodeURIComponent(m.id)}`}>
                 <div className="hmc-head">
@@ -597,7 +633,7 @@ export function Home() {
                 </div>
                 <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
                 <div className="hmc-meta mono">
-                  {m.offersCount} 站报价{saved > 0 ? ` · 比官方省 ${saved}%` : ''}
+                  {m.offersCount} 站报价{officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)}/M` : ''}
                 </div>
               </Link>
             );
