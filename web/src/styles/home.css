@@ -416,3 +416,8 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 }
 /* column units in the sticky header */
 .home-table thead th small { font-size: 10px; font-weight: 500; color: var(--text-3); margin-left: 3px; letter-spacing: 0; }
+/* radar blips carry real probe data */
+.hr-blip.official { background: var(--accent); box-shadow: 0 0 12px rgba(46, 230, 166, .8); }
+.hr-blip.mixed { background: var(--amber); box-shadow: 0 0 10px rgba(245, 185, 66, .65); }
+.hr-blip.unknown { background: #55627a; box-shadow: 0 0 8px rgba(85, 98, 122, .45); }
+.hb-radar-note { margin: 6px 0 0; font-size: 10px; color: var(--text-3); }
