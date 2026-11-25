@@ -23,6 +23,7 @@ const STATION_SECTIONS = [
   { id: 'groups', label: '分组' },
   { id: 'models', label: '模型报价' },
   { id: 'reviews', label: '评价' },
+  { id: 'source', label: '来源' },
 ];
 
 const daysOnline = (iso: string) => {
@@ -57,7 +58,8 @@ export function StationPage() {
   const [priceModel, setPriceModel] = useState('');
   const [priceHistory, setPriceHistory] = useState<PriceDailyPoint[]>([]);
   const [modelQ, setModelQ] = useState('');
-  const [modelLimit, setModelLimit] = useState(40);
+  const modelPageSize = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 15 : 40);
+  const [modelLimit, setModelLimit] = useState(modelPageSize);
   const [groupSort, setGroupSort] = useState<{ key: 'models' | 'multiplier'; dir: 1 | -1 } | null>(null);
   const [reviewSort, setReviewSort] = useState<'new' | 'high' | 'low'>('new');
   const [onlyVerified, setOnlyVerified] = useState(false);
@@ -88,7 +90,7 @@ export function StationPage() {
     const n = modelQ.trim().toLowerCase();
     return list.filter((m) => !n || `${m.model.name} ${m.model.id} ${m.model.vendor}`.toLowerCase().includes(n));
   }, [data, modelQ]);
-  useEffect(() => setModelLimit(40), [modelQ]);
+  useEffect(() => setModelLimit(modelPageSize()), [modelQ]);
   useScrollParallax(waveRef, 0.05, 900);
 
   useEffect(() => {
@@ -721,7 +723,7 @@ export function StationPage() {
         </div>
         {modelRows.length > modelLimit && (
           <div className="list-more">
-            <button className="btn btn-ghost btn-sm" onClick={() => setModelLimit((v) => v + 40)}>
+            <button className="btn btn-ghost btn-sm" onClick={() => setModelLimit((v) => v + modelPageSize())}>
               显示更多（剩余 {modelRows.length - modelLimit}）
             </button>
             <span className="mono">已显示 {Math.min(modelLimit, modelRows.length)} / {modelRows.length}</span>

@@ -353,8 +353,19 @@ func (s *Server) handleStation(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, http.StatusInternalServerError, err)
 		return
 	}
-	st, ok := d.BySlug[slug]
-	if !ok {
+	var st *app.StationView
+	for i := range d.Stations {
+		if d.Stations[i].Slug == slug {
+			st = &d.Stations[i]
+			break
+		}
+	}
+	if st == nil {
+		if v, ok := d.BySlug[slug]; ok {
+			st = v
+		}
+	}
+	if st == nil {
 		writeError(w, http.StatusNotFound, "station not found")
 		return
 	}
