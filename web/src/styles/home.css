@@ -425,3 +425,31 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 .hero-board { position: relative; z-index: 2; }
 .live.demo { color: var(--amber); }
 .live.demo i { background: var(--amber); animation: none; }
+/* mobile cards keep the row actions */
+.sc-link { display: block; color: inherit; }
+.sc-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+@media (min-width: 761px) { .sc-actions { display: none; } }
+.row-compare.always { opacity: 1; }
+
+/* compact panel actions on mobile */
+.head-more { display: none; }
+@media (max-width: 640px) {
+  .panel-head-right .head-action { display: none; }
+  .head-more { display: block; position: relative; }
+  .head-more summary {
+    list-style: none; width: 32px; height: 32px; display: grid; place-items: center;
+    border: 1px solid var(--line-2); border-radius: 8px; color: var(--text-2); cursor: pointer;
+  }
+  .head-more summary::-webkit-details-marker { display: none; }
+  .head-more-menu {
+    position: absolute; right: 0; top: 36px; z-index: 25;
+    display: grid; gap: 2px; min-width: 132px; padding: 4px;
+    background: var(--panel); border: 1px solid var(--line-2); border-radius: 9px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+  .head-more-menu button {
+    text-align: left; border: 0; background: transparent; color: var(--text-2);
+    font: inherit; font-size: 12px; padding: 8px 10px; border-radius: 6px;
+  }
+  .head-more-menu button:hover { background: var(--panel-2); color: var(--text); }
+}

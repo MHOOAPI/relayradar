@@ -464,8 +464,15 @@ export function Home() {
             <span className="mono dim">
               {meta?.demo ? '生成时间' : '数据时间'} {meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}
             </span>
-            <button className="btn btn-ghost btn-xs" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
-            <button className="btn btn-ghost btn-xs" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
+            <button className="btn btn-ghost btn-xs head-action" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
+            <button className="btn btn-ghost btn-xs head-action" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
+            <details className="head-more">
+              <summary aria-label="更多操作">⋯</summary>
+              <div className="head-more-menu">
+                <button type="button" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
+                <button type="button" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -578,23 +585,35 @@ export function Home() {
           ))}
           {stations && rows.length === 0 && <p className="fine" style={{ padding: 16 }}>没有符合条件的站点，试试放宽筛选。</p>}
           {shown.map((s) => (
-            <Link key={s.slug} to={`/stations/${s.slug}`} className="station-card">
-              <div className="sc-row1">
-                <span className={`rank r${Math.min(s.rank, 4)}`}>{s.rank || '—'}</span>
-                <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={30} />
-                <div className="sc-id">
-                  <b>{s.name}</b>
-                  <small className="mono">{s.domain}</small>
+            <div key={s.slug} className="station-card">
+              <Link to={`/stations/${s.slug}`} className="sc-link">
+                <div className="sc-row1">
+                  <span className={`rank r${Math.min(s.rank, 4)}`}>{s.rank || '—'}</span>
+                  <StationMark slug={s.slug} name={s.name} iconUrl={s.iconUrl} size={30} />
+                  <div className="sc-id">
+                    <b>{s.name}</b>
+                    <small className="mono">{s.domain}</small>
+                  </div>
+                  <span className="sc-score mono">{s.rankScore.toFixed(1)}<small>分</small></span>
                 </div>
-                <span className="sc-score mono">{s.rankScore.toFixed(1)}<small>分</small></span>
+                <div className="sc-row2">
+                  <TierBadge tier={s.purityTier} score={s.purity} />
+                  <span className="sc-uptime mono">{s.uptimePct.toFixed(1)}%</span>
+                  <UptimeBars data={s.uptime} width={3} />
+                  <span className="sc-price mono">{fmtCny(s.fromPriceCny)}<small>/M</small></span>
+                </div>
+              </Link>
+              <div className="sc-actions">
+                <WatchStar slug={s.slug} size={14} />
+                <button
+                  type="button"
+                  className="row-compare always"
+                  onClick={() => navigate(`/compare?ids=${encodeURIComponent(s.slug)}`)}
+                >
+                  对比
+                </button>
               </div>
-              <div className="sc-row2">
-                <TierBadge tier={s.purityTier} score={s.purity} />
-                <span className="sc-uptime mono">{s.uptimePct.toFixed(1)}%</span>
-                <UptimeBars data={s.uptime} width={3} />
-                <span className="sc-price mono">{fmtCny(s.fromPriceCny)}<small>/M</small></span>
-              </div>
-            </Link>
+            </div>
           ))}
         </div>
 
@@ -634,8 +653,9 @@ export function Home() {
                   <span className={`tier-dot ${m.vendor}`} />
                 </div>
                 <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
-                <div className="hmc-meta mono">
-                  {m.offersCount} 站报价{officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)}/M` : ''}
+                <div className="hmc-meta mono" title={officialCny > 0 ? '官方价 × 7.2 与本站最低价的比值；差异大时请核对分组倍率' : undefined}>
+                  {m.offersCount} 站报价
+                  {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)}（最低 ${((m.minInputCny / officialCny) * 100).toFixed(1)}%）` : ''}
                 </div>
               </Link>
             );
