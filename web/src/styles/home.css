@@ -467,3 +467,19 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 .panel-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
 .foot-time { color: var(--text-3); }
 .hmc-warn { margin-left: 6px; color: var(--amber); font-size: 10px; }
+/* demo changes strip must never read as LIVE */
+.live-strip-label.demo { color: var(--amber); }
+.live-strip-label.demo .live-dot { background: var(--amber); animation: none; }
+
+/* mobile: keep a compact filter bar reachable */
+@media (max-width: 760px) {
+  .home .ranking-scope > .toolbar {
+    position: sticky; top: 57px; z-index: 30;
+    padding: 6px 0; gap: 6px;
+    background: rgba(6, 7, 10, .94); backdrop-filter: blur(10px);
+  }
+  .ranking-scope .toolbar .chip,
+  .ranking-scope .toolbar select,
+  .ranking-scope .search { min-height: 32px; }
+  .ranking-scope .toolbar-right { width: 100%; flex-wrap: wrap; }
+}
