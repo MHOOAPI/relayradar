@@ -9,6 +9,8 @@ import { serviceLabel } from '../lib/services';
 import { KeyCheck } from '../components/KeyCheck';
 import { useWatchlist } from '../lib/watchlist';
 import { usePointerGlow, useScrollParallax } from '../lib/parallax';
+import { copyText } from '../lib/clipboard';
+import { useToast } from '../lib/toast';
 
 const SERVICES: Array<[string, string]> = [
   ['all', '全部'],
@@ -68,20 +70,17 @@ export function Home() {
   });
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
+  const { push } = useToast();
   const [copied, setCopied] = useState(false);
   const [menuCopied, setMenuCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const copyFilterLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setCopyFailed(false);
-      window.setTimeout(() => setCopied(false), 1600);
-      return true;
-    } catch {
-      setCopyFailed(true);
-      return false;
-    }
+    const ok = await copyText(window.location.href);
+    setCopied(ok);
+    setCopyFailed(!ok);
+    push(ok ? '已复制筛选链接' : '复制失败，请手动选择地址栏');
+    if (ok) window.setTimeout(() => setCopied(false), 1600);
+    return ok;
   };
   const copyFromMenu = async () => {
     const ok = await copyFilterLink();
@@ -97,6 +96,7 @@ export function Home() {
   const heroCardRef = useRef<HTMLDivElement>(null);
   const rankingRef = useRef<HTMLElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const chipsRef = useRef<HTMLDivElement>(null);
   const headMoreRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -122,6 +122,8 @@ export function Home() {
     const set = () => {
       document.documentElement.style.setProperty('--rank-head-top', `${64 + el.offsetHeight}px`);
       document.documentElement.style.setProperty('--toolbar-h', `${el.offsetHeight}px`);
+      const chips = chipsRef.current;
+      if (chips) chips.classList.toggle('is-scrollable', chips.scrollWidth > chips.clientWidth + 1);
     };
     set();
     const ro = new ResizeObserver(set);
@@ -308,6 +310,12 @@ export function Home() {
     [models],
   );
 
+  const priceAnomalyCount = hotModels.filter((m) => {
+    const official = m.inputUsd * 7.2;
+    const pct = official > 0 ? (m.minInputCny / official) * 100 : 0;
+    return pct > 0 && pct < 5;
+  }).length;
+
   const exportCsv = () => {
     const esc = (v: string | number | boolean) => `"${String(v).replace(/"/g, '""')}"`;
     const header = ['rank', 'name', 'domain', 'services', 'rankScore', 'uptimePct', 'speed', 'purityTier', 'purity', 'models', 'fromPriceCny', 'minTopupCny', 'invoice'];
@@ -363,7 +371,7 @@ export function Home() {
           </h1>
           <p>
             {meta?.demo
-              ? '独立探针 + 可复算评分，赞助位与广告不参与排名。演示数据集：站点名称与域名来自公开信息，探针、评分与价格为示例值。'
+              ? '独立探针 + 可复算评分，赞助位与广告不参与排名。'
               : '每 2 小时一次真实探针，按可用性、速度、思考签名抽检和真实倍率排序。赞助位与广告不参与排名。'}
           </p>
           <div className="hero-cta">
@@ -468,7 +476,7 @@ export function Home() {
 
       <div className="ranking-scope">
         <div className="toolbar" ref={toolbarRef}>
-        <div className="chips">
+        <div className="chips" ref={chipsRef}>
           {SERVICES.map(([k, label]) => (
             <button key={k} className={`chip ${service === k ? 'on' : ''}`} onClick={() => setService(k)}>
               {label}
@@ -528,7 +536,11 @@ export function Home() {
             </span>
             <button className="btn btn-ghost btn-xs head-action" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
             <button className="btn btn-ghost btn-xs head-action" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
-            <details className="head-more" ref={headMoreRef}>
+            <details
+              className="head-more"
+              ref={headMoreRef}
+              onToggle={(e) => { if (e.currentTarget.open) { setMenuCopied(false); setCopyFailed(false); } }}
+            >
               <summary aria-label="更多操作">⋯</summary>
               <div className="head-more-menu">
                 <button type="button" onClick={copyFromMenu}>{menuCopied ? '已复制 ✓' : copyFailed ? '复制失败' : '复制筛选链接'}</button>
@@ -747,6 +759,11 @@ export function Home() {
           <div>
             <h2>热门模型最低价</h2>
             <p className="sub">按报价站点数取前 4，已排除 batch / free 变体；价格为该模型的全网最低输入价。</p>
+            {priceAnomalyCount > 0 && (
+              <p className="fine home-anomaly-note">
+                {priceAnomalyCount} 个模型的官方价与最低价差超过 95%，先核对分组倍率与纯度。
+              </p>
+            )}
           </div>
           <Link className="link-btn" to="/models">全部模型 →</Link>
         </div>
@@ -754,7 +771,6 @@ export function Home() {
           {hotModels.map((m) => {
             const officialCny = m.inputUsd * 7.2;
             const pct = officialCny > 0 ? (m.minInputCny / officialCny) * 100 : 0;
-            const anomaly = pct > 0 && pct < 5;
             return (
               <Link key={m.id} className="home-model-card" to={`/models/${encodeURIComponent(m.id)}`}>
                 <div className="hmc-head">
@@ -765,7 +781,6 @@ export function Home() {
                 <div className="hmc-meta mono" title={officialCny > 0 ? '官方价 × 7.2 与本站最低价的比值；差异大时请核对分组倍率' : undefined}>
                   {m.offersCount} 站报价
                   {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)} → ${pct.toFixed(1)}%` : ''}
-                  {anomaly && <span className="hmc-warn">价差异常</span>}
                 </div>
               </Link>
             );

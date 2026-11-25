@@ -38,6 +38,40 @@ export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const panel = menuPanelRef.current;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusables = () =>
+      panel ? [...panel.querySelectorAll<HTMLElement>('a,button')].filter((el) => el.offsetParent !== null) : [];
+    focusables()[0]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab' || !panel) return;
+      const list = focusables();
+      if (!list.length) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!moreOpen) return;
@@ -191,29 +225,34 @@ export function Layout() {
 
       {menuOpen && (
         <div className="mobile-menu" onClick={() => setMenuOpen(false)}>
-          <div className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="站点导航" ref={menuPanelRef} onClick={(e) => e.stopPropagation()}>
             <div className="mm-head">
               <b>RelayRadar</b>
-              <button type="button" className="mm-close" aria-label="关闭菜单" onClick={() => setMenuOpen(false)}>✕</button>
+              <span className="mm-head-actions">
+                {user ? <Link to="/account" className="mm-login">个人中心</Link> : <Link to="/login" className="mm-login">登录 / 注册</Link>}
+                <button type="button" className="mm-close" aria-label="关闭菜单" onClick={() => setMenuOpen(false)}>✕</button>
+              </span>
             </div>
             <nav className="mm-links">
+              <span className="mm-group-label">数据</span>
               <Link to="/">榜单</Link>
               <Link to="/stations">站点目录</Link>
               <Link to="/models">模型价格</Link>
               <Link to="/leaderboards">排行榜</Link>
               <Link to="/changes">变更雷达</Link>
+              <Link to="/compare">横向对比</Link>
+              <span className="mm-group-label">工具</span>
               <Link to="/audit">接口检测</Link>
               <Link to="/free-api-keys">免费 API Key</Link>
-              <Link to="/compare">横向对比</Link>
               <Link to="/free">免费额度</Link>
-              <Link to="/guides">指南</Link>
-              <Link to="/submit">提交站点</Link>
-              <Link to="/faq">常见问题</Link>
-              <Link to="/methodology">评分方法</Link>
               <Link to="/api-docs">公开 API</Link>
               <Link to="/status">服务状态</Link>
               <Link to="/model-status">模型 API 状态</Link>
-              {user ? <Link to="/account">个人中心</Link> : <Link to="/login">登录 / 注册</Link>}
+              <span className="mm-group-label">关于</span>
+              <Link to="/guides">指南</Link>
+              <Link to="/faq">常见问题</Link>
+              <Link to="/methodology">评分方法</Link>
+              <Link to="/submit">提交站点</Link>
             </nav>
           </div>
         </div>
@@ -286,7 +325,7 @@ export function Layout() {
             <h3>声明</h3>
             <Link to="/methodology">评分方法</Link>
             <a href="https://github.com/MHOOAPI/relayradar/issues" target="_blank" rel="noreferrer noopener">数据纠错</a>
-            <span>数据为演示数据集</span>
+            <span>不构成购买建议</span>
             <span>不构成购买建议</span>
           </div>
         </div>

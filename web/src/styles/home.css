@@ -389,8 +389,6 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
   .ranking-scope .toolbar .chips {
     flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto;
     scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(90deg, #000 94%, transparent);
-    mask-image: linear-gradient(90deg, #000 94%, transparent);
   }
   .ranking-scope .toolbar .chips::-webkit-scrollbar { display: none; }
   .ranking-scope .toolbar-right { flex: 0 0 auto; flex-wrap: nowrap; }
@@ -407,8 +405,6 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 @media (max-width: 760px) {
   .ranking-scope .toolbar .chips {
     flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent);
-    mask-image: linear-gradient(90deg, #000 92%, transparent);
   }
   .ranking-scope .toolbar .chips::-webkit-scrollbar { display: none; }
   .ranking-scope .toolbar-right { flex-wrap: nowrap; }
@@ -510,3 +506,9 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
   background: #070b0f; border: 1px solid var(--line); border-radius: 6px; color: var(--text-2);
 }
 @media (max-width: 360px) { .ranking-scope .search { display: none; } }
+/* only fade chip rails that actually overflow */
+.ranking-scope .toolbar .chips.is-scrollable {
+  -webkit-mask-image: linear-gradient(90deg, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, #000 94%, transparent);
+}
+.home-anomaly-note { margin: 6px 0 0; color: var(--text-3); }
