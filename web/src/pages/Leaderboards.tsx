@@ -53,9 +53,11 @@ export function LeaderboardsPage() {
 
   const answer = useMemo(() => {
     if (!stations?.length) return null;
-    const byScore = [...stations].sort((a, b) => b.rankScore - a.rankScore);
+    const scored = stations.filter((s) => s.rankScore > 0);
+    const byScore = [...scored].sort((a, b) => b.rankScore - a.rankScore);
+    if (!byScore.length) return null;
     const byUptime = [...stations].sort((a, b) => b.uptimePct - a.uptimePct);
-    const bySpeed = [...stations].sort((a, b) => b.speed - a.speed);
+    const bySpeed = [...stations].filter((s) => s.speed > 0).sort((a, b) => b.speed - a.speed);
     const byPrice = [...stations].filter((s) => s.fromPriceCny >= 0 && s.purityTier !== 'counterfeit').sort((a, b) => a.fromPriceCny - b.fromPriceCny);
     return {
       best: byScore[0],
@@ -100,6 +102,13 @@ export function LeaderboardsPage() {
 
       {error && <div className="error-box">{error}</div>}
 
+      {!answer && stations && stations.length > 0 && (
+        <section className="panel">
+          <p className="fine" style={{ padding: '18px 4px' }}>
+            暂无已评分站点：当前数据只有可达性，先看可用率与价格榜；评分需要足够的探针样本与分组计分。
+          </p>
+        </section>
+      )}
       {answer && (
         <section className="panel answer-card">
           <p className="answer-text">
@@ -111,7 +120,7 @@ export function LeaderboardsPage() {
             )}{' '}
             排第一{answer.tie && answer.second ? `（与第 2 名 ${answer.second.name} 的差距在误差范围内）` : ''}；原始可用率最高的是{' '}
             <Link to={`/stations/${answer.uptime.slug}`}>{answer.uptime.name}</Link>（{answer.uptime.uptimePct.toFixed(1)}%），
-            速度最快的是 <Link to={`/stations/${answer.speed.slug}`}>{answer.speed.name}</Link>（{answer.speed.speed.toFixed(0)} 分），
+            速度最快的是 {answer.speed ? <><Link to={`/stations/${answer.speed.slug}`}>{answer.speed.name}</Link>（{answer.speed.speed.toFixed(0)} 分）</> : '—'}，
             最低输入价 <b>{fmtCny(answer.cheap.fromPriceCny)}</b>/1M 来自{' '}
             <Link to={`/stations/${answer.cheap.slug}`}>{answer.cheap.name}</Link>。
           </p>

@@ -515,3 +515,6 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 /* unscored stations read as pending, not as zero */
 .score.dim, .sc-score.dim { color: var(--text-3); font-weight: 500; font-size: 11.5px; }
 #ranking .panel-head h2 { font-size: 18px; }
+/* keep compact row actions at a 24px target */
+.ranking-scope .row-compare { min-height: 24px; padding-block: 4px; }
+.home-table .th-sort { min-height: 24px; }

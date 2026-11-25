@@ -20,11 +20,11 @@ type Row = {
 
 const rows: Row[] = [
   { label: '综合排名', render: (s) => (s.rank ? `#${s.rank}` : '未排名'), score: (s) => (s.rank ? -s.rank : -999), better: 'high' },
-  { label: '排名分', render: (s) => <b className="mono">{s.rankScore.toFixed(1)}</b>, score: (s) => s.rankScore, better: 'high' },
+  { label: '排名分', render: (s) => <b className="mono">{s.rankScore > 0 ? s.rankScore.toFixed(1) : '—'}</b>, score: (s) => s.rankScore, better: 'high' },
   { label: '原始可用率', render: (s) => <span className="mono">{s.uptimePct.toFixed(1)}%</span>, score: (s) => s.uptimePct, better: 'high' },
-  { label: '可用性分', render: (s) => <span className="mono">{s.availability.toFixed(1)}</span>, score: (s) => s.availability, better: 'high' },
-  { label: '速度分', render: (s) => <span className="mono">{s.speed.toFixed(1)}</span>, score: (s) => s.speed, better: 'high' },
-  { label: '稳定性分', render: (s) => <span className="mono">{s.consistency.toFixed(1)}</span>, score: (s) => s.consistency, better: 'high' },
+  { label: '可用性分', render: (s) => <span className="mono">{s.availability > 0 ? s.availability.toFixed(1) : '—'}</span>, score: (s) => s.availability, better: 'high' },
+  { label: '速度分', render: (s) => <span className="mono">{s.speed > 0 ? s.speed.toFixed(1) : '—'}</span>, score: (s) => s.speed, better: 'high' },
+  { label: '稳定性分', render: (s) => <span className="mono">{s.consistency > 0 ? s.consistency.toFixed(1) : '—'}</span>, score: (s) => s.consistency, better: 'high' },
   { label: '纯度抽检', render: (s) => <TierBadge tier={s.purityTier} score={s.purity} />, score: (s) => (s.purityMeasured ? s.purity : -1), better: 'high' },
   { label: '最低输入价', render: (s) => <span className="mono">{fmtCny(s.fromPriceCny)}</span>, score: (s) => (s.fromPriceCny < 0 ? 1e9 : s.fromPriceCny), better: 'low' },
   { label: '起充金额', render: (s) => <span className="mono">¥{s.minTopupCny}</span>, score: (s) => s.minTopupCny, better: 'low' },
