@@ -1815,3 +1815,14 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
   .link-btn { min-height: 32px; }
 }
 /* mobile/coarse pointers: keep one authored radar sweep, drop decorative blips */
+/* mobile drawer: header actions, grouped links, styled close */
+.mm-head-actions { display: inline-flex; align-items: center; gap: 10px; }
+.mm-login { font-size: 12px; color: var(--accent); }
+.mm-close {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 1px solid var(--line-2); border-radius: 8px; background: transparent;
+  color: var(--text-2); font-size: 14px; cursor: pointer;
+}
+.mm-close:hover { color: var(--text); border-color: var(--line-2); background: var(--panel-2); }
+.mm-group-label { display: block; margin: 14px 0 4px; font-size: 10.5px; letter-spacing: .08em; color: var(--text-3); }
+.mm-group-label:first-child { margin-top: 0; }
