@@ -1826,3 +1826,4 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
 .mm-close:hover { color: var(--text); border-color: var(--line-2); background: var(--panel-2); }
 .mm-group-label { display: block; margin: 14px 0 4px; font-size: 10.5px; letter-spacing: .08em; color: var(--text-3); }
 .mm-group-label:first-child { margin-top: 0; }
+@media (max-width: 760px) { .section-nav { top: 57px; } }
