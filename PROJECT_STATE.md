@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.10**（移动抽屉分组+Esc+焦点锁、统一剪贴板+toast、价差异常收成区块说明、demo 说明 6→3）
+- 版本：**v0.3.11**（文档对齐：DESIGN display 62px / ink-faint #7a8599，PRODUCT 数据集 526 站/1,110 组/8.2 万探针）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
