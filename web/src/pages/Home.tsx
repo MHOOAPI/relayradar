@@ -280,6 +280,13 @@ export function Home() {
             <span className="hr-ring r1" />
             <span className="hr-ring r2" />
             <span className="hr-ring r3" />
+            {radarPoints.length > 0 && (
+              <>
+                <span className="hr-tick t1 mono">100ms</span>
+                <span className="hr-tick t2 mono">500ms</span>
+                <span className="hr-tick t3 mono">2s</span>
+              </>
+            )}
             <span className="hr-sweep" />
             {radarPoints.length > 0 ? (
               radarPoints.map((b) => (
@@ -358,7 +365,7 @@ export function Home() {
           </p>
           {radarPoints.length > 0 && (
             <p className="hb-radar-note mono">
-              雷达：{radarPoints.length}/{meta?.stations ?? '—'} 站 · 圈=100ms/500ms/2s · 位置=排名 · 色=纯度
+              雷达：已绘制前 {radarPoints.length}/{meta?.stations ?? '—'} 站 · 圈=延迟(对数) · 角度=排名 · 色=纯度
             </p>
           )}
         </div>

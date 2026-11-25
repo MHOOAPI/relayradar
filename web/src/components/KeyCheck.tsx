@@ -91,7 +91,7 @@ export function KeyCheck() {
             )}
           </div>
         </div>
-        <button className="btn btn-primary" disabled={loading || !validUrl || !key.trim()}>{loading ? '检测中…' : '开始检测'}</button>
+        <button className="btn btn-primary" disabled={loading}>{loading ? '检测中…' : '开始检测'}</button>
       </div>
       {fieldError && <p className="kc-result err" role="alert">{fieldError}</p>}
       <p className="kc-dest mono" role="status">
