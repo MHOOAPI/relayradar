@@ -483,3 +483,14 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
   .ranking-scope .search { min-height: 32px; }
   .ranking-scope .toolbar-right { width: 100%; flex-wrap: wrap; }
 }
+/* mobile anchor lands below header + sticky toolbar */
+@media (max-width: 760px) { .home #ranking { scroll-margin-top: 196px; } }
+
+/* mobile card service coverage */
+.sc-services { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10.5px; color: var(--text-3); }
+.sc-services span { border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; }
+
+/* keep the radar inside the hero */
+.hero { overflow: clip; }
+.kc-field { display: grid; gap: 4px; }
+.kc-field-err { font-size: 11px; color: var(--red); }
