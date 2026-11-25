@@ -69,14 +69,27 @@ export function Home() {
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
   const [copied, setCopied] = useState(false);
+  const [menuCopied, setMenuCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const copyFilterLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
+      setCopyFailed(false);
       window.setTimeout(() => setCopied(false), 1600);
+      return true;
     } catch {
-      /* clipboard unavailable */
+      setCopyFailed(true);
+      return false;
     }
+  };
+  const copyFromMenu = async () => {
+    const ok = await copyFilterLink();
+    setMenuCopied(ok);
+    window.setTimeout(() => {
+      setMenuCopied(false);
+      if (headMoreRef.current) headMoreRef.current.open = false;
+    }, 1200);
   };
   const radarRef = useRef<HTMLDivElement>(null);
   const radarInnerRef = useRef<HTMLSpanElement>(null);
@@ -495,7 +508,7 @@ export function Home() {
             <details className="head-more" ref={headMoreRef}>
               <summary aria-label="更多操作">⋯</summary>
               <div className="head-more-menu">
-                <button type="button" onClick={() => { if (headMoreRef.current) headMoreRef.current.open = false; copyFilterLink(); }}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
+                <button type="button" onClick={copyFromMenu}>{menuCopied ? '已复制 ✓' : copyFailed ? '复制失败' : '复制筛选链接'}</button>
                 <button type="button" onClick={() => { if (headMoreRef.current) headMoreRef.current.open = false; exportCsv(); }} disabled={rows.length === 0}>导出 CSV</button>
               </div>
             </details>
@@ -627,6 +640,12 @@ export function Home() {
                   <span className="sc-uptime mono">{s.uptimePct.toFixed(1)}%</span>
                   <UptimeBars data={s.uptime} width={3} />
                   <span className="sc-price mono">{fmtCny(s.fromPriceCny)}<small>/M</small></span>
+                </div>
+                <div className="sc-services">
+                  {s.services.slice(0, 3).map((sv) => (
+                    <span key={sv}>{SERVICES.find(([k]) => k === sv)?.[1] ?? sv}</span>
+                  ))}
+                  {s.services.length > 3 && <span>+{s.services.length - 3}</span>}
                 </div>
               </Link>
               <div className="sc-actions">
