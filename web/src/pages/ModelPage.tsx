@@ -416,7 +416,7 @@ export function ModelPage() {
                   <td className="num mono">{fmtCny(o.inputCny)}{perUnit}</td>
                   <td className="num mono accent">{fmtCny(o.outputCny)}{perUnit}</td>
                   <td><TierBadge tier={o.purityTier} /></td>
-                  <td className="num mono dim">{o.availability.toFixed(1)}</td>
+                  <td className="num mono dim">{o.availability > 0 ? o.availability.toFixed(1) : '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -443,7 +443,7 @@ export function ModelPage() {
               </div>
               <div className="oc-foot">
                 <TierBadge tier={o.purityTier} />
-                <span className="mono dim">可用性 {o.availability.toFixed(1)}</span>
+                <span className="mono dim">可用性 {o.availability > 0 ? o.availability.toFixed(1) : '—'}</span>
               </div>
             </Link>
           ))}
