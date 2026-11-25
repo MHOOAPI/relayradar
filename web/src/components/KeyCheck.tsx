@@ -60,7 +60,7 @@ export function KeyCheck() {
     <form className="keycheck" onSubmit={submit} noValidate>
       <div className="kc-head">
         <b>检测你的 Key</b>
-        <span className="mono dim tiny">只存在当前页面内存，不写日志、不落库</span>
+        <span className="mono dim tiny">仅用于本次只读请求，经本站转发到目标站点；不写日志、不落库</span>
       </div>
       <div className="kc-row">
         <div className="kc-field">

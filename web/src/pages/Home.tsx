@@ -119,7 +119,10 @@ export function Home() {
   useEffect(() => {
     const el = toolbarRef.current;
     if (!el) return;
-    const set = () => document.documentElement.style.setProperty('--rank-head-top', `${64 + el.offsetHeight}px`);
+    const set = () => {
+      document.documentElement.style.setProperty('--rank-head-top', `${64 + el.offsetHeight}px`);
+      document.documentElement.style.setProperty('--toolbar-h', `${el.offsetHeight}px`);
+    };
     set();
     const ro = new ResizeObserver(set);
     ro.observe(el);
@@ -185,8 +188,17 @@ export function Home() {
     if (tier !== 'all') p.set('tier', tier);
     if (sort !== 'rank') p.set('sort', sort);
     if (onlyWatch) p.set('watch', '1');
+    const hash = window.location.hash;
     setParams(p, { replace: true });
+    // React Router's replace drops the fragment; keep #ranking deep links working.
+    if (hash) window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${hash}`);
   }, [q, service, tier, sort, onlyWatch, setParams]);
+
+  useEffect(() => {
+    if (!stations || window.location.hash !== '#ranking') return;
+    const t = window.setTimeout(() => document.getElementById('ranking')?.scrollIntoView({ block: 'start' }), 120);
+    return () => window.clearTimeout(t);
+  }, [stations]);
 
   const resetFilters = () => {
     setQ('');
@@ -240,9 +252,20 @@ export function Home() {
     return list;
   }, [stations, service, tier, sort, q, onlyWatch, watched]);
 
-  const [visible, setVisible] = useState(15);
-  useEffect(() => setVisible(15), [q, service, tier, sort, onlyWatch]);
+  const [visible, setVisible] = useState(() => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 15 : 50));
+  const pageSize = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 30 : 50);
+  useEffect(() => setVisible(pageSize()), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
+  const [jump, setJump] = useState('');
+  const jumpToRank = () => {
+    const n = Math.max(1, Math.min(rows.length, Number(jump) || 0));
+    if (!n) return;
+    setVisible((v) => Math.max(v, n + 5));
+    window.setTimeout(() => {
+      const tr = document.querySelectorAll('.home-table tbody tr')[n - 1] as HTMLElement | undefined;
+      tr?.scrollIntoView({ block: 'center' });
+    }, 150);
+  };
 
   const heroTop = useMemo(
     () => [...(stations ?? [])].filter((s) => s.rank > 0).sort((a, b) => a.rank - b.rank).slice(0, 5),
@@ -524,12 +547,32 @@ export function Home() {
                 <th className="col-rank">#</th>
                 <th>站点</th>
                 <th className="hide-md">线路</th>
-                <th className="num">排名分 <small>0–100</small></th>
-                <th title="原始可用率；排名使用 95% 置信下界">可用率</th>
-                <th className="num hide-sm">速度分 <small>0–100</small></th>
+                <th className="num">
+                  <button type="button" className="th-sort" onClick={() => setSort('rank')} aria-pressed={sort === 'rank'}>
+                    排名分 <small>0–100</small><span aria-hidden="true">{sort === 'rank' ? '↓' : '↕'}</span>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" className="th-sort" onClick={() => setSort('availability')} aria-pressed={sort === 'availability'}>
+                    可用率<span aria-hidden="true">{sort === 'availability' ? '↓' : '↕'}</span>
+                  </button>
+                </th>
+                <th className="num hide-sm">
+                  <button type="button" className="th-sort" onClick={() => setSort('speed')} aria-pressed={sort === 'speed'}>
+                    速度分 <small>0–100</small><span aria-hidden="true">{sort === 'speed' ? '↓' : '↕'}</span>
+                  </button>
+                </th>
                 <th>纯度 <small>0–100</small></th>
-                <th className="num hide-sm">模型 <small>个</small></th>
-                <th className="num">最低输入价 <small>¥/M</small></th>
+                <th className="num hide-sm">
+                  <button type="button" className="th-sort" onClick={() => setSort('models')} aria-pressed={sort === 'models'}>
+                    模型 <small>个</small><span aria-hidden="true">{sort === 'models' ? '↓' : '↕'}</span>
+                  </button>
+                </th>
+                <th className="num">
+                  <button type="button" className="th-sort" onClick={() => setSort('price')} aria-pressed={sort === 'price'}>
+                    最低输入价 <small>¥/M</small><span aria-hidden="true">{sort === 'price' ? '↑' : '↕'}</span>
+                  </button>
+                </th>
                 <th />
               </tr>
             </thead>
@@ -674,6 +717,19 @@ export function Home() {
 
         <div className="panel-foot mono dim">
           <span>价格 = 官方 USD 单价 × 站点结算汇率 × 分组倍率；取该站全部模型中的最低输入价，非单一模型报价。</span>
+          <label className="rank-jump">
+            跳到
+            <input
+              type="number"
+              min={1}
+              max={rows.length}
+              value={jump}
+              onChange={(e) => setJump(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); jumpToRank(); } }}
+              aria-label="跳到第几名"
+            />
+            名
+          </label>
           <span className="foot-time">{meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}</span>
         </div>
       </section>
