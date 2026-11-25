@@ -126,6 +126,18 @@
           "unit": "text"
         },
         {
+          "name": "glm-5.3",
+          "priceCnyIn": 0.88,
+          "priceCnyOut": 3,
+          "unit": "text"
+        },
+        {
+          "name": "glm-5.3-flash",
+          "priceCnyIn": 0.11,
+          "priceCnyOut": 0.37,
+          "unit": "text"
+        },
+        {
           "name": "gpt-5.4",
           "priceCnyIn": 2.5,
           "priceCnyOut": 15,
