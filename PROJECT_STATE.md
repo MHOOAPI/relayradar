@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.17**（方法页补「未评分」口径、卡片服务名本地化、320px H1 与徽标不折行）
+- 版本：**v0.3.18**（服务名补文本/视频/语音/向量、761–980px 工具栏换行不挤压、导航间距收窄）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

@@ -14,6 +14,10 @@ export const SERVICE_LABEL: Record<string, string> = {
   google: 'Gemini',
   anthropic: 'Claude',
   image: '绘图',
+  text: '文本',
+  video: '视频',
+  audio: '语音',
+  embedding: '向量',
 };
 
 export const SERVICE_VENDOR: Record<string, string> = {
