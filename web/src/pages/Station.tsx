@@ -665,8 +665,8 @@ export function StationPage() {
                     </span>
                   </td>
                   <td className="num mono dim">{g.latencyMs ? `${g.latencyMs} ms` : '—'}</td>
-                  <td className="num mono">{g.availability.toFixed(1)}</td>
-                  <td className="num mono dim hide-sm">{g.speed.toFixed(1)}</td>
+                  <td className="num mono">{g.availability > 0 ? g.availability.toFixed(1) : '—'}</td>
+                  <td className="num mono dim hide-sm">{g.speed > 0 ? g.speed.toFixed(1) : '—'}</td>
                   <td className="num mono dim hide-sm">{g.scored ? g.consistency.toFixed(1) : '—'}</td>
                   <td><TierBadge tier={g.purityTier} score={g.purity} /></td>
                   <td className="num mono dim">{g.modelCount}</td>
