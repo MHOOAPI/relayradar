@@ -10,14 +10,14 @@ colors:
   hairline-strong: "#232b37"
   ink: "#e9edf4"
   ink-muted: "#a7b1c2"
-  ink-faint: "#6d788b"
+  ink-faint: "#7a8599"
   warning-amber: "#f5b942"
   outage-red: "#ff5d5d"
   info-blue: "#6aa8ff"
 typography:
   display:
     fontFamily: "Inter, Segoe UI Variable Display, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif"
-    fontSize: "clamp(46px, 5.4vw, 78px)"
+    fontSize: "clamp(46px, 4.4vw, 62px)"
     fontWeight: 850
     lineHeight: 1.02
     letterSpacing: "-0.045em"
@@ -128,7 +128,7 @@ RelayRadar 看起来像一台持续运行的监测仪表：深炭底色压住画
 **Character:** 标题厚重、字距收紧；数据等宽、成列对齐；标签小写字母间距拉开，像仪表刻度。
 
 ### Hierarchy
-- **Display** (850, clamp(46–78px), 1.02)：仅首页 Hero。
+- **Display** (850, clamp(46–62px), 1.02)：仅首页 Hero。
 - **Headline** (700, 24–26px, 1.25)：区块标题。
 - **Title** (650, 16–18px)：卡片与面板标题。
 - **Body** (400, 14.5px, 1.62)：正文与说明，行宽不超过 75ch。
