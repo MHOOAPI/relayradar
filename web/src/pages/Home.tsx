@@ -705,7 +705,7 @@ export function Home() {
                 </div>
                 <div className="sc-services">
                   {s.services.slice(0, 3).map((sv) => (
-                    <span key={sv}>{SERVICES.find(([k]) => k === sv)?.[1] ?? sv}</span>
+                    <span key={sv}>{serviceLabel(sv)}</span>
                   ))}
                   {s.services.length > 3 && <span>+{s.services.length - 3}</span>}
                 </div>
