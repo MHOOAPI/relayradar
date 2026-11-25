@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.4**（雷达去遮罩+圈刻度+移出卡片遮挡、hero 读数回到 10px、KeyCheck 校验复活）
+- 版本：**v0.3.5**（移动面板头 165→105px、⋯ 支持 Esc/外点关闭、价差异常标注、关注 chip 移出遮罩）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

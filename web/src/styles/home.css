@@ -460,3 +460,10 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 .hr-tick.t3 { left: 9%; }
 @media (max-width: 900px) { .hb-radar-note { display: none; } }
 .hero-copy { position: relative; z-index: 2; }
+/* panel head: shorter copy on mobile, time in the footer */
+.head-hint { display: inline; }
+@media (max-width: 760px) { .head-hint { display: none; } }
+@media (max-width: 640px) { .head-time { display: none; } }
+.panel-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.foot-time { color: var(--text-3); }
+.hmc-warn { margin-left: 6px; color: var(--amber); font-size: 10px; }
