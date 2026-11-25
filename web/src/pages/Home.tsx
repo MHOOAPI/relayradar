@@ -84,6 +84,24 @@ export function Home() {
   const heroCardRef = useRef<HTMLDivElement>(null);
   const rankingRef = useRef<HTMLElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const headMoreRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      const el = headMoreRef.current;
+      if (el?.open && !el.contains(e.target as Node)) el.open = false;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const el = headMoreRef.current;
+      if (e.key === 'Escape' && el?.open) el.open = false;
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
 
   useEffect(() => {
     const el = toolbarRef.current;
@@ -428,12 +446,11 @@ export function Home() {
               ))}
             </select>
           </label>
-          <span className="chip-sep" />
+        </div>
+        <div className="toolbar-right">
           <button className={`chip ${onlyWatch ? 'on' : ''}`} aria-pressed={onlyWatch} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
           </button>
-        </div>
-        <div className="toolbar-right">
           <div className="search">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <circle cx="7" cy="7" r="4.6" stroke="currentColor" strokeWidth="1.3" />
@@ -458,7 +475,8 @@ export function Home() {
             <h2>中转站实时榜单</h2>
             <p className="sub">
               共 {stations?.length ?? 0} 家 · 当前 {rows.length} 家
-              {rows.length > shown.length ? `（显示前 ${shown.length}）` : ''} · 点击任意行查看分组与完整支持模型
+              {rows.length > shown.length ? `（显示前 ${shown.length}）` : ''}
+              <span className="head-hint"> · 点击行查看分组与完整支持模型</span>
             </p>
           </div>
           <div className="panel-head-right">
@@ -468,16 +486,16 @@ export function Home() {
             >
               {meta?.demo ? '演示数据' : '实测数据'}
             </span>
-            <span className="mono dim">
+            <span className="mono dim head-time desktop-only">
               {meta?.demo ? '生成时间' : '数据时间'} {meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}
             </span>
             <button className="btn btn-ghost btn-xs head-action" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
             <button className="btn btn-ghost btn-xs head-action" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
-            <details className="head-more">
+            <details className="head-more" ref={headMoreRef}>
               <summary aria-label="更多操作">⋯</summary>
               <div className="head-more-menu">
-                <button type="button" onClick={copyFilterLink}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
-                <button type="button" onClick={exportCsv} disabled={rows.length === 0}>导出 CSV</button>
+                <button type="button" onClick={() => { if (headMoreRef.current) headMoreRef.current.open = false; copyFilterLink(); }}>{copied ? '已复制 ✓' : '复制筛选链接'}</button>
+                <button type="button" onClick={() => { if (headMoreRef.current) headMoreRef.current.open = false; exportCsv(); }} disabled={rows.length === 0}>导出 CSV</button>
               </div>
             </details>
           </div>
@@ -635,7 +653,8 @@ export function Home() {
         )}
 
         <div className="panel-foot mono dim">
-          价格 = 官方 USD 单价 × 站点结算汇率 × 分组倍率；取该站全部模型中的最低输入价，非单一模型报价。
+          <span>价格 = 官方 USD 单价 × 站点结算汇率 × 分组倍率；取该站全部模型中的最低输入价，非单一模型报价。</span>
+          <span className="foot-time">{meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}</span>
         </div>
       </section>
       </div>
@@ -653,6 +672,8 @@ export function Home() {
         <div className="home-model-grid">
           {hotModels.map((m) => {
             const officialCny = m.inputUsd * 7.2;
+            const pct = officialCny > 0 ? (m.minInputCny / officialCny) * 100 : 0;
+            const anomaly = pct > 0 && pct < 5;
             return (
               <Link key={m.id} className="home-model-card" to={`/models/${encodeURIComponent(m.id)}`}>
                 <div className="hmc-head">
@@ -662,7 +683,8 @@ export function Home() {
                 <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
                 <div className="hmc-meta mono" title={officialCny > 0 ? '官方价 × 7.2 与本站最低价的比值；差异大时请核对分组倍率' : undefined}>
                   {m.offersCount} 站报价
-                  {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)}（最低 ${((m.minInputCny / officialCny) * 100).toFixed(1)}%）` : ''}
+                  {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)} → ${pct.toFixed(1)}%` : ''}
+                  {anomaly && <span className="hmc-warn">价差异常</span>}
                 </div>
               </Link>
             );
