@@ -17,7 +17,7 @@
 .hero h1 em {
   font-style: normal; color: var(--accent);
 }
-.hero p { max-width: 520px; color: var(--text-2); font-size: 14px; }
+.hero-copy p { max-width: 520px; color: var(--text-2); font-size: 14px; }
 .hero-cta { display: flex; gap: 10px; margin-top: 24px; }
 .chip-sep { width: 1px; height: 16px; background: var(--line-2); margin: 0 4px; }
 .col-go { width: 34px; color: var(--text-3); }
@@ -36,7 +36,7 @@
 .hero h1 { font-size: 31px; }
 }
 @media (max-width: 760px) {
-.hero p { max-width: 100%; font-size: 13px; }
+.hero-copy p { max-width: 100%; font-size: 13px; }
 }
 .hero-link {
   display: inline-block; margin-top: 14px; font-size: 12px; color: var(--text-3);
@@ -98,7 +98,7 @@
   color: var(--accent);
   text-shadow: none; filter: none;
 }
-.home .hero p { font-size: 17px; line-height: 1.7; max-width: 590px; color: #b6c1d3; }
+.home .hero .hero-copy p { font-size: 17px; line-height: 1.7; max-width: 590px; color: #b6c1d3; }
 .home .hero-cta { margin-top: 32px; gap: 12px; }
 .home .trust-strip { margin-top: 26px; font-size: 12.5px; gap: 18px; }
 .home .hero-link { margin-top: 18px; font-size: 13px; }
@@ -113,7 +113,7 @@
 .home .hero h1 { font-size: clamp(40px, 10vw, 58px); }
 }
 @media (max-width: 980px) {
-.home .hero p { font-size: 15.5px; }
+.home .hero .hero-copy p { font-size: 15.5px; }
 }
 .live-strip {
   display: flex; align-items: center; gap: 14px;
@@ -220,7 +220,7 @@
 .home-step span { display: none; }
 .home-step b { margin: 0 0 6px; font-size: 15px; }
 @media (max-width: 640px) {
-.hero p { max-width: 100%; }
+.hero-copy p { max-width: 100%; }
 }
 @media (max-width: 640px) {
 .home { width: 100%; max-width: 100%; padding: 0 14px; box-sizing: border-box; }
@@ -232,14 +232,14 @@
 .home .hero h1 { font-size: 38px; letter-spacing: -.03em; }
 }
 @media (max-width: 640px) {
-.home .hero p { max-width: 100%; font-size: 15px; }
+.home .hero .hero-copy p { max-width: 100%; font-size: 15px; }
 }
 .hero { position: relative; }
 .hero-radar {
-  position: absolute; right: -30px; top: -230px; width: 680px; height: 680px;
+  position: absolute; right: 55px; top: -230px; width: 680px; height: 680px;
   pointer-events: none; z-index: 0; opacity: 0.8;
-  -webkit-mask-image: radial-gradient(closest-side, #000 42%, transparent 76%);
-  mask-image: radial-gradient(closest-side, #000 42%, transparent 76%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 96%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 96%, transparent 100%);
 }
 .hr-ring {
   position: absolute; left: 50%; top: 50%; border-radius: 50%;
@@ -289,7 +289,7 @@
 .hero h1 { font-size: 27px; margin: 10px 0; }
 }
 @media (max-width: 620px) {
-.hero p { font-size: 12.5px; }
+.hero-copy p { font-size: 12.5px; }
 }
 @media (max-width: 620px) {
 .hero-cta { margin-top: 16px; }
@@ -453,3 +453,10 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
   }
   .head-more-menu button:hover { background: var(--panel-2); color: var(--text); }
 }
+/* ring ticks + mobile note guard */
+.hr-tick { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 9.5px; color: var(--text-3); letter-spacing: .02em; }
+.hr-tick.t1 { left: 34%; }
+.hr-tick.t2 { left: 22%; }
+.hr-tick.t3 { left: 9%; }
+@media (max-width: 900px) { .hb-radar-note { display: none; } }
+.hero-copy { position: relative; z-index: 2; }
