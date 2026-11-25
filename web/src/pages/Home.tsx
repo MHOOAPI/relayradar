@@ -680,6 +680,11 @@ export function Home() {
       </div>
 
       <KeyCheck />
+      <p className="home-alert-cta mono">
+        <Link to="/changes?subscribe=1">关注站点后，降价与宕机会进入变更雷达</Link>
+        <span className="dim"> · </span>
+        <Link to="/changes?subscribe=1">订阅告警 →</Link>
+      </p>
 
       <section className="home-section">
         <div className="home-sec-head">

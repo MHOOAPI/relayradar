@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.7**（移动锚点落位、卡片补服务串、⋯ 复制反馈、KeyCheck 分字段报错、雷达裁剪）
+- 版本：**v0.3.8**（H1 62px、订阅 CTA、页脚纠错入口、/auth/me 匿名 200 去 401 噪音）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

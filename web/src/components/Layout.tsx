@@ -285,6 +285,7 @@ export function Layout() {
           <div>
             <h3>声明</h3>
             <Link to="/methodology">评分方法</Link>
+            <a href="https://github.com/MHOOAPI/relayradar/issues" target="_blank" rel="noreferrer noopener">数据纠错</a>
             <span>数据为演示数据集</span>
             <span>不构成购买建议</span>
           </div>

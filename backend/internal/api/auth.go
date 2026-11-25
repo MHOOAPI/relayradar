@@ -256,10 +256,6 @@ func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 	u := s.currentUser(r)
-	if u == nil {
-		writeError(w, http.StatusUnauthorized, "not signed in")
-		return
-	}
 	writeJSON(w, http.StatusOK, map[string]any{"user": u})
 }
 
