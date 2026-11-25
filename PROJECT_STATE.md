@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.12**（站点档案：修复详情页评分归零、移动模型表 15 行/页、章节导航补「来源」并贴住移动 header）
+- 版本：**v0.3.13**（未评分态显示「未评分/—」、可用率排序按显示值、跳转按名次且移动可用、KeyCheck 拒绝非法地址、toast 错误色与焦点归还）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

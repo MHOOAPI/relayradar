@@ -78,7 +78,7 @@ export function Home() {
     const ok = await copyText(window.location.href);
     setCopied(ok);
     setCopyFailed(!ok);
-    push(ok ? '已复制筛选链接' : '复制失败，请手动选择地址栏');
+    push(ok ? '已复制筛选链接' : '复制失败，请手动选择地址栏', ok ? 'ok' : 'err');
     if (ok) window.setTimeout(() => setCopied(false), 1600);
     return ok;
   };
@@ -245,7 +245,7 @@ export function Home() {
       return true;
     });
     list = [...list];
-    if (sort === 'availability') list.sort((a, b) => b.availability - a.availability);
+    if (sort === 'availability') list.sort((a, b) => b.uptimePct - a.uptimePct);
     else if (sort === 'speed') list.sort((a, b) => b.speed - a.speed);
     else if (sort === 'price') list.sort((a, b) => (a.fromPriceCny < 0 ? 1 : b.fromPriceCny < 0 ? -1 : a.fromPriceCny - b.fromPriceCny));
     else if (sort === 'models') list.sort((a, b) => b.modelsCount - a.modelsCount);
@@ -258,19 +258,25 @@ export function Home() {
   const pageSize = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 30 : 50);
   useEffect(() => setVisible(pageSize()), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
+  const unscoredCount = rows.filter((s) => s.rankScore === 0).length;
   const [jump, setJump] = useState('');
   const jumpToRank = () => {
     const n = Math.max(1, Math.min(rows.length, Number(jump) || 0));
     if (!n) return;
-    setVisible((v) => Math.max(v, n + 5));
+    const targetIndex = sort === 'rank' ? rows.findIndex((s) => s.rank === n) : n - 1;
+    if (targetIndex < 0) return;
+    setVisible((v) => Math.max(v, targetIndex + 6));
     window.setTimeout(() => {
-      const tr = document.querySelectorAll('.home-table tbody tr')[n - 1] as HTMLElement | undefined;
-      tr?.scrollIntoView({ block: 'center' });
-    }, 150);
+      const mobile = window.matchMedia('(max-width: 760px)').matches;
+      const list = mobile
+        ? document.querySelectorAll('.station-card')
+        : document.querySelectorAll('.home-table tbody tr');
+      (list[targetIndex] as HTMLElement | undefined)?.scrollIntoView({ block: 'center' });
+    }, 180);
   };
 
   const heroTop = useMemo(
-    () => [...(stations ?? [])].filter((s) => s.rank > 0).sort((a, b) => a.rank - b.rank).slice(0, 5),
+    () => [...(stations ?? [])].filter((s) => s.rank > 0 && s.rankScore > 0).sort((a, b) => a.rank - b.rank).slice(0, 5),
     [stations],
   );
 
@@ -420,7 +426,7 @@ export function Home() {
                 </Link>
               </li>
             ))}
-            {heroTop.length === 0 && <li className="hb-empty">加载榜单…</li>}
+            {heroTop.length === 0 && <li className="hb-empty">{stations ? '暂无已评分站点' : '加载榜单…'}</li>}
           </ol>
           <p className="hb-foot mono">
             {meta ? fmtNum(heroStations) : '—'} 站点 · {meta ? fmtNum(heroGroups) : '—'} 分组 · {meta ? fmtNum(heroProbes) : '—'} 探针
@@ -521,6 +527,7 @@ export function Home() {
             <p className="sub">
               共 {stations?.length ?? 0} 家 · 当前 {rows.length} 家
               {rows.length > shown.length ? `（显示前 ${shown.length}）` : ''}
+              {unscoredCount > 0 ? ` · ${unscoredCount} 家未评分` : ''}
               <span className="head-hint"> · 点击行查看分组与完整支持模型</span>
             </p>
           </div>
@@ -646,9 +653,9 @@ export function Home() {
                   </td>
                   <td
                     className="num"
-                    title={`综合分 = 可用性 ${s.availability}×0.62 + 速度 ${s.speed}×0.26 + 稳定性 ${s.consistency}×0.12`}
+                    title={s.rankScore > 0 ? `综合分 = 可用性 ${s.availability}×0.62 + 速度 ${s.speed}×0.26 + 稳定性 ${s.consistency}×0.12` : '暂无评分：探针样本不足，先看可用率'}
                   >
-                    <b className="score">{s.rankScore.toFixed(1)}</b>
+                    <b className={`score ${s.rankScore > 0 ? '' : 'dim'}`}>{s.rankScore > 0 ? s.rankScore.toFixed(1) : '未评分'}</b>
                   </td>
                   <td>
                     <div className="avail" title={`可用性指数 ${s.availability.toFixed(1)}（排名用，含平滑）`}>
@@ -656,7 +663,7 @@ export function Home() {
                       <UptimeBars data={s.uptime} />
                     </div>
                   </td>
-                  <td className="num hide-sm mono dim">{s.speed.toFixed(0)}</td>
+                  <td className="num hide-sm mono dim">{s.rankScore > 0 ? s.speed.toFixed(0) : '—'}</td>
                   <td><TierBadge tier={s.purityTier} score={s.purity} /></td>
                   <td className="num hide-sm mono dim">{s.modelsCount}</td>
                   <td className="num">
@@ -688,7 +695,7 @@ export function Home() {
                     <b>{s.name}</b>
                     <small className="mono">{s.domain}</small>
                   </div>
-                  <span className="sc-score mono">{s.rankScore.toFixed(1)}<small>分</small></span>
+                  <span className={`sc-score mono ${s.rankScore > 0 ? '' : 'dim'}`}>{s.rankScore > 0 ? s.rankScore.toFixed(1) : '未评分'}<small>{s.rankScore > 0 ? '分' : ''}</small></span>
                 </div>
                 <div className="sc-row2">
                   <TierBadge tier={s.purityTier} score={s.purity} />
@@ -738,9 +745,9 @@ export function Home() {
               value={jump}
               onChange={(e) => setJump(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); jumpToRank(); } }}
-              aria-label="跳到第几名"
+              aria-label={sort === 'rank' ? '跳到第几名' : '跳到第几行'}
             />
-            名
+            {sort === 'rank' ? '名' : '行'}
           </label>
           <span className="foot-time">{meta ? new Date(meta.dataUpdatedAt).toLocaleString('zh-CN', { hour12: false }) : '—'}</span>
         </div>
