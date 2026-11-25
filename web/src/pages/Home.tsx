@@ -390,8 +390,10 @@ export function Home() {
       </section>
 
       {changes.length > 0 && (
-        <div className="live-strip" aria-label="最近变更" data-anim-scope>
-          <span className="live-strip-label"><i className="live-dot" />LIVE</span>
+        <div className="live-strip" aria-label={meta?.demo ? '示例变更' : '最近变更'} data-anim-scope>
+          <span className={`live-strip-label ${meta?.demo ? 'demo' : ''}`}>
+            <i className="live-dot" />{meta?.demo ? '示例变更' : 'LIVE'}
+          </span>
           <div className="live-strip-viewport">
             <div className="live-strip-track">
               {[...changes, ...changes].map((c, i) => (
@@ -437,7 +439,8 @@ export function Home() {
               <span className="chip-count">{serviceCounts[k] ?? 0}</span>
             </button>
           ))}
-          <span className="chip-sep" />
+        </div>
+        <div className="toolbar-right">
           <label className="chip-select">
             <span className="dim">纯度</span>
             <select value={tier} onChange={(e) => setTier(e.target.value)} aria-label="按纯度筛选">
@@ -446,8 +449,6 @@ export function Home() {
               ))}
             </select>
           </label>
-        </div>
-        <div className="toolbar-right">
           <button className={`chip ${onlyWatch ? 'on' : ''}`} aria-pressed={onlyWatch} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
           </button>
