@@ -30,7 +30,15 @@ export function KeyCheck() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const url = normalizeUrl(baseUrl);
-    const nextUrlError = /^https?:\/\/[^\s/]+/i.test(url) ? '' : '接口地址需要是完整网址，例如 https://api.example.com/v1';
+    let parsed: URL | null = null;
+    try {
+      parsed = new URL(url);
+    } catch {
+      parsed = null;
+    }
+    const nextUrlError = parsed && parsed.hostname.includes('.') && !/\s/.test(parsed.hostname)
+      ? ''
+      : '地址无效：需要 https://域名/v1';
     const nextKeyError = key.trim() ? '' : '请粘贴一个可随时吊销的临时 Key';
     setUrlError(nextUrlError);
     setKeyError(nextKeyError);
@@ -50,6 +58,8 @@ export function KeyCheck() {
       if (msg.includes('401') || msg.includes('403')) text = `Key 被 ${h} 拒绝：检查是否复制完整或已过期`;
       else if (msg.includes('429')) text = `${h} 返回限流（429），稍后再试`;
       else if (/fetch|network|failed/i.test(msg)) text = `无法连接 ${h}：检查地址、网络或站点状态`;
+      else if (/invalid baseUrl|parse/i.test(msg)) text = '地址无效或站点不可达，请检查后重试';
+      else text = '检测失败，请检查地址或稍后再试';
       setResult({ ok: false, text });
     } finally {
       setLoading(false);
@@ -103,7 +113,7 @@ export function KeyCheck() {
         <button className="btn btn-primary" disabled={loading}>{loading ? '检测中…' : '开始检测'}</button>
       </div>
       <p className="kc-dest mono" role="status">
-        {host ? <>将用你的 Key 向 <b>{host}</b> 发起 1 次只读请求（拉取模型列表）</> : '填写接口地址后，这里会显示请求发往哪个站点'}
+        {host ? <>将用你的 Key 向 <b>{host}</b> 发起 1 次只读请求（拉取模型列表）</> : baseUrl.trim() ? '地址格式无法解析' : '填写接口地址后，这里会显示请求发往哪个站点'}
       </p>
       {result && (
         <p className={`kc-result ${result.ok ? 'ok' : 'err'}`} role="status">

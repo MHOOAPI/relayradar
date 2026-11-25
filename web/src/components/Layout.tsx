@@ -39,6 +39,7 @@ export function Layout() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -70,6 +71,7 @@ export function Layout() {
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
+      menuBtnRef.current?.focus();
     };
   }, [menuOpen]);
 
@@ -216,6 +218,7 @@ export function Layout() {
             className="menu-btn"
             aria-label="打开菜单"
             aria-expanded={menuOpen}
+            ref={menuBtnRef}
             onClick={() => setMenuOpen((v) => !v)}
           >
             <span /><span /><span />
@@ -325,7 +328,6 @@ export function Layout() {
             <h3>声明</h3>
             <Link to="/methodology">评分方法</Link>
             <a href="https://github.com/MHOOAPI/relayradar/issues" target="_blank" rel="noreferrer noopener">数据纠错</a>
-            <span>不构成购买建议</span>
             <span>不构成购买建议</span>
           </div>
         </div>

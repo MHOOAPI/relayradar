@@ -512,3 +512,6 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
   mask-image: linear-gradient(90deg, #000 94%, transparent);
 }
 .home-anomaly-note { margin: 6px 0 0; color: var(--text-3); }
+/* unscored stations read as pending, not as zero */
+.score.dim, .sc-score.dim { color: var(--text-3); font-weight: 500; font-size: 11.5px; }
+#ranking .panel-head h2 { font-size: 18px; }

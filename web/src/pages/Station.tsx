@@ -175,6 +175,7 @@ export function StationPage() {
   }
 
   const { station: s, groups, models, reviews } = data;
+  const hasScore = s.rankScore > 0;
   const comparePeers = (() => {
     const svc = new Set(groups.map((g) => g.service));
     const peers = allStations
@@ -215,7 +216,9 @@ export function StationPage() {
   const faq = [
     {
       q: `${s.name} 的综合分是怎么算的？`,
-      a: `综合分 ${s.rankScore.toFixed(1)} = 0.62 × 可用性 + 0.26 × 速度 + 0.12 × 稳定性。可用性取 Wilson 95% 置信下界，速度由延迟中位数映射，稳定性衡量 p95/p50 抖动；纯度与价格单独展示，不参与排名。`,
+      a: hasScore
+        ? `综合分 ${s.rankScore.toFixed(1)} = 0.62 × 可用性 + 0.26 × 速度 + 0.12 × 稳定性。可用性取 Wilson 95% 置信下界，速度由延迟中位数映射，稳定性衡量 p95/p50 抖动；纯度与价格单独展示，不参与排名。`
+        : '该站暂无可复算综合分：探针样本不足或暂无参与计分的分组。可用率、价格与分组数据仍可参考，评分方法见 /methodology。',
     },
     {
       q: `${s.name} 支持哪些模型？`,
@@ -257,7 +260,7 @@ export function StationPage() {
           <div>
             <div className="detail-title">
               <h1>{s.name}</h1>
-              {s.rank > 0 && <span className="rank-pill mono">#{s.rank}</span>}
+              {s.rank > 0 && hasScore ? <span className="rank-pill mono">#{s.rank}</span> : <span className="rank-pill mono dim">未评分</span>}
               {s.claimed && <span className="badge-ok">✓ 已认领</span>}
               {s.purityTier === 'counterfeit' && <span className="badge-bad">抽检异常</span>}
               <WatchStar slug={s.slug} size={16} />
@@ -325,13 +328,13 @@ export function StationPage() {
           <div className="scorecard" key={c.label}>
             <span className="label">{c.label}</span>
             <b className="big">
-              {c.value.toFixed(1)}
+              {hasScore ? c.value.toFixed(1) : '—'}
               {c.label === '综合分' && s.scoreMargin > 0 && (
                 <small className="ci" title="95% 置信区间，仅统计可用性抽样误差；速度与稳定性为点估计">±{s.scoreMargin.toFixed(1)}</small>
               )}
             </b>
-            <small>{c.note}</small>
-            <span className="mini-meter"><i style={{ width: `${Math.max(0, Math.min(100, c.value))}%` }} /></span>
+            <small>{hasScore ? c.note : c.label === '综合分' ? '暂无评分 · 探针样本不足' : `原始 ${s.uptimePct.toFixed(1)}%`}</small>
+            <span className="mini-meter"><i style={{ width: `${hasScore ? Math.max(0, Math.min(100, c.value)) : 0}%` }} /></span>
           </div>
         ))}
         <div className="scorecard">
@@ -352,7 +355,12 @@ export function StationPage() {
             {s.samples} 条探针 · {s.scoredGroups}/{s.groupsCount} 个分组计分
           </span>
         </div>
-        <div className="breakdown-rows">
+        {!hasScore && (
+          <p className="fine" style={{ padding: '0 2px 8px' }}>
+            该站暂无综合分：探针样本不足或暂无参与计分的分组。可用率、价格与分组数据仍可参考。
+          </p>
+        )}
+        <div className="breakdown-rows" style={hasScore ? undefined : { display: 'none' }}>
           {[
             ['可用性', s.availability, 0.62],
             ['速度', s.speed, 0.26],
@@ -848,7 +856,7 @@ export function StationPage() {
         <dl className="source-grid">
           <div><dt>价格</dt><dd>站点公开价格页，按最便宜分组折算为人民币</dd></div>
           <div><dt>探针</dt><dd>{s.samples} 次样本 · 最近{ s.reachability?.checkedAt ? ` ${new Date(s.reachability.checkedAt).toLocaleString('zh-CN', { hour12: false })}` : '未记录'}</dd></div>
-          <div><dt>评分</dt><dd>{s.scoredGroups} 个分组参与 · 综合分 {s.rankScore.toFixed(1)}</dd></div>
+          <div><dt>评分</dt><dd>{hasScore ? `${s.scoredGroups} 个分组参与 · 综合分 ${s.rankScore.toFixed(1)}` : '暂无评分 · 探针样本不足'}</dd></div>
           <div><dt>评价</dt><dd>{s.reviewsCount} 条人工反馈，不参与评分</dd></div>
         </dl>
         <p className="fine">演示数据集：示例生成值，不代表真实商家表现；正式部署后随探针与价格快照刷新。</p>
@@ -878,7 +886,7 @@ export function StationPage() {
                     <span className="mono dim">#{n.rank}</span>
                   </div>
                   <div className="rc-meta mono dim">
-                    综合分 {n.rankScore.toFixed(1)} · {n.services.map(serviceLabel).join(' / ')}
+                    综合分 {n.rankScore > 0 ? n.rankScore.toFixed(1) : '未评分'} · {n.services.map(serviceLabel).join(' / ')}
                   </div>
                   <div className="rc-price mono">
                     {fmtCny(n.fromPriceCny)}<span className="dim"> /M</span>
@@ -912,7 +920,7 @@ export function StationPage() {
                   <b>{n.name}</b>
                   <span className="mono dim">#{n.rank}</span>
                 </div>
-                <div className="rc-meta mono dim">综合分 {n.rankScore.toFixed(1)} · {n.modelsCount} 个模型</div>
+                <div className="rc-meta mono dim">综合分 {n.rankScore > 0 ? n.rankScore.toFixed(1) : '未评分'} · {n.modelsCount} 个模型</div>
                 <div className="rc-price mono">{n.fromPriceCny >= 0 ? fmtCny(n.fromPriceCny) : '—'}</div>
               </Link>
             ))}
