@@ -329,7 +329,7 @@ export function StationPage() {
             <span className="label">{c.label}</span>
             <b className="big">
               {hasScore ? c.value.toFixed(1) : '—'}
-              {c.label === '综合分' && s.scoreMargin > 0 && (
+              {c.label === '综合分' && hasScore && s.scoreMargin > 0 && (
                 <small className="ci" title="95% 置信区间，仅统计可用性抽样误差；速度与稳定性为点估计">±{s.scoreMargin.toFixed(1)}</small>
               )}
             </b>
