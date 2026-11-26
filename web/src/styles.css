@@ -1849,5 +1849,5 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
   border-radius: 9px; border: 1px solid var(--line);
   background: #070b0f; margin-bottom: 16px;
 }
-.nf-art { display: block; width: 190px; height: 190px; margin: -6px auto 10px; opacity: .95; }
+.nf-art { display: block; width: 215px; height: 215px; margin: -6px auto 10px; opacity: .95; }
 .guide-card { overflow: hidden; }
