@@ -1836,3 +1836,10 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
 }
 .skip-link:focus, .skip-link:focus-visible { top: 12px; }
 .route-fade:focus { outline: none; }
+/* directory cells keep short labels on one line */
+.dir-table td, .dir-table th { white-space: nowrap; }
+/* tablet: drop header search instead of overflowing the viewport */
+@media (min-width: 761px) and (max-width: 900px) {
+  .header-actions .search { display: none; }
+  .header-actions { gap: 8px; }
+}

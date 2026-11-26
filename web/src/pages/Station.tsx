@@ -328,13 +328,13 @@ export function StationPage() {
           <div className="scorecard" key={c.label}>
             <span className="label">{c.label}</span>
             <b className="big">
-              {hasScore ? c.value.toFixed(1) : '—'}
+              {c.value > 0 ? c.value.toFixed(1) : '—'}
               {c.label === '综合分' && hasScore && s.scoreMargin > 0 && (
                 <small className="ci" title="95% 置信区间，仅统计可用性抽样误差；速度与稳定性为点估计">±{s.scoreMargin.toFixed(1)}</small>
               )}
             </b>
             <small>{hasScore ? c.note : c.label === '综合分' ? '暂无评分 · 探针样本不足' : `原始 ${s.uptimePct.toFixed(1)}%`}</small>
-            <span className="mini-meter"><i style={{ width: `${hasScore ? Math.max(0, Math.min(100, c.value)) : 0}%` }} /></span>
+            <span className="mini-meter"><i style={{ width: `${Math.max(0, Math.min(100, c.value))}%` }} /></span>
           </div>
         ))}
         <div className="scorecard">
