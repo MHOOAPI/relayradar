@@ -10,7 +10,7 @@ func TestIsAssetPath(t *testing.T) {
 		"/assets/index-Duj2iNfp.css":         true,
 		"/favicon.svg":                       true,
 		"/share/station-aihubmix.png":        true,
-		"/og.png":                            true,
+		"/og.jpg":                            true,
 		"/models/openai--gpt-5.4":            false,
 		"/models/anthropic--claude-opus-4.1": false,
 		"/models/gemini-3.1-flash-image":     false,
