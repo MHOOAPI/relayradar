@@ -84,6 +84,42 @@
           "unit": "text"
         },
         {
+          "name": "claude-fable-5",
+          "priceCnyIn": 3.45,
+          "priceCnyOut": 17.25,
+          "unit": "text"
+        },
+        {
+          "name": "claude-fable-5-1",
+          "priceCnyIn": 3.45,
+          "priceCnyOut": 17.25,
+          "unit": "text"
+        },
+        {
+          "name": "claude-opus-5",
+          "priceCnyIn": 1.73,
+          "priceCnyOut": 8.63,
+          "unit": "text"
+        },
+        {
+          "name": "claude-opus-5-5",
+          "priceCnyIn": 1.38,
+          "priceCnyOut": 6.9,
+          "unit": "text"
+        },
+        {
+          "name": "claude-sonnet-5",
+          "priceCnyIn": 1.04,
+          "priceCnyOut": 5.18,
+          "unit": "text"
+        },
+        {
+          "name": "claude-sonnet-5-5",
+          "priceCnyIn": 0.69,
+          "priceCnyOut": 3.45,
+          "unit": "text"
+        },
+        {
           "name": "deepseek-v4.1-flash",
           "priceCnyIn": 0.8,
           "priceCnyOut": 3.2,
@@ -123,6 +159,18 @@
           "name": "gemini-4-argon",
           "priceCnyIn": 0.8,
           "priceCnyOut": 3.8,
+          "unit": "text"
+        },
+        {
+          "name": "glm-5.3",
+          "priceCnyIn": 0.88,
+          "priceCnyOut": 3,
+          "unit": "text"
+        },
+        {
+          "name": "glm-5.3-flash",
+          "priceCnyIn": 0.11,
+          "priceCnyOut": 0.37,
           "unit": "text"
         },
         {
