@@ -28,7 +28,7 @@ export function LeaderboardsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([api.models(), api.stations()])
+    Promise.all([api.models(), api.stations(1000)])
       .then(([m, s]) => {
         setModels(m.items);
         setStations(s.items);

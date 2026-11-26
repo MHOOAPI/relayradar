@@ -623,9 +623,30 @@ func build(snap *store.Snapshot, faviconProxy bool) *Dataset {
 		relays = append(relays, st)
 	}
 	d.Stations = relays
-	for _, v := range stationByID {
-		cp := *v
-		d.BySlug[v.Slug] = &cp
+	// Ranks must follow the scores we actually serve: scored stations are ranked
+	// 1..n by score, unscored stations carry rank 0 instead of a stale position.
+	sort.SliceStable(d.Stations, func(i, j int) bool {
+		a, b := d.Stations[i], d.Stations[j]
+		if (a.RankScore > 0) != (b.RankScore > 0) {
+			return a.RankScore > 0
+		}
+		if a.RankScore != b.RankScore {
+			return a.RankScore > b.RankScore
+		}
+		return a.Name < b.Name
+	})
+	rank = 0
+	for i := range d.Stations {
+		if d.Stations[i].RankScore > 0 {
+			rank++
+			d.Stations[i].Rank = rank
+		} else {
+			d.Stations[i].Rank = 0
+		}
+	}
+	for i := range d.Stations {
+		cp := d.Stations[i]
+		d.BySlug[cp.Slug] = &cp
 	}
 	for slug := range d.GroupsByStation {
 		gs := d.GroupsByStation[slug]
