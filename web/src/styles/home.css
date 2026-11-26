@@ -542,3 +542,7 @@ tr:hover .row-compare, .row-compare:focus-visible { opacity: 1; }
 .home .trust-strip { margin-top: 20px; }
 .live-strip { margin: 6px 0 16px; }
 .home-steps { margin: 20px 0 18px; }
+/* avoid Chromium sticky-thead mispaint in the tablet band */
+@media (min-width: 761px) and (max-width: 899px) {
+  .home-table thead th { position: static; }
+}

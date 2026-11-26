@@ -119,6 +119,7 @@ export function Layout() {
       <div className="atmosphere" aria-hidden="true">
         <span className="atm-grain" />
       </div>
+      <a className="skip-link" href="#main-content">跳到主要内容</a>
       <div className="topbar">
         <div className="wrap topbar-inner">
           <div className="topbar-left">
@@ -283,7 +284,7 @@ export function Layout() {
       })()}
 
       <Suspense fallback={<div className="wrap loading-page"><Spinner /> 正在加载…</div>}>
-        <div className="route-fade" key={pathname}>
+        <div className="route-fade" id="main-content" tabIndex={-1} key={pathname}>
           <Outlet />
         </div>
       </Suspense>
