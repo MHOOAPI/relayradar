@@ -474,21 +474,6 @@ export function Home() {
         </div>
       )}
 
-      <section className="home-steps">
-        {[
-          meta?.demo
-            ? ['演示数据集', '探针、评分与价格为示例值；评分方法与真实部署一致。']
-            : ['每 2 小时真实探针', '可用性、p50/p95 延迟、思考签名抽检，全部来自连续探测。'],
-          ['评分只认数据', 'Wilson 下界 + 覆盖加权，赞助位与广告不参与排名。'],
-          ['选站、比价、告警', '目录看覆盖与支付，模型页比价，变更可订阅。'],
-        ].map(([title, desc]) => (
-          <div key={title} className="home-step">
-            <b>{title}</b>
-            <p>{desc}</p>
-          </div>
-        ))}
-      </section>
-
       <div className="ranking-scope">
         <div className="toolbar" ref={toolbarRef}>
         <div className="chips" ref={chipsRef}>
@@ -806,6 +791,21 @@ export function Home() {
           })}
           {models.length === 0 && <p className="fine">加载模型报价中…</p>}
         </div>
+      </section>
+
+      <section className="home-steps">
+        {[
+          meta?.demo
+            ? ['演示数据集', '探针、评分与价格为示例值；评分方法与真实部署一致。']
+            : ['每 2 小时真实探针', '可用性、p50/p95 延迟、思考签名抽检，全部来自连续探测。'],
+          ['评分只认数据', 'Wilson 下界 + 覆盖加权，赞助位与广告不参与排名。'],
+          ['选站、比价、告警', '目录看覆盖与支付，模型页比价，变更可订阅。'],
+        ].map(([title, desc]) => (
+          <div key={title} className="home-step">
+            <b>{title}</b>
+            <p>{desc}</p>
+          </div>
+        ))}
       </section>
 
       <section className="home-section">
