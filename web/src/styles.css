@@ -1827,3 +1827,12 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
 .mm-group-label { display: block; margin: 14px 0 4px; font-size: 10.5px; letter-spacing: .08em; color: var(--text-3); }
 .mm-group-label:first-child { margin-top: 0; }
 @media (max-width: 760px) { .section-nav { top: 57px; } }
+/* keyboard skip link */
+.skip-link {
+  position: fixed; top: -48px; left: 16px; z-index: 200;
+  padding: 10px 14px; border-radius: 8px;
+  background: var(--accent); color: #04120c; font-size: 13px; font-weight: 650;
+  text-decoration: none; transition: top .12s ease;
+}
+.skip-link:focus, .skip-link:focus-visible { top: 12px; }
+.route-fade:focus { outline: none; }
