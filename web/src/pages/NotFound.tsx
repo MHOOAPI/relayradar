@@ -15,6 +15,7 @@ export function NotFoundPage() {
   return (
     <main className="wrap">
       <div className="notfound">
+        <img className="nf-art" src="/img/notfound.webp" alt="" width={180} height={180} />
         <span className="mono dim">404</span>
         <h1>页面不存在</h1>
         <p className="sub">链接可能已失效，或者这个地址还没有内容。直接搜站点，或回到榜单。</p>

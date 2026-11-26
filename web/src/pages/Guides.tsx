@@ -30,6 +30,7 @@ export function GuidesPage() {
       <div className="guide-grid">
         {items?.map((g, i) => (
           <article key={g.slug} className="panel guide-card">
+            <img className="guide-cover" src={`/img/guides/guide-${(i % 3) + 1}.webp`} alt="" loading="lazy" decoding="async" />
             <span className="mono dim tiny">0{i + 1} · {g.minutes} 分钟</span>
             <h2><Link to={`/guides/${g.slug}`}>{g.title}</Link></h2>
             <p>{g.desc}</p>

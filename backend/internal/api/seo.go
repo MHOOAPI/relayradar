@@ -674,7 +674,7 @@ func injectMeta(index []byte, m pageMeta, base string) []byte {
 			blocks = append(blocks, string(b))
 		}
 	}
-	og := html.EscapeString(base) + "/og.png"
+	og := html.EscapeString(base) + "/og.jpg"
 	if m.Image != "" {
 		og = html.EscapeString(base) + m.Image
 	}

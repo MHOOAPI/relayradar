@@ -1843,3 +1843,11 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
   .header-actions .search { display: none; }
   .header-actions { gap: 8px; }
 }
+/* guide covers + 404 art */
+.guide-cover {
+  width: 100%; aspect-ratio: 16 / 9; display: block; object-fit: cover;
+  border-radius: 9px; border: 1px solid var(--line);
+  background: #070b0f; margin-bottom: 16px;
+}
+.nf-art { display: block; width: 190px; height: 190px; margin: -6px auto 10px; opacity: .95; }
+.guide-card { overflow: hidden; }
