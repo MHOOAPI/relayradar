@@ -131,7 +131,7 @@ export function StationPage() {
   }, [slug]);
 
   useEffect(() => {
-    api.stations(300).then((r) => setAllStations(r.items)).catch(() => setAllStations([]));
+    api.stations(1000).then((r) => setAllStations(r.items)).catch(() => setAllStations([]));
   }, []);
 
   const copy = (text: string) => {
@@ -333,7 +333,7 @@ export function StationPage() {
                 <small className="ci" title="95% 置信区间，仅统计可用性抽样误差；速度与稳定性为点估计">±{s.scoreMargin.toFixed(1)}</small>
               )}
             </b>
-            <small>{hasScore ? c.note : c.label === '综合分' ? '暂无评分 · 探针样本不足' : `原始 ${s.uptimePct.toFixed(1)}%`}</small>
+            <small>{hasScore ? c.note : c.label === '综合分' ? '暂无评分 · 探针样本不足' : c.label === '可用性分' ? `原始 ${s.uptimePct.toFixed(1)}% · 全站历史` : '暂无评分'}</small>
             <span className="mini-meter"><i style={{ width: `${Math.max(0, Math.min(100, c.value))}%` }} /></span>
           </div>
         ))}

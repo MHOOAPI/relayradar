@@ -70,6 +70,7 @@ export function Home() {
   });
   const [q, setQ] = useState(params.get('q') ?? '');
   const [onlyWatch, setOnlyWatch] = useState(params.get('watch') === '1');
+  const [scoredOnly, setScoredOnly] = useState(false);
   const { push } = useToast();
   const [copied, setCopied] = useState(false);
   const [menuCopied, setMenuCopied] = useState(false);
@@ -242,6 +243,7 @@ export function Home() {
       if (service !== 'all' && !s.services.includes(service)) return false;
       if (tier !== 'all' && s.purityTier !== tier) return false;
       if (onlyWatch && !watched.includes(s.slug)) return false;
+      if (scoredOnly && s.rankScore === 0) return false;
       return true;
     });
     list = [...list];
@@ -252,13 +254,15 @@ export function Home() {
     else if (sort === 'watched') list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1) || a.rank - b.rank);
     else list.sort((a, b) => a.rank - b.rank);
     return list;
-  }, [stations, service, tier, sort, q, onlyWatch, watched]);
+  }, [stations, service, tier, sort, q, onlyWatch, watched, scoredOnly]);
 
   const [visible, setVisible] = useState(() => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 15 : 50));
   const pageSize = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 30 : 50);
   useEffect(() => setVisible(pageSize()), [q, service, tier, sort, onlyWatch]);
   const shown = rows.slice(0, visible);
   const unscoredCount = rows.filter((s) => s.rankScore === 0).length;
+  const priceText = (v: number) => (v > 0 && v < 0.1 ? `¥${v.toFixed(3)}` : fmtCny(v));
+
   const [jump, setJump] = useState('');
   const jumpToRank = () => {
     const n = Math.max(1, Math.min(rows.length, Number(jump) || 0));
@@ -343,7 +347,7 @@ export function Home() {
     <main className="wrap home">
       <section className="hero" ref={heroRef} data-anim-scope>
         <span className="hero-scan" aria-hidden="true"><i /></span>
-        <div className="hero-radar" role="group" aria-label="最近探测雷达：距离为延迟、颜色为纯度，点击圆点打开站点" ref={radarRef}>
+        <div className="hero-radar" aria-hidden="true" ref={radarRef}>
           <span className="radar-inner" ref={radarInnerRef}>
             <span className="hr-ring r1" />
             <span className="hr-ring r2" />
@@ -358,13 +362,11 @@ export function Home() {
             <span className="hr-sweep" />
             {radarPoints.length > 0 ? (
               radarPoints.map((b) => (
-                <Link
+                <span
                   key={b.slug}
-                  to={`/stations/${b.slug}`}
                   className={`hr-blip ${b.tone}`}
                   style={{ left: `${b.left}%`, top: `${b.top}%` }}
                   title={`${b.name} · ${b.latency}ms`}
-                  aria-label={`${b.name}，延迟 ${b.latency} 毫秒`}
                 />
               ))
             ) : (
@@ -508,6 +510,9 @@ export function Home() {
           </label>
           <button className={`chip ${onlyWatch ? 'on' : ''}`} aria-pressed={onlyWatch} onClick={() => setOnlyWatch((v) => !v)}>
             ★ 关注 {watched.length}
+          </button>
+          <button className={`chip ${scoredOnly ? 'on' : ''}`} aria-pressed={scoredOnly} onClick={() => setScoredOnly((v) => !v)}>
+            仅已评分
           </button>
           <div className="search">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -674,7 +679,7 @@ export function Home() {
                   <td><TierBadge tier={s.purityTier} score={s.purity} /></td>
                   <td className="num hide-sm mono dim">{s.modelsCount}</td>
                   <td className="num">
-                    <span className="price">{fmtCny(s.fromPriceCny)}</span>
+                    <span className="price">{priceText(s.fromPriceCny)}</span>
                     <small className="per">/M</small>
                   </td>
                   <td className="col-go"><Arrow /></td>
@@ -708,7 +713,7 @@ export function Home() {
                   <TierBadge tier={s.purityTier} score={s.purity} />
                   <span className="sc-uptime mono">{s.uptimePct.toFixed(1)}%</span>
                   <UptimeBars data={s.uptime} width={3} />
-                  <span className="sc-price mono">{fmtCny(s.fromPriceCny)}<small>/M</small></span>
+                  <span className="sc-price mono">{priceText(s.fromPriceCny)}<small>/M</small></span>
                 </div>
                 <div className="sc-services">
                   {s.services.slice(0, 3).map((sv) => (
@@ -794,7 +799,7 @@ export function Home() {
                 <div className="hmc-price">{fmtCny(m.minInputCny)}<small>/M 输入</small></div>
                 <div className="hmc-meta mono" title={officialCny > 0 ? '官方价 × 7.2 与本站最低价的比值；差异大时请核对分组倍率' : undefined}>
                   {m.offersCount} 站报价
-                  {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)} → ${pct.toFixed(1)}%` : ''}
+                  {officialCny > 0 ? ` · 官方 ¥${officialCny.toFixed(1)} · 为官方价 ${pct.toFixed(1)}%` : ''}
                 </div>
               </Link>
             );

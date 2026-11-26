@@ -259,7 +259,7 @@ export function LeaderboardsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="num"><b className="score">{(tab === 'speed' ? s.speed : s.consistency).toFixed(0)}</b></td>
+                    <td className="num"><b className="score">{(tab === 'speed' ? s.speed : s.consistency) > 0 ? (tab === 'speed' ? s.speed : s.consistency).toFixed(0) : '—'}</b></td>
                     <td>
                       <div className="avail">
                         <span className="mono">{s.uptimePct.toFixed(1)}%</span>
@@ -287,7 +287,7 @@ export function LeaderboardsPage() {
                   <small>{s.uptimePct.toFixed(1)}% · {s.purityTier === 'official' ? '官方直达' : s.purityTier === 'mixed' ? '混合' : '疑似掺假'}</small>
                 </div>
                 <div className="lb-metric">
-                  <b className="mono">{(tab === 'speed' ? s.speed : s.consistency).toFixed(0)}</b>
+                  <b className="mono">{(tab === 'speed' ? s.speed : s.consistency) > 0 ? (tab === 'speed' ? s.speed : s.consistency).toFixed(0) : '—'}</b>
                   <small>{fmtCny(s.fromPriceCny)}</small>
                 </div>
               </Link>
