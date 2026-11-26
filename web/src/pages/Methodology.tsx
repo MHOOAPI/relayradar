@@ -91,7 +91,7 @@ score(station) = 0.62·A + 0.26·S + 0.12·C`}</pre>
       </section>
 
       <section className="panel pad">
-        <h2>3. 准入、排名与并列</h2>
+        <h2 id="admission">3. 准入、排名与并列</h2>
         <ul className="limits">
           <li>分组在 7 天窗口内至少 <b>24 条</b>探针才计分；不足的分组在详情页标注「样本不足」。</li>
           <li>站点至少 <b>一半</b>的分组计分才进入榜单，否则进入「未排名」区。</li>

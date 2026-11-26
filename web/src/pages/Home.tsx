@@ -251,8 +251,8 @@ export function Home() {
     else if (sort === 'speed') list.sort((a, b) => b.speed - a.speed);
     else if (sort === 'price') list.sort((a, b) => (a.fromPriceCny < 0 ? 1 : b.fromPriceCny < 0 ? -1 : a.fromPriceCny - b.fromPriceCny));
     else if (sort === 'models') list.sort((a, b) => b.modelsCount - a.modelsCount);
-    else if (sort === 'watched') list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1) || a.rank - b.rank);
-    else list.sort((a, b) => a.rank - b.rank);
+    else if (sort === 'watched') list.sort((a, b) => (watched.includes(a.slug) ? 0 : 1) - (watched.includes(b.slug) ? 0 : 1) || (a.rank || 9999) - (b.rank || 9999));
+    else list.sort((a, b) => (a.rank || 9999) - (b.rank || 9999) || b.uptimePct - a.uptimePct);
     return list;
   }, [stations, service, tier, sort, q, onlyWatch, watched, scoredOnly]);
 
@@ -524,7 +524,7 @@ export function Home() {
             <p className="sub">
               共 {stations?.length ?? 0} 家 · 当前 {rows.length} 家
               {rows.length > shown.length ? `（显示前 ${shown.length}）` : ''}
-              {unscoredCount > 0 ? ` · ${unscoredCount} 家未评分` : ''}
+              {unscoredCount > 0 ? <> · <Link className="sub-link" to="/methodology#admission">{unscoredCount} 家未评分</Link></> : ''}
               <span className="head-hint"> · 点击行查看分组与完整支持模型</span>
             </p>
           </div>
