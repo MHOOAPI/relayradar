@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.22**（「仅已评分」筛选、雷达回归装饰不再占 Tab、排行榜速度未知显示 —、价格 <¥0.1 三位小数、站点/模型文案与全量 526）
+- 版本：**v0.3.23**（步骤带移到榜单之后，首行 981 → 898，1440×900 首屏可见第一条数据）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
