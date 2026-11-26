@@ -343,7 +343,7 @@ export function Home() {
     <main className="wrap home">
       <section className="hero" ref={heroRef} data-anim-scope>
         <span className="hero-scan" aria-hidden="true"><i /></span>
-        <div className="hero-radar" aria-hidden="true" ref={radarRef}>
+        <div className="hero-radar" role="group" aria-label="最近探测雷达：距离为延迟、颜色为纯度，点击圆点打开站点" ref={radarRef}>
           <span className="radar-inner" ref={radarInnerRef}>
             <span className="hr-ring r1" />
             <span className="hr-ring r2" />
@@ -358,7 +358,14 @@ export function Home() {
             <span className="hr-sweep" />
             {radarPoints.length > 0 ? (
               radarPoints.map((b) => (
-                <span key={b.slug} className={`hr-blip ${b.tone}`} style={{ left: `${b.left}%`, top: `${b.top}%` }} />
+                <Link
+                  key={b.slug}
+                  to={`/stations/${b.slug}`}
+                  className={`hr-blip ${b.tone}`}
+                  style={{ left: `${b.left}%`, top: `${b.top}%` }}
+                  title={`${b.name} · ${b.latency}ms`}
+                  aria-label={`${b.name}，延迟 ${b.latency} 毫秒`}
+                />
               ))
             ) : (
               <>
