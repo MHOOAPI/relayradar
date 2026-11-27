@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.27**（404 插画加亮并放大到 215px，断线雷达更清晰）
+- 版本：**v0.3.28**（空状态插画：目录无结果、档案无评价，配 92px 仪器缩略图）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

@@ -317,7 +317,12 @@ export function StationsPage() {
                 <tr><td colSpan={9} className="loading"><Spinner /> 加载站点目录…</td></tr>
               )}
               {stations && shown.length === 0 && (
-                <tr><td colSpan={9} className="loading">没有符合条件的站点，试试清除筛选或换一个场景。</td></tr>
+                <tr><td colSpan={9} className="loading">
+                  <div className="empty-state">
+                    <img className="empty-art" src="/img/empty-search.webp" alt="" loading="lazy" />
+                    <span>没有符合条件的站点，试试清除筛选或换一个场景。</span>
+                  </div>
+                </td></tr>
               )}
               {shown.map((s) => {
                 const h = healthOf(s);
@@ -464,7 +469,10 @@ export function StationsPage() {
             );
           })}
           {stations && shown.length === 0 && (
-            <p className="fine" style={{ padding: 16 }}>没有符合条件的站点，试试清除筛选或换一个场景。</p>
+            <div className="empty-state">
+              <img className="empty-art" src="/img/empty-search.webp" alt="" loading="lazy" />
+              <span>没有符合条件的站点，试试清除筛选或换一个场景。</span>
+            </div>
           )}
         </div>
       </section>

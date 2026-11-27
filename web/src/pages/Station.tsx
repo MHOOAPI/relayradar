@@ -799,7 +799,12 @@ export function StationPage() {
                 })}
               </div>
             )}
-            {sortedReviews.length === 0 && <p className="empty">还没有符合条件的评价。</p>}
+            {sortedReviews.length === 0 && (
+              <div className="empty-state">
+                <img className="empty-art" src="/img/empty-reviews.webp" alt="" loading="lazy" />
+                <span>还没有符合条件的评价。</span>
+              </div>
+            )}
             {sortedReviews.map((r) => (
               <article key={r.id} className="review">
                 <div className="review-head">
