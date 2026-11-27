@@ -1851,3 +1851,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); opacity: 1; }
 }
 .nf-art { display: block; width: 215px; height: 215px; margin: -6px auto 10px; opacity: .95; }
 .guide-card { overflow: hidden; }
+/* empty states with a quiet instrument illustration */
+.empty-state { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 24px 16px; text-align: left; }
+.empty-art { width: 92px; height: 92px; flex: none; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); opacity: .9; }
+.empty-state span { color: var(--text-3); font-size: 12.5px; max-width: 320px; line-height: 1.6; }
