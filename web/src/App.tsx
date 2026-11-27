@@ -12,6 +12,7 @@ const ModelsPage = lazy(() => import('./pages/Models').then((m) => ({ default: m
 const ModelPage = lazy(() => import('./pages/ModelPage').then((m) => ({ default: m.ModelPage })));
 const LeaderboardsPage = lazy(() => import('./pages/Leaderboards').then((m) => ({ default: m.LeaderboardsPage })));
 const ComparePage = lazy(() => import('./pages/Compare').then((m) => ({ default: m.ComparePage })));
+const CalculatorPage = lazy(() => import('./pages/Calculator').then((m) => ({ default: m.CalculatorPage })));
 const ChangesPage = lazy(() => import('./pages/Changes').then((m) => ({ default: m.ChangesPage })));
 const FreePage = lazy(() => import('./pages/Free').then((m) => ({ default: m.FreePage })));
 const FreeKeysPage = lazy(() => import('./pages/FreeKeys').then((m) => ({ default: m.FreeKeysPage })));
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="models/:id" element={<ModelPage />} />
             <Route path="leaderboards" element={<LeaderboardsPage />} />
             <Route path="compare" element={<ComparePage />} />
+            <Route path="calculator" element={<CalculatorPage />} />
             <Route path="changes" element={<ChangesPage />} />
             <Route path="free" element={<FreePage />} />
             <Route path="free-api-keys" element={<FreeKeysPage />} />

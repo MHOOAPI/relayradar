@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.31**（monogram 首字母优先取字母，启动后台预热 Top 60 图标）
+- 版本：**v0.3.32**（新功能：/calculator 成本估算器；排版上调 H1 28–34、面板标题 15.5、副文案 12.5）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/
