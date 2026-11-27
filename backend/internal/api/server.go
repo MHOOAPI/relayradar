@@ -277,15 +277,16 @@ func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "station not found")
 		return
 	}
-	data, ctype, ok := s.favicons.Get(r.Context(), st.Domain)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+	data, ctype, ok := s.favicons.Get(ctx, st.Domain)
 	if !ok {
-		// The UI draws its own glyph behind the image, so answer with a
-		// transparent pixel instead of a 404: the icon simply stays invisible
-		// and the directory does not fill the console with failed requests.
-		w.Header().Set("Content-Type", "image/png")
+		// Every station gets a branded monogram when the real favicon cannot be
+		// fetched, so the UI never falls back to a bare letter.
+		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Header().Set("Cache-Control", "public, max-age=3600")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(transparentPNG)
+		_, _ = w.Write(stationMonogram(st.Name))
 		return
 	}
 	w.Header().Set("Content-Type", ctype)
