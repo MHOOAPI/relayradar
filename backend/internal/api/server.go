@@ -77,7 +77,27 @@ func New(svc *app.Service, cfg config.Config, log *slog.Logger) *Server {
 	}
 	s.initCaptcha()
 	s.alerts = newAlertHub(s)
+	go s.prewarmIcons()
 	return s
+}
+
+// prewarmIcons fills the favicon cache for the top of the ranking so the first
+// directory visit is mostly real icons instead of monograms.
+func (s *Server) prewarmIcons() {
+	time.Sleep(5 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	d, err := s.svc.Dataset(ctx)
+	if err != nil {
+		return
+	}
+	domains := make([]string, 0, 60)
+	for i := 0; i < len(d.Stations) && len(domains) < 60; i++ {
+		if d.Stations[i].Domain != "" {
+			domains = append(domains, d.Stations[i].Domain)
+		}
+	}
+	s.favicons.Warm(domains)
 }
 
 func (s *Server) Routes() http.Handler {
@@ -287,7 +307,7 @@ func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Header().Set("Cache-Control", "public, max-age=60")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(stationMonogram(st.Name))
+		_, _ = w.Write(stationMonogram(st.Name, st.Domain))
 		return
 	}
 	w.Header().Set("Content-Type", ctype)
