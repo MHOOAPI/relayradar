@@ -535,6 +535,12 @@ func (s *Server) pageMeta(r *http.Request) (pageMeta, bool) {
 			Desc:      "最多 4 家并排对比可用性、速度、稳定性、纯度与商务条款，链接可分享。",
 			Canonical: base + path,
 		}, true
+	case "/calculator":
+		return pageMeta{
+			Title:     "成本估算器：按月 token 量折算中转站价格 | RelayRadar",
+			Desc:      "选模型、填月输入/输出 token 与缓存命中率，把各中转站报价折算成月成本并排序，链接可分享。",
+			Canonical: base + path,
+		}, true
 	case "/free":
 		return pageMeta{
 			Title:     "免费额度与试用：官方免费层 + 社区共享 Key | RelayRadar",
@@ -747,6 +753,7 @@ func (s *Server) handleSitemap(w http.ResponseWriter, r *http.Request) {
 		add("/guides/"+g.Slug, "monthly", "0.7")
 	}
 	add("/compare", "weekly", "0.6")
+	add("/calculator", "weekly", "0.6")
 	add("/methodology", "monthly", "0.6")
 	add("/api-docs", "monthly", "0.5")
 	for _, st := range d.Stations {
