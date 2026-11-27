@@ -5,7 +5,7 @@
 
 ## 1. 当前线上状态
 
-- 版本：**v0.3.29**（每个站点都有图标：拉取失败时返回品牌首字母 SVG；新增 Google s2 镜像；抓取上限 5s）
+- 版本：**v0.3.30**（图标先回品牌 monogram 再后台补真图，首字节 15–123ms；monogram 缓存 60s 便于升级）
 - 仓库：https://github.com/MHOOAPI/relayradar（public，main 受分支保护）
 - 本地栈：`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`，镜像来自 GHCR
 - 访问：https://localhost/（自签证书）、http://localhost:8088/

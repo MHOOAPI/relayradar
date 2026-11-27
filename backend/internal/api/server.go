@@ -277,14 +277,15 @@ func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "station not found")
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-	data, ctype, ok := s.favicons.Get(ctx, st.Domain)
-	if !ok {
-		// Every station gets a branded monogram when the real favicon cannot be
-		// fetched, so the UI never falls back to a bare letter.
+	// Serve instantly: a cached real icon when available, otherwise the branded
+	// monogram while the real favicon warms in the background.
+	data, ctype, ok, fresh := s.favicons.Cached(st.Domain)
+	if !fresh || !ok {
+		if !fresh {
+			go s.favicons.Ensure(st.Domain)
+		}
 		w.Header().Set("Content-Type", "image/svg+xml")
-		w.Header().Set("Cache-Control", "public, max-age=3600")
+		w.Header().Set("Cache-Control", "public, max-age=60")
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(stationMonogram(st.Name))
 		return

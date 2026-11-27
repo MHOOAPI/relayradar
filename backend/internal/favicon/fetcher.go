@@ -37,8 +37,9 @@ type Fetcher struct {
 	allowLocal bool
 	client     *http.Client
 
-	mu    sync.Mutex
-	cache map[string]entry
+	mu       sync.Mutex
+	cache    map[string]entry
+	inflight map[string]bool
 }
 
 func New(allowLocal bool) *Fetcher { return NewWithProxy(allowLocal, "") }
@@ -68,7 +69,7 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 		}
 	}
 
-	f := &Fetcher{allowLocal: allowLocal, cache: map[string]entry{}}
+	f := &Fetcher{allowLocal: allowLocal, cache: map[string]entry{}, inflight: map[string]bool{}}
 	transport := &http.Transport{
 		DialContext:         dialer.DialContext,
 		TLSHandshakeTimeout: 5 * time.Second,
@@ -91,6 +92,57 @@ func NewWithProxy(allowLocal bool, proxyURL string) *Fetcher {
 		},
 	}
 	return f
+}
+
+// Cached returns a fresh cached result without touching the network. The fourth
+// value reports whether the entry is still fresh; when false the caller should
+// serve a placeholder and call Warm.
+func (f *Fetcher) Cached(domain string) ([]byte, string, bool, bool) {
+	domain = strings.ToLower(strings.TrimSpace(domain))
+	if !domainRe.MatchString(domain) {
+		return nil, "", false, true
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	e, ok := f.cache[domain]
+	if !ok {
+		return nil, "", false, false
+	}
+	ttl := 24 * time.Hour
+	if !e.ok {
+		ttl = time.Hour
+	}
+	if time.Since(e.at) >= ttl {
+		return nil, "", false, false
+	}
+	return e.data, e.ctype, e.ok, true
+}
+
+// Ensure fetches one favicon in the background and stores it in the cache. It is
+// safe to call repeatedly; concurrent calls for one domain collapse.
+func (f *Fetcher) Ensure(domain string) {
+	domain = strings.ToLower(strings.TrimSpace(domain))
+	if !domainRe.MatchString(domain) {
+		return
+	}
+	f.mu.Lock()
+	if f.inflight[domain] {
+		f.mu.Unlock()
+		return
+	}
+	f.inflight[domain] = true
+	f.mu.Unlock()
+	defer func() {
+		f.mu.Lock()
+		delete(f.inflight, domain)
+		f.mu.Unlock()
+	}()
+
+	data, ctype, ok := f.fetch(context.Background(), domain)
+
+	f.mu.Lock()
+	f.cache[domain] = entry{data: data, ctype: ctype, ok: ok, at: time.Now()}
+	f.mu.Unlock()
 }
 
 // Get returns a cached or freshly fetched favicon for domain.
