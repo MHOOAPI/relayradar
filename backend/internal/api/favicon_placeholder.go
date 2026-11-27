@@ -4,16 +4,28 @@ import (
 	"fmt"
 	"html"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
 // stationMonogram renders a compact, brand-consistent fallback icon for
 // stations whose real favicon cannot be fetched. It keeps every station
 // image-bearing instead of exposing a bare initial in the UI.
-func stationMonogram(name string) []byte {
-	name = strings.TrimSpace(name)
+func stationMonogram(name, domain string) []byte {
 	initial := "?"
-	if name != "" {
+	pick := func(v string) (string, bool) {
+		for _, r := range strings.TrimSpace(v) {
+			if unicode.IsLetter(r) {
+				return string(unicode.ToUpper(r)), true
+			}
+		}
+		return "", false
+	}
+	if c, ok := pick(name); ok {
+		initial = c
+	} else if c, ok := pick(domain); ok {
+		initial = c
+	} else if name != "" {
 		r, _ := utf8.DecodeRuneInString(name)
 		initial = string(r)
 	}
