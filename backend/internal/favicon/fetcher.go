@@ -138,9 +138,12 @@ func (f *Fetcher) fetch(ctx context.Context, domain string) ([]byte, string, boo
 			}
 		}
 	}
-	// Last resort: a public icon mirror, so a station blocked to server-side
-	// clients still gets its real icon instead of a generated glyph.
-	return f.get(ctx, fmt.Sprintf(iconService, domain))
+	// Prefer real mirrors before falling back to a generated glyph: DuckDuckGo
+	// first, then Google s2 (one of them usually survives regional blocking).
+	if data, ctype, ok := f.get(ctx, fmt.Sprintf(iconService, domain)); ok {
+		return data, ctype, true
+	}
+	return f.get(ctx, fmt.Sprintf("https://www.google.com/s2/favicons?domain=%s&sz=64", domain))
 }
 
 var (
