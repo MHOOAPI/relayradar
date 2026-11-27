@@ -177,6 +177,7 @@ export function Layout() {
               >
                 <Link to="/changes"><b>变更雷达</b><small>价格、可用率与纯度异常</small></Link>
                 <Link to="/compare"><b>横向对比</b><small>按可用性、价格与纯度并排</small></Link>
+                <Link to="/calculator"><b>成本估算器</b><small>按 token 量折算月成本</small></Link>
                 <Link to="/free"><b>免费额度</b><small>官方免费层与赠送额度</small></Link>
                 <Link to="/submit"><b>提交与认领</b><small>站点提交、DNS 认领</small></Link>
                 <Link to="/guides"><b>指南</b><small>选择、计费与验真</small></Link>
@@ -247,6 +248,7 @@ export function Layout() {
               <Link to="/compare">横向对比</Link>
               <span className="mm-group-label">工具</span>
               <Link to="/audit">接口检测</Link>
+              <Link to="/calculator">成本估算器</Link>
               <Link to="/free-api-keys">免费 API Key</Link>
               <Link to="/free">免费额度</Link>
               <Link to="/api-docs">公开 API</Link>
@@ -307,6 +309,7 @@ export function Layout() {
             <Link to="/models">模型价格</Link>
             <Link to="/leaderboards">排行榜</Link>
             <Link to="/compare">横向对比</Link>
+            <Link to="/calculator">成本估算器</Link>
             <Link to="/changes">变更雷达</Link>
             <Link to="/guides">指南</Link>
           </div>
